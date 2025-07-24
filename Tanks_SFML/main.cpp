@@ -625,7 +625,7 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
 
             sf::Rect<float> tmp_colider_rect = m->spr->getGlobalBounds(); // m->coli->getGlobalBounds();
             //if (current_colider_rect.findIntersection(tmp_colider_rect))
-                if (intersect_nonRot_rect(n->spr, m->spr)) {
+                if (colid_Rotated_rectangles(n->spr, m->spr)) {
                     std::cout << "self_made collide" << "\n";
                 }
                 //sf::RectangleShape test;

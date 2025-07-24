@@ -29,6 +29,4 @@ const sf::Vector2f simple_min_max_projection_distance(const sf::Vector2f& projec
     const Rect_Vertecies R_V);
 
 
-bool intersect_nonRot_rect(sf::Sprite* rect1, sf::Sprite* rect2);
-
 bool colid_Rotated_rectangles(sf::Sprite* rect1, sf::Sprite* rect2);

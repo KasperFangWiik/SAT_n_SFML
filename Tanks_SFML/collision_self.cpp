@@ -50,31 +50,26 @@ Rect_Vertecies get_vertecis_of_rectcol(sf::Sprite* colid_sprite) {
 
 sf::Vector2f* normals_of_rect_withFunk(sf::Sprite* colid_sprite) {
 
-    // behöver jag initializera på detta sätt?
-    sf::Vector2f normals[2] = { sf::Vector2f{}, sf::Vector2f{} };
+    // Function could be generalized to all 
+    sf::Vector2f normals[2] = {};
 
     sf::Vector2f* verteces = get_vertecis_of_rectcol(colid_sprite).vertecis;
     normals[x_axis] = calc_normal_of_lineSegment(verteces[top_left], verteces[top_right]);
     normals[y_axis] = calc_normal_of_lineSegment(verteces[top_right], verteces[down_right]);
 
     return normals;
-    // if we define dx=x2-x1 and dy=y2-y1, then the normals are (-dy, dx) and (dy, -dx)
 }
 
 const sf::Vector2f min_max_projection_distance(const sf::Vector2f& projection_axis,
                                                const Rect_Vertecies& R_V) {
     // dot_product
     float min_distance = R_V.vertecis[0].dot(projection_axis);
-    float max_distance{};
+    float max_distance = R_V.vertecis[1].dot(projection_axis);
+    float tmp_distance{};
 
-    float tmp_distance = R_V.vertecis[1].dot(projection_axis);
-
-
-    if (min_distance >= tmp_distance) {
-        max_distance = min_distance;
-        min_distance = tmp_distance;
-    }
-    else { // if(tmp_distance > min_distance)
+    if (min_distance > max_distance) {
+        tmp_distance = min_distance;
+        min_distance = max_distance;
         max_distance = tmp_distance;
     }
 
@@ -84,11 +79,11 @@ const sf::Vector2f min_max_projection_distance(const sf::Vector2f& projection_ax
         if (min_distance > tmp_distance) {
             min_distance = tmp_distance;
         }
-        else if (max_distance < tmp_distance) {
+        
+        if (max_distance < tmp_distance) {
             max_distance = tmp_distance;
         }
     }
-
 
     return { min_distance, max_distance };
 }
@@ -96,38 +91,44 @@ const sf::Vector2f min_max_projection_distance(const sf::Vector2f& projection_ax
 bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
                             const Rect_Vertecies rect1_vertecis,
                             const Rect_Vertecies rect2_vertecis) {
-    //sf::Vector2f invert = { projection_axis.x, -projection_axis.y };
+
     sf::Vector2f min_max_dist1 = min_max_projection_distance(projection_axis, rect1_vertecis);
     sf::Vector2f min_max_dist2 = min_max_projection_distance(projection_axis, rect2_vertecis);
 
-    /*
-    sf::Vector2f comp_min_max_dist1 = min_max_projection_distance(projection_axis, rect1_vertecis);
-    sf::Vector2f comp_min_max_dist2 = min_max_projection_distance(projection_axis, rect2_vertecis);
-
-    std::cout << "min_max_dist1:" << " { " << min_max_dist1.x << " , " << min_max_dist1.y << " } " << "\n";
-    std::cout << "min_max_dist2:" << " { " << min_max_dist2.x << " , " << min_max_dist2.y << " } " << "\n \n";
-
-    std::cout << "comp_min_max_dist1:" << " { " << comp_min_max_dist1.x << " , " << comp_min_max_dist1.y << " } " << "\n";
-    std::cout << "comp_min_max_dist2:" << " { " << comp_min_max_dist2.x << " , " << comp_min_max_dist2.y << " } " << "\n";
-    std::cout << "----------------------------------------------------------------------- " << "\n";
-    */
 
     float A = min_max_dist1.x;
     float B = min_max_dist1.y;
+    
     float C = min_max_dist2.x;
     float D = min_max_dist2.y;
 
-    // IF A < C AND B > C (Overlap in order object 1-> object 2)
+    //Overlap Test
+    // Points go:
+    //       +-------------+
+    // +-----|-----+     2 |
+    // | 1   |     |       |
+    // |     +-----|-------+
+    // +-----------+
+    // A ----C---- B ----- D
+
+    // how do i calculate the size of the overlap?
+    // should probably
+    // find reference face on A and a incident face on B with normals closesd to the projection_axis
+
+    // IF A < C AND B > C (Overlap in order object 1 -> object 2)
     if (A <= C && B >= C) { // original (A <= C && B >= C)
         // Store the collison data
+        
+        float size_of_overlap = C - B;
 
         return true;
     }
 
-    // IF C < A AND D > A (Overlap in order object 2-> object 1)
+    // IF C < A AND D > A (Overlap in order object 2 -> object 1)
     if (C <= A && D >= A) { // original (C <= A && D >= A)
         // Store the collison data
 
+        float size_of_overlap = C - B;
         return true;
     }
 
@@ -137,7 +138,7 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
 
 
 bool intersect_rect(sf::Sprite* rect1, sf::Sprite* rect2) {
-    //bool collison = true;
+
     sf::Vector2f* normals_rect1 = normals_of_rect_withFunk(rect1);
     Rect_Vertecies vertecis_rect1 = get_vertecis_of_rectcol(rect1);
 
@@ -179,17 +180,15 @@ const sf::Vector2f simple_min_max_projection_distance(const sf::Vector2f& projec
     return { -1, -1 };
 }
 
-bool intersect_nonRot_rect(sf::Sprite* rect1, sf::Sprite* rect2) {
+bool colid_Rotated_rectangles(sf::Sprite* rect1, sf::Sprite* rect2) {
     
     sf::Vector2f* normals_rect1 = normals_of_rect_withFunk(rect1);
     sf::Vector2f normals_1[2] = { normals_rect1[0], normals_rect1[1]}; // { { 1.0f, 0.0f }, { 0.0f, 1.0f } };
-
     Rect_Vertecies vertecis_rect1 = get_vertecis_of_rectcol(rect1);
 
 
-    sf::Vector2f* normals_rect2 = normals_of_rect_withFunk(rect2);
+    sf::Vector2f* normals_rect2 = normals_of_rect_withFunk(rect2); // should probably return a std::array<type, size>
     sf::Vector2f normals_2[2] = { normals_rect1[0], normals_rect1[1] };
-
     Rect_Vertecies vertecis_rect2 = get_vertecis_of_rectcol(rect2);
 
 
@@ -197,56 +196,11 @@ bool intersect_nonRot_rect(sf::Sprite* rect1, sf::Sprite* rect2) {
     for (int i = 0; i < numb_of_rect1_normals; i++) {
         if (!check_SAT_axis_overlap(normals_1[i], vertecis_rect1, vertecis_rect2) ||
             !check_SAT_axis_overlap(normals_2[i], vertecis_rect1, vertecis_rect2))
-            return false;
+                return false;
     }
 
     return true;
 }
-
-
-
-bool colid_Rotated_rectangles(sf::Sprite* rect1, sf::Sprite* rect2) {
-
-    bool collison = true;
-    sf::Vector2f* normals_rect1 = normals_of_rect_withFunk(rect1);
-    sf::Vector2f* vertecis_rect1 = get_vertecis_of_rectcol(rect1).vertecis;
-
-    sf::Vector2f* normals_rect2 = normals_of_rect_withFunk(rect2);
-    sf::Vector2f* vertecis_rect2 = get_vertecis_of_rectcol(rect2).vertecis;
-
-    int numb_vertecis = sizeof(vertecis_rect1);
-
-    // HÄR BORDE JAG BARA SE OM Värdena över är korrect!!
-
-    //  distance = a * b_normal, a is the vertex vector
-
-    std::vector<float> axes_distances_1 = {};
-    std::vector<float> axes_distances_2 = {};
-
-
-    for (int m = 0; m <= 1; m++) { // switches normals
-        for (int n = 0; n < numb_vertecis; n++) { // switches vertex
-            axes_distances_1.emplace_back(dot_product(vertecis_rect1[n], normals_rect1[m]));
-            axes_distances_2.emplace_back(dot_product(vertecis_rect2[n], normals_rect1[m]));
-        }
-        std::sort(axes_distances_1.begin(), axes_distances_1.end());
-        float max_dist1 = *axes_distances_1.begin();
-        float min_dist1 = *axes_distances_1.end();
-
-        std::sort(axes_distances_2.begin(), axes_distances_2.end());
-        float max_dist2 = *axes_distances_2.begin();
-        float min_dist2 = *axes_distances_2.end();
-
-
-        for (int n = 0; n < numb_vertecis; n++) { // switches vertex
-            axes_distances_1[n] = dot_product(vertecis_rect1[n], normals_rect2[m]);
-            axes_distances_2[n] = dot_product(vertecis_rect2[n], normals_rect2[m]);
-        }
-    }
-    // get the all the points/vertexes of the rectangles and 
-    return collison;
-}
-
 
 
 /*
