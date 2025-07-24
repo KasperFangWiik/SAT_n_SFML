@@ -438,11 +438,6 @@ ______________________________________________________________________________
 */
 
 // struct sortof taken from  pdf, contains all data that is neaded to resolv a collison..
-struct CollisuinData {
-    float penetration;
-    sf::Vector2f normal;
-    sf::Vector2f pointOnPlane;
-};
 /*
 We note that while this information is suitable to resolve relatively simple collisions, more complex
 collision resolution requires more information. This will be explored in more detail in the tutorial on

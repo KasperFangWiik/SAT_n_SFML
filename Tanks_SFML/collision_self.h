@@ -10,6 +10,12 @@ struct Rect_Vertecies {
     sf::Vector2f vertecis[4] = {};
 };
 
+struct CollisuinData {
+    float penetration;
+    sf::Vector2f normal; // contact normal?
+    sf::Vector2f pointOnPlane;
+};
+
 //sf::Vector2f* get_vertecis_of_rectcol(sf::Sprite* colid_sprite);
 
 Rect_Vertecies get_vertecis_of_rectcol(sf::Sprite* colid_sprite);
@@ -23,10 +29,13 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     const Rect_Vertecies rect1_vertecis,
     const Rect_Vertecies rect2_vertecis);
 
-bool intersect_rect(sf::Sprite* rect1, sf::Sprite* rect2);
-
 const sf::Vector2f simple_min_max_projection_distance(const sf::Vector2f& projection_axis,
     const Rect_Vertecies R_V);
 
+bool intersect_rect(sf::Sprite* rect1, sf::Sprite* rect2);
 
 bool colid_Rotated_rectangles(sf::Sprite* rect1, sf::Sprite* rect2);
+
+bool intersect_circles(sf::CircleShape* circle1, sf::CircleShape* circle2);
+
+bool collision_circles(sf::CircleShape& circle1, sf::CircleShape& circle2, CollisuinData& colid_data);

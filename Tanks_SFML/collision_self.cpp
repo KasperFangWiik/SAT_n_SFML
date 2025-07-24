@@ -137,6 +137,26 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
 }
 
 
+
+const sf::Vector2f simple_min_max_projection_distance(const sf::Vector2f& projection_axis,
+                                                const Rect_Vertecies R_V) {
+
+    
+    if (projection_axis == sf::Vector2f{ 1.0f,0.0f }) {
+        float min_distance = R_V.vertecis[top_left].dot(projection_axis);
+        float max_distance = R_V.vertecis[top_right].dot(projection_axis);
+        return { min_distance, max_distance };
+    }
+    else {
+        float min_distance =  R_V.vertecis[top_right].dot(projection_axis);
+        float max_distance = R_V.vertecis[down_right].dot(projection_axis);
+        return { min_distance, max_distance };
+    }
+
+    return { -1, -1 };
+}
+
+
 bool intersect_rect(sf::Sprite* rect1, sf::Sprite* rect2) {
 
     sf::Vector2f* normals_rect1 = normals_of_rect_withFunk(rect1);
@@ -159,25 +179,6 @@ bool intersect_rect(sf::Sprite* rect1, sf::Sprite* rect2) {
     }
 
     return true;
-}
-
-
-const sf::Vector2f simple_min_max_projection_distance(const sf::Vector2f& projection_axis,
-                                                const Rect_Vertecies R_V) {
-
-    
-    if (projection_axis == sf::Vector2f{ 1.0f,0.0f }) {
-        float min_distance = R_V.vertecis[top_left].dot(projection_axis);
-        float max_distance = R_V.vertecis[top_right].dot(projection_axis);
-        return { min_distance, max_distance };
-    }
-    else {
-        float min_distance =  R_V.vertecis[top_right].dot(projection_axis);
-        float max_distance = R_V.vertecis[down_right].dot(projection_axis);
-        return { min_distance, max_distance };
-    }
-
-    return { -1, -1 };
 }
 
 bool colid_Rotated_rectangles(sf::Sprite* rect1, sf::Sprite* rect2) {
@@ -242,5 +243,25 @@ bool intersect_circles(sf::CircleShape* circle1, sf::CircleShape* circle2) {
     float distance_between = distance_between_points(center_cercle1, center_cercle2);
 
     // returns if they collide but not where...
-    return (distance_between == circle1->getRadius() + circle2->getRadius());
+    return (distance_between <= circle1->getRadius() + circle2->getRadius());
+}
+
+// returns collisiondata or takes an collision input
+bool collision_circles(sf::CircleShape& circle1, sf::CircleShape& circle2, CollisuinData& colid_data) {
+
+    sf::Vector2f center_cercle1 = circle1.getTransform() * circle1.getGeometricCenter();
+    sf::Vector2f center_cercle2 = circle2.getTransform() * circle2.getGeometricCenter();
+
+    float distance_between = distance_between_points(center_cercle1, center_cercle2);
+    sf::Vector2f Dir_vector_from_1to2 = (center_cercle1 - center_cercle2).normalized();
+
+    float penetration = -(distance_between - circle1.getRadius() + circle2.getRadius());
+    if (penetration > 0) {
+        colid_data.normal = Dir_vector_from_1to2;
+        colid_data.penetration = -penetration;
+        colid_data.pointOnPlane = {}; // no point on a plane...
+        return true;
+    }
+
+    return false;
 }
