@@ -8,13 +8,8 @@
 
 /*
 
- Komment:
- It seams like the max and min function is not working korrectly for desiding whitch vertex is largest or smalest
- the simple min_max will only work for non rotated rectangles where we know witch vertexes that are right and 
- min or max, problem is probably the inverted y axis that SFML uses witch fucks with the sortning of dotproduct values..
-
- solution:
- use circles for bullets for know
+Kommentar:
+Kanske ska seöver att nyttja std::array
 
 
 // returning raw pointers is not advisable by CHAT so maby we don't, instead we return structs or vectors
@@ -265,3 +260,25 @@ bool collision_circles(sf::CircleShape& circle1, sf::CircleShape& circle2, Colli
 
     return false;
 }
+
+/*
+// example of having one function for collision and a nother for the collision resolution 
+void circles_collision_resolution(sf::CircleShape& circle1, sf::CircleShape& circle2, CollisuinData& colid_data) {
+
+    sf::Vector2f center_cercle1 = circle1.getTransform() * circle1.getGeometricCenter();
+    sf::Vector2f center_cercle2 = circle2.getTransform() * circle2.getGeometricCenter();
+
+    float distance_between = distance_between_points(center_cercle1, center_cercle2);
+    sf::Vector2f Dir_vector_from_1to2 = (center_cercle1 - center_cercle2).normalized();
+
+    float penetration = -(distance_between - circle1.getRadius() + circle2.getRadius());
+    if (penetration > 0) {
+        colid_data.normal = Dir_vector_from_1to2;
+        colid_data.penetration = -penetration;
+        colid_data.pointOnPlane = {}; // no point on a plane...
+        return true;
+    }
+
+    return false;
+}
+*/
