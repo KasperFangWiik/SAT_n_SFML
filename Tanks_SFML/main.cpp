@@ -618,10 +618,14 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
                 continue;
             }
 
-            sf::Rect<float> tmp_colider_rect = m->spr->getGlobalBounds(); // m->coli->getGlobalBounds();
+            sf::Vector2f test_vec{};
             //if (current_colider_rect.findIntersection(tmp_colider_rect))
-                if (colid_Rotated_rectangles(n->spr, m->spr)) {
+                if (colid_Rotated_rectangles(n->spr, m->spr, test_vec)) {
                     std::cout << "self_made collide" << "\n";
+                    std::cout << "testvec "; print_SF2Dvec(test_vec);
+                    std::cout << "testvec normalized"; print_SF2Dvec(test_vec.normalized());
+
+                    n->moveEnt(test_vec.normalized()* n->speed);
                 }
                 //sf::RectangleShape test;
                 //test.getGlobalBounds(); 

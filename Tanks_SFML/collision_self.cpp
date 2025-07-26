@@ -14,12 +14,12 @@ Kanske ska seöver att nyttja std::array
 
 // returning raw pointers is not advisable by CHAT so maby we don't, instead we return structs or vectors
 
-struct Rect_Vertecies {
-    sf::Vector2f top_left{};
-    sf::Vector2f down_left{};
-    sf::Vector2f top_right{};
-    sf::Vector2f down_right{};
-};
+En Idè är att jag beräknar en swept collision för tanksen som rör sig, detta innebär att alla tansk collisions boxar
+behöver förlängas i sinn hastighets riktning innan de chechas med SAT collisions algoritmen, 
+där efter för flyttas objectet upp till den närmsta punkten av den koliderade objectet.
+Hur hanterar jag tid aka vet när/om de skulle ha missat varandra... (vet inte...)
+
+Eller om den swept obb'n intersectar med två stycken framför sig men den ena e framför den andra? 
 
 */
 
@@ -54,6 +54,20 @@ sf::Vector2f* normals_of_rect_withFunk(sf::Sprite* colid_sprite) {
 
     return normals;
 }
+
+/*
+std::array<sf::Vector2f,2> test_normals_of_rect_withFunk(sf::Sprite* colid_sprite) {
+
+    // Function could be generalized to all 
+    std::array<sf::Vector2f, 2> normals = {};
+
+    sf::Vector2f* verteces = get_vertecis_of_rectcol(colid_sprite).vertecis;
+    normals[x_axis] = calc_normal_of_lineSegment(verteces[top_left], verteces[top_right]);
+    normals[y_axis] = calc_normal_of_lineSegment(verteces[top_right], verteces[down_right]);
+
+    return normals;
+}
+*/
 
 const sf::Vector2f min_max_projection_distance(const sf::Vector2f& projection_axis,
                                                const Rect_Vertecies& R_V) {
@@ -113,9 +127,61 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     // IF A < C AND B > C (Overlap in order object 1 -> object 2)
     if (A <= C && B >= C) { // original (A <= C && B >= C)
         // Store the collison data
-        
-        float size_of_overlap = C - B;
+        return true;
+    }
 
+    // IF C < A AND D > A (Overlap in order object 2 -> object 1)
+    if (C <= A && D >= A) { // original (C <= A && D >= A)
+        // Store the collison data
+        return true;
+    }
+
+    return false;
+
+}
+
+bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
+    const Rect_Vertecies rect1_vertecis,
+    const Rect_Vertecies rect2_vertecis,
+    float& size_of_overlap,
+    sf::Vector2f& contact_normal) {
+
+    sf::Vector2f min_max_dist1 = min_max_projection_distance(projection_axis, rect1_vertecis);
+    sf::Vector2f min_max_dist2 = min_max_projection_distance(projection_axis, rect2_vertecis);
+
+
+    float A = min_max_dist1.x;
+    float B = min_max_dist1.y;
+
+    float C = min_max_dist2.x;
+    float D = min_max_dist2.y;
+
+    //Overlap Test
+    // Points go:
+    //       +-------------+
+    // +-----|-----+     2 |
+    // | 1   |     |       |
+    // |     +-----|-------+
+    // +-----------+
+    // A ----C---- B ----- D
+
+    // how do i calculate the size of the overlap?
+    // should probably
+    // find reference face on A and a incident face on B with normals closesd to the projection_axis
+
+    float current_size_of_overlap = 0;
+
+    // IF A < C AND B > C (Overlap in order object 1 -> object 2)
+    if (A <= C && B >= C) { // original (A <= C && B >= C)
+        
+        // Store the collison data
+        current_size_of_overlap = C - B;
+
+        if (current_size_of_overlap < size_of_overlap) {
+            size_of_overlap = current_size_of_overlap;
+            contact_normal = projection_axis;
+        }
+         // std::cout << "projection_axis:" << "{" << projection_axis.x << ", " << projection_axis.y << "}" << "\n";
         return true;
     }
 
@@ -123,7 +189,12 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     if (C <= A && D >= A) { // original (C <= A && D >= A)
         // Store the collison data
 
-        float size_of_overlap = C - B;
+        current_size_of_overlap = A - D; // varför A - D här...
+
+        if (current_size_of_overlap < size_of_overlap) {
+            size_of_overlap = current_size_of_overlap;
+            contact_normal = -projection_axis; // why does it have the oposit direction?? Kan det vara för att då behöver vi inte kolla den andra normalen?
+        }
         return true;
     }
 
@@ -136,7 +207,6 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
 const sf::Vector2f simple_min_max_projection_distance(const sf::Vector2f& projection_axis,
                                                 const Rect_Vertecies R_V) {
 
-    
     if (projection_axis == sf::Vector2f{ 1.0f,0.0f }) {
         float min_distance = R_V.vertecis[top_left].dot(projection_axis);
         float max_distance = R_V.vertecis[top_right].dot(projection_axis);
@@ -155,31 +225,7 @@ const sf::Vector2f simple_min_max_projection_distance(const sf::Vector2f& projec
 bool intersect_rect(sf::Sprite* rect1, sf::Sprite* rect2) {
 
     sf::Vector2f* normals_rect1 = normals_of_rect_withFunk(rect1);
-    Rect_Vertecies vertecis_rect1 = get_vertecis_of_rectcol(rect1);
-
-    sf::Vector2f* normals_rect2 = normals_of_rect_withFunk(rect2);
-    Rect_Vertecies vertecis_rect2 = get_vertecis_of_rectcol(rect2);
-
-    int numb_of_rect1_normals = 2;
-    for (int i = 0; i < numb_of_rect1_normals; i++) {
-        if (!check_SAT_axis_overlap(normals_rect1[i], vertecis_rect1, vertecis_rect2))
-            return false;
-    }
-
-    // upprepar kod...
-    int numb_of_rect2_normals = 2;
-    for (int i = 0; i < numb_of_rect1_normals; i++) {
-        if (!check_SAT_axis_overlap(normals_rect2[i], vertecis_rect2, vertecis_rect1))
-            return false;
-    }
-
-    return true;
-}
-
-bool colid_Rotated_rectangles(sf::Sprite* rect1, sf::Sprite* rect2) {
-    
-    sf::Vector2f* normals_rect1 = normals_of_rect_withFunk(rect1);
-    sf::Vector2f normals_1[2] = { normals_rect1[0], normals_rect1[1]}; // { { 1.0f, 0.0f }, { 0.0f, 1.0f } };
+    sf::Vector2f normals_1[2] = { normals_rect1[0], normals_rect1[1] }; // { { 1.0f, 0.0f }, { 0.0f, 1.0f } };
     Rect_Vertecies vertecis_rect1 = get_vertecis_of_rectcol(rect1);
 
 
@@ -192,9 +238,46 @@ bool colid_Rotated_rectangles(sf::Sprite* rect1, sf::Sprite* rect2) {
     for (int i = 0; i < numb_of_rect1_normals; i++) {
         if (!check_SAT_axis_overlap(normals_1[i], vertecis_rect1, vertecis_rect2) ||
             !check_SAT_axis_overlap(normals_2[i], vertecis_rect1, vertecis_rect2))
-                return false;
+            return false;
     }
 
+    return true;
+}
+
+bool colid_Rotated_rectangles(sf::Sprite* rect1, sf::Sprite* rect2, sf::Vector2f& respons_vector) {
+    
+    sf::Vector2f* normals_rect1 = normals_of_rect_withFunk(rect1);
+    sf::Vector2f normals_1[2] = { normals_rect1[0], normals_rect1[1]}; // { { 1.0f, 0.0f }, { 0.0f, 1.0f } };
+    Rect_Vertecies vertecis_rect1 = get_vertecis_of_rectcol(rect1);
+
+
+    sf::Vector2f* normals_rect2 = normals_of_rect_withFunk(rect2); // should probably return a std::array<type, size>
+    sf::Vector2f normals_2[2] = { normals_rect1[0], normals_rect1[1] };
+    Rect_Vertecies vertecis_rect2 = get_vertecis_of_rectcol(rect2);
+
+    float min_axis_overlap = 0;
+    sf::Vector2f contact_normal = {};
+    /*
+    
+    When two polytopes are colliding, the separating-axis test can also assist in com
+    puting contact information. Instead of exiting early when an overlap is detected on
+    an axis, all axes are tested for overlap. After all axes have been tested, the axis with
+    the least (normalized) overlap can be used as thecontact normal,andtheoverlapcan
+    be used to estimate the penetration depth. With some extra work,contact points can
+    also be computed with the help of the separating axis.
+    
+    */
+
+    int numb_of_rect1_normals = 2;
+    for (int i = 0; i < numb_of_rect1_normals; i++) {
+
+
+        if (!check_SAT_axis_overlap(normals_1[i], vertecis_rect1, vertecis_rect2, min_axis_overlap, contact_normal) ||
+            !check_SAT_axis_overlap(normals_2[i], vertecis_rect1, vertecis_rect2, min_axis_overlap, contact_normal))
+                return false;
+    }
+    // vet här nu vad contact normalen och axis overlap är så testa att använda?
+    respons_vector = contact_normal;
     return true;
 }
 

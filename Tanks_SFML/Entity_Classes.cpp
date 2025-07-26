@@ -38,6 +38,13 @@ sf::Sprite* make_spritetest(std::string sprite_path, float size_factor, std::vec
 }
 
 
+
+/*
+-------------------------------------------------------------------------------
+Player related code:
+-------------------------------------------------------------------------------
+*/
+
 Player::Player(sf::Shape* c, sf::Sprite* s) { // const sf::Texture &t
     coli = c;
     // .loadFromFile

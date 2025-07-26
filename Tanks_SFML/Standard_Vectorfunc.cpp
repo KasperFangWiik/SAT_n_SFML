@@ -22,9 +22,14 @@ sf::Vector2f calc_normal_of_lineSegment(sf::Vector2f& starting_point, sf::Vector
     sf::Vector2f normal = { dxy.y, -dxy.x };
     //sf::Vector2f normal = { dxy.x , dxy.y }; // y is allready inverted
 
-    return normal / vectf2_leng(normal); // should you be able to decide direction?
+    // we are now not normalizing the normal
+    return normal; // should you be able to decide direction? / vectf2_leng(normal)
 }
 
 float distance_between_points(sf::Vector2f& point1, sf::Vector2f& point2) {
     return std::sqrt((point2.x - point1.x) * (point2.x - point1.x) + (point2.y - point1.y) * (point2.x - point1.x));
+}
+
+void print_SF2Dvec(sf::Vector2f vec) {
+    std::cout << "Vector_output" << "{" << vec.x << ", " << vec.y << "}" << "\n";
 }
