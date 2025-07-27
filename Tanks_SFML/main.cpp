@@ -633,8 +633,8 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
                     Rect_Vertecies vet = get_vertecis_of_rectcol(m->spr);
        
                     // n->moveEnt(test.componentWiseMul(test2) );
-                    sf::Vector2f newvec = { clamp(test_vec.x,vet.vertecis[down_left].x,vet.vertecis[down_right].x),clamp(test_vec.x,vet.vertecis[down_left].y,vet.vertecis[top_left].y) };
-                    n->moveEnt(test_vec * dt); // * n->speed
+                    //sf::Vector2f newvec = { clamp(test_vec.x,vet.vertecis[down_left].x,vet.vertecis[down_right].x),clamp(test_vec.x,vet.vertecis[down_left].y,vet.vertecis[top_left].y) };
+                    n->moveEnt(test_vec); // * n->speed   * dt
                     std::cout << "new_pos:ncolider: "; print_SF2Dvec(n->spr->getPosition());
                     collision = true;
                 }

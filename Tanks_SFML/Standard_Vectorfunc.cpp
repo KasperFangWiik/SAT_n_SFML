@@ -23,7 +23,7 @@ sf::Vector2f calc_normal_of_lineSegment(sf::Vector2f& starting_point, sf::Vector
     //sf::Vector2f normal = { dxy.x , dxy.y }; // y is allready inverted
 
     // we are now not normalizing the normal
-    return normal; // should you be able to decide direction? / vectf2_leng(normal)
+    return normal / vectf2_leng(normal); // should you be able to decide direction? / vectf2_leng(normal)
 }
 
 sf::Vector2f calc_normal_of_lineSegment(sf::Vector2f& starting_point, sf::Vector2f& end_point, bool direction) {
@@ -35,11 +35,11 @@ sf::Vector2f calc_normal_of_lineSegment(sf::Vector2f& starting_point, sf::Vector
         normal = { dxy.y, -dxy.x };// y_coordinates are allready inverted
     }
     else {
-        sf::Vector2f normal = { dxy.y , dxy.x }; // y is allready inverted
+        normal = { dxy.y , dxy.x }; // y is allready inverted
     }
 
     // we are now not normalizing the normal
-    return normal; // should you be able to decide direction? / vectf2_leng(normal)
+    return normal / vectf2_leng(normal); // should you be able to decide direction? / vectf2_leng(normal)
 }
 
 float distance_between_points(sf::Vector2f& point1, sf::Vector2f& point2) {

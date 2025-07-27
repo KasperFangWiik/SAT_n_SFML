@@ -58,16 +58,17 @@ sf::Vector2f* normals_of_rect_withFunk(sf::Sprite* colid_sprite) {
 sf::Vector2f* all_normals_of_rect(sf::Sprite* colid_sprite) {
 
     // Function could be generalized to all 
-    enum Projection_normals { x_axis_up, x_axis_down, y_axis_left, y_axis_right };
+    enum Projection_normals { y_axis_up, y_axis_down, x_axis_right, x_axis_left };
     // Function could be generalized to all 
     sf::Vector2f normals[4] = {};
 
     sf::Vector2f* verteces = get_vertecis_of_rectcol(colid_sprite).vertecis;
-    normals[x_axis_up] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[Vertex::top_right],true);
-    normals[x_axis_down] = calc_normal_of_lineSegment(verteces[Vertex::down_left], verteces[Vertex::down_right],false);
+    // tekniskt särr x_axis_up (0,1) och x_axis_down (0,-1)
+    normals[y_axis_up] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[Vertex::top_right]);
+    normals[y_axis_down] = calc_normal_of_lineSegment(verteces[Vertex::down_right], verteces[Vertex::down_left]);
 
-    normals[y_axis_left] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[down_left],true);
-    normals[y_axis_right] = calc_normal_of_lineSegment(verteces[Vertex::top_right], verteces[Vertex::down_right], false);
+    normals[x_axis_right] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[Vertex::down_left]);
+    normals[x_axis_left] = calc_normal_of_lineSegment(verteces[Vertex::down_right], verteces[Vertex::top_right]);
 
     return normals;
 }
@@ -110,6 +111,43 @@ const sf::Vector2f min_max_projection_distance(const sf::Vector2f& projection_ax
             max_distance = tmp_distance;
         }
     }
+
+    return { min_distance, max_distance };
+}
+
+const sf::Vector2f min_max_projection_distance(const sf::Vector2f& projection_axis,
+    const Rect_Vertecies& R_V, sf::Vector2f& min_dist_vec, sf::Vector2f& max_dist_vec) {
+
+    int min_vec_index = 0;
+    int max_vec_index = 1;
+    float min_distance = R_V.vertecis[0].dot(projection_axis);
+    float max_distance = R_V.vertecis[1].dot(projection_axis);
+    float tmp_distance{};
+
+    if (min_distance > max_distance) {
+        tmp_distance = min_distance;
+        min_distance = max_distance;
+        max_distance = tmp_distance;
+        min_vec_index = 1;
+        max_vec_index = 0;
+    }
+
+    for (int i = 2; i < 4; i++) {
+        tmp_distance = R_V.vertecis[i].dot(projection_axis);
+
+        if (min_distance > tmp_distance) {
+            min_distance = tmp_distance;
+            min_vec_index = i;
+        }
+
+        if (max_distance < tmp_distance) {
+            max_distance = tmp_distance;
+            max_vec_index = i;
+        }
+    }
+
+    min_dist_vec = R_V.vertecis[min_vec_index];
+    max_dist_vec = R_V.vertecis[max_vec_index];
 
     return { min_distance, max_distance };
 }
@@ -163,9 +201,14 @@ bool check_SAT_axis_overlap( sf::Vector2f& projection_axis,
     float& size_of_overlap,
     sf::Vector2f& contact_normal,
     float& center_distance,
-    sf::Vector2f& rect1_center) {
+    sf::Vector2f& rect1_center,
+    sf::Vector2f& min_veritise_along_normal,
+    sf::Vector2f& max_veritise_along_normal) {
 
-    sf::Vector2f min_max_dist1 = min_max_projection_distance(projection_axis, rect1_vertecis);
+    sf::Vector2f min1_vec{};
+    sf::Vector2f max1_vec{};
+
+    sf::Vector2f min_max_dist1 = min_max_projection_distance(projection_axis, rect1_vertecis, min1_vec, max1_vec);
     sf::Vector2f min_max_dist2 = min_max_projection_distance(projection_axis, rect2_vertecis);
 
 
@@ -188,7 +231,8 @@ bool check_SAT_axis_overlap( sf::Vector2f& projection_axis,
     // should probably
     // find reference face on A and a incident face on B with normals closesd to the projection_axis
 
-    float current_size_of_overlap = 0;
+    float current_size_of_overlap;
+    sf::Vector2f test1 = {};
 
     // IF A < C AND B > C (Overlap in order object 1 -> object 2)
     if (A <= C && B >= C) { // original (A <= C && B >= C)
@@ -196,16 +240,14 @@ bool check_SAT_axis_overlap( sf::Vector2f& projection_axis,
         // Store the collison data
         current_size_of_overlap = C - B;
 
-        if (current_size_of_overlap <= size_of_overlap) {
+        if (current_size_of_overlap < size_of_overlap) {
             size_of_overlap = current_size_of_overlap;
-
-            float new_dist = distance_between_points(rect1_center, projection_axis);
-            if (center_distance > new_dist) {
-                contact_normal = projection_axis;
-                center_distance = new_dist;
+            contact_normal = projection_axis;
+            
+            rect1_center =  max1_vec + contact_normal * current_size_of_overlap - max1_vec ; // calculate the contact point
+            min_veritise_along_normal = min1_vec;
+            max_veritise_along_normal = max1_vec;
             }
-               
-        }
          // std::cout << "projection_axis:" << "{" << projection_axis.x << ", " << projection_axis.y << "}" << "\n";
         return true;
     }
@@ -218,14 +260,13 @@ bool check_SAT_axis_overlap( sf::Vector2f& projection_axis,
 
         // behöver hitta sidorna närmast till normalen
 
-        if (current_size_of_overlap <= size_of_overlap) {
+        if (current_size_of_overlap < size_of_overlap) {
             size_of_overlap = current_size_of_overlap;
+            contact_normal = -projection_axis;
 
-            float new_dist = distance_between_points(rect1_center, projection_axis);
-            if (center_distance > new_dist) {
-                contact_normal = -projection_axis;  // -projection_axis why does it have the oposit direction?? Kan det vara för att då behöver vi inte kolla den andra normalen?
-                center_distance = new_dist;
-            }
+            rect1_center =  min1_vec + contact_normal * current_size_of_overlap - min1_vec; // (the vector with A as dor product) + contact_normal * current_size_of_overlap;    
+            min_veritise_along_normal = min1_vec;
+            max_veritise_along_normal = max1_vec;
         }
         return true;
     }
@@ -276,6 +317,62 @@ bool intersect_rect(sf::Sprite* rect1, sf::Sprite* rect2) {
     return true;
 }
 
+void get_clamped_vertexes(Vertex_pair& Incident_Face, Vertex_pair& Reference_Face) {
+
+    float In_x0 = Incident_Face.vertecis[0].x;
+    float In_y0 = Incident_Face.vertecis[0].y;
+
+    float In_x1 = Incident_Face.vertecis[1].x;
+    float In_y1 = Incident_Face.vertecis[1].y;
+
+    float Re_x0 = Reference_Face.vertecis[0].x;
+    float Re_y0 = Reference_Face.vertecis[0].y;
+
+    float k = (In_x1 - In_x0) / (In_y1 - In_y0); // (x1-x0)/(y1-y0) = k
+    float m = (k * In_x0) - In_y0;  // m = k * x0 - y0
+
+    float y_inc_clamped = k * Re_x0 + m; // y_clampted = kx0 + m
+
+    // Kolla nu om y_inc_clamped finns på linjen.. kan inte vara mindre än min eller större än max
+    if (!(y_inc_clamped < Re_y0 || y_inc_clamped > Re_y0)) {
+        // uppdate to new clamped vertex
+        In_x0 = Re_x0;
+        In_y0 = y_inc_clamped;
+    }
+    Incident_Face.vertecis[0] = { In_x0 ,In_y0 };
+
+
+    float Re_x1 = Reference_Face.vertecis[1].x;
+    float Re_y1 = Reference_Face.vertecis[1].y;
+
+    float y_inc_clamped = k * Re_x1+ m;
+
+    if (!(y_inc_clamped < Re_y1 || y_inc_clamped > Re_y1)) {
+        // uppdate to new clamped vertex
+        In_x1 = Re_x0;
+        In_y1 = y_inc_clamped;
+    }
+
+    Incident_Face.vertecis[1] = { In_x1 ,In_y1 };
+}
+
+// can i minnimize the copying of values but allso keep the readabuility
+sf::Vector2f get_clamped_vertex(float In_x0, float In_y0, float In_x1, float In_y1, float Re_x, float Re_y) {
+
+    float k = (In_x1 - In_x0) / (In_y1 - In_y0); // (x1-x0)/(y1-y0) = k
+    float m = (k * In_x0) - In_y0;  // m = k * x0 - y0
+
+    float y_inc_clamped = k * Re_x + m; // y_clampted = kx0 + m
+
+    // Kolla nu om y_inc_clamped finns på linjen.. kan inte vara mindre än min eller större än max
+    if (!(y_inc_clamped < Re_y || y_inc_clamped > Re_y)) {
+        // uppdate to new clamped vertex
+        In_x0 = Re_x;
+        In_y0 = y_inc_clamped;
+    }
+    return { In_x0,  In_y0 };
+}
+
 bool colid_Rotated_rectangles(sf::Sprite* rect1, sf::Sprite* rect2, sf::Vector2f& respons_vector) {
 
     sf::Vector2f* normals_rect1 = all_normals_of_rect(rect1);
@@ -290,40 +387,119 @@ bool colid_Rotated_rectangles(sf::Sprite* rect1, sf::Sprite* rect2, sf::Vector2f
     float min_axis_overlap = 0;
     sf::Vector2f contact_normal = {};
     float start_distance = rect1->getPosition().x * rect1->getPosition().y;
+
     /*
 
-    When two polytopes are colliding, the separating-axis test can also assist in com
-    puting contact information. Instead of exiting early when an overlap is detected on
+    When two polytopes are colliding, the separating-axis test can also assist in computing
+    contact information. Instead of exiting early when an overlap is detected on
     an axis, all axes are tested for overlap. After all axes have been tested, the axis with
     the least (normalized) overlap can be used as the contact normal,and the overlap can
     be used to estimate the penetration depth. With some extra work,contact points can
     also be computed with the help of the separating axis.
 
+     Identifying the Signi cant Faces
+     This is accomplished by selecting
+     the vertex furthest along the collision normal.
     */
 
-    sf::Vector2f center_rect1 = rect1->getTransform() * rect1->getOrigin();
+
+    //  Identifying the Signi cant Faces:
+    sf::Vector2f furthest_vertice_rect1 = {}; // colider...
+    sf::Vector2f closest_vertice_rect1 = {};
+
+    sf::Vector2f furthest_vertice_rect2 = {};
+    sf::Vector2f closest_vertice_rect2 = {};
+
+    sf::Vector2f center_rect1 = {};//rect1->getTransform() * rect1->getOrigin();
 
     int numb_of_rect1_normals = 4;
     for (int i = 0; i < numb_of_rect1_normals; i++) {
 
 
-        if (!check_SAT_axis_overlap(normals_1[i], vertecis_rect1, vertecis_rect2, min_axis_overlap, contact_normal, start_distance, center_rect1) ||
-            !check_SAT_axis_overlap(normals_2[i], vertecis_rect1, vertecis_rect2, min_axis_overlap, contact_normal, start_distance, center_rect1))
+        if (!check_SAT_axis_overlap(normals_1[i], vertecis_rect1, vertecis_rect2, min_axis_overlap, contact_normal, start_distance, center_rect1, closest_vertice_rect1,furthest_vertice_rect1))
             return false;
     }
-    /*
+    //  Identifying the Signicant_Faces_vertex_pair1:
+    sf::Vector2f Signicant_Faces_vertex_pair1[2] = { furthest_vertice_rect1,closest_vertice_rect1 };
+
+    for (int i = 0; i < numb_of_rect1_normals; i++) {
+
+
+        if (!check_SAT_axis_overlap(normals_2[i], vertecis_rect1, vertecis_rect2, min_axis_overlap, contact_normal, start_distance, center_rect1, closest_vertice_rect2, furthest_vertice_rect2))
+            return false;
+    }
+    sf::Vector2f Signicant_Faces_vertex_pair2[2] = { furthest_vertice_rect2,closest_vertice_rect2 };
+
+    sf::Vector2f collision_normal = { -contact_normal.y, contact_normal.x };  //{ contact_normal.y, -contact_normal.x };
     
-    Sammla all data här i slutet, kolla alla normaler och se hur de skilljer sig
+    sf::Vector2 rect1_normal = calc_normal_of_lineSegment(Signicant_Faces_vertex_pair1[0], 
+                                                          Signicant_Faces_vertex_pair1[1]);
+
+    sf::Vector2 rect2_normal = calc_normal_of_lineSegment(Signicant_Faces_vertex_pair2[0],
+                                                          Signicant_Faces_vertex_pair2[1]);
+
+    sf::Vector2f Reference_Face[2] = {};
+    sf::Vector2f Incident_Face[2] = {};
+
+    if (rect1_normal.dot(collision_normal) > rect2_normal.dot(collision_normal)) {
+        Reference_Face[0] = Signicant_Faces_vertex_pair1[0]; 
+        Reference_Face[1] = Signicant_Faces_vertex_pair1[1];
+
+        Incident_Face[0] = Signicant_Faces_vertex_pair2[0]; 
+        Incident_Face[1] = Signicant_Faces_vertex_pair2[1];
+    }
+    else {
+        Reference_Face[0] = Signicant_Faces_vertex_pair2[0]; 
+        Reference_Face[1] = Signicant_Faces_vertex_pair2[1];
+
+        Incident_Face[0] = Signicant_Faces_vertex_pair1[0]; 
+        Incident_Face[1] = Signicant_Faces_vertex_pair1[1];
+    }
+    
+    Vertex_pair Incident = { Incident_Face[0],Incident_Face[1] };
+    Vertex_pair Reference = { Reference_Face[0],Reference_Face[1] };
+    get_clamped_vertexes(Incident, Reference);
+
+    /*
+    Incident_Face[0] = get_clamped_vertex(Incident_Face[0].x, Incident_Face[0].y, Incident_Face[1].x, Incident_Face[1].y, Reference_Face[0].x, Reference_Face[0].y );
+
+    Incident_Face[1] = get_clamped_vertex(Incident_Face[0].x, Incident_Face[0].y, Incident_Face[1].x, Incident_Face[1].y, Reference_Face[1].x, Reference_Face[1].y);
+    */
+
+        
+
+    // borde inte behöva göra detta: x = ( y - m )/ k | för att vi redan antar att Reference_Face[0].x
+    // Reference_Face[0].x är på linjen..
+
+    /*
+
+    (x2-x1)/(y2-y1) = k
+
+    m = kx1 - y1
+
+    y = kx + m
+
+    x = ( y - m )/ k
+
+    y = kx + m
+
+    Incident_Face[0].y = k * Incident_Face[0].x + m
+
+    
+    To do this we compute which of the two signi cant faces have a normal that is closest to parallel
+    with that of the collision normal. Consider Figure 4. In this case the normal of the face indicated by
+    a blue line is closest to parallel and, as such, that face becomes the reference face.
+
     */
 
 
 
     // vet här nu vad contact normalen och axis overlap är så testa att använda?
-   
+
     //min_axis_overlap /= 10;
-    respons_vector = {contact_normal.y, -contact_normal.x};
-    respons_vector = respons_vector.normalized();
-    respons_vector *= min_axis_overlap;
+    respons_vector = contact_normal;// { contact_normal.y, -contact_normal.x };
+    respons_vector = { contact_normal.y, -contact_normal.x }; // { respons_vector.y, respons_vector.x };
+    //respons_vector *= min_axis_overlap;
     return true;
 }
 
