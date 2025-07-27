@@ -466,31 +466,14 @@ bool colid_Rotated_rectangles(sf::Sprite* rect1, sf::Sprite* rect2, sf::Vector2f
     Incident_Face[1] = get_clamped_vertex(Incident_Face[0].x, Incident_Face[0].y, Incident_Face[1].x, Incident_Face[1].y, Reference_Face[1].x, Reference_Face[1].y);
     */
 
-        
-
-    // borde inte behöva göra detta: x = ( y - m )/ k | för att vi redan antar att Reference_Face[0].x
-    // Reference_Face[0].x är på linjen..
-
     /*
-
-    (x2-x1)/(y2-y1) = k
-
-    m = kx1 - y1
-
-    y = kx + m
-
-    x = ( y - m )/ k
-
-    y = kx + m
-
-    Incident_Face[0].y = k * Incident_Face[0].x + m
-
     
     To do this we compute which of the two signi cant faces have a normal that is closest to parallel
     with that of the collision normal. Consider Figure 4. In this case the normal of the face indicated by
     a blue line is closest to parallel and, as such, that face becomes the reference face.
 
     */
+
 
 
 
