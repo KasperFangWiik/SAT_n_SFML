@@ -55,6 +55,23 @@ sf::Vector2f* normals_of_rect_withFunk(sf::Sprite* colid_sprite) {
     return normals;
 }
 
+sf::Vector2f* all_normals_of_rect(sf::Sprite* colid_sprite) {
+
+    // Function could be generalized to all 
+    enum Projection_normals { x_axis_up, x_axis_down, y_axis_left, y_axis_right };
+    // Function could be generalized to all 
+    sf::Vector2f normals[4] = {};
+
+    sf::Vector2f* verteces = get_vertecis_of_rectcol(colid_sprite).vertecis;
+    normals[x_axis_up] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[Vertex::top_right],true);
+    normals[x_axis_down] = calc_normal_of_lineSegment(verteces[Vertex::down_left], verteces[Vertex::down_right],false);
+
+    normals[y_axis_left] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[down_left],true);
+    normals[y_axis_right] = calc_normal_of_lineSegment(verteces[Vertex::top_right], verteces[Vertex::down_right], false);
+
+    return normals;
+}
+
 /*
 std::array<sf::Vector2f,2> test_normals_of_rect_withFunk(sf::Sprite* colid_sprite) {
 
@@ -140,11 +157,13 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
 
 }
 
-bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
+bool check_SAT_axis_overlap( sf::Vector2f& projection_axis,
     const Rect_Vertecies rect1_vertecis,
     const Rect_Vertecies rect2_vertecis,
     float& size_of_overlap,
-    sf::Vector2f& contact_normal) {
+    sf::Vector2f& contact_normal,
+    float& center_distance,
+    sf::Vector2f& rect1_center) {
 
     sf::Vector2f min_max_dist1 = min_max_projection_distance(projection_axis, rect1_vertecis);
     sf::Vector2f min_max_dist2 = min_max_projection_distance(projection_axis, rect2_vertecis);
@@ -177,9 +196,15 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
         // Store the collison data
         current_size_of_overlap = C - B;
 
-        if (current_size_of_overlap < size_of_overlap) {
+        if (current_size_of_overlap <= size_of_overlap) {
             size_of_overlap = current_size_of_overlap;
-            contact_normal = projection_axis;
+
+            float new_dist = distance_between_points(rect1_center, projection_axis);
+            if (center_distance > new_dist) {
+                contact_normal = projection_axis;
+                center_distance = new_dist;
+            }
+               
         }
          // std::cout << "projection_axis:" << "{" << projection_axis.x << ", " << projection_axis.y << "}" << "\n";
         return true;
@@ -191,9 +216,16 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
 
         current_size_of_overlap = A - D; // varför A - D här...
 
-        if (current_size_of_overlap < size_of_overlap) {
+        // behöver hitta sidorna närmast till normalen
+
+        if (current_size_of_overlap <= size_of_overlap) {
             size_of_overlap = current_size_of_overlap;
-            contact_normal = -projection_axis; // why does it have the oposit direction?? Kan det vara för att då behöver vi inte kolla den andra normalen?
+
+            float new_dist = distance_between_points(rect1_center, projection_axis);
+            if (center_distance > new_dist) {
+                contact_normal = -projection_axis;  // -projection_axis why does it have the oposit direction?? Kan det vara för att då behöver vi inte kolla den andra normalen?
+                center_distance = new_dist;
+            }
         }
         return true;
     }
@@ -245,39 +277,53 @@ bool intersect_rect(sf::Sprite* rect1, sf::Sprite* rect2) {
 }
 
 bool colid_Rotated_rectangles(sf::Sprite* rect1, sf::Sprite* rect2, sf::Vector2f& respons_vector) {
-    
-    sf::Vector2f* normals_rect1 = normals_of_rect_withFunk(rect1);
-    sf::Vector2f normals_1[2] = { normals_rect1[0], normals_rect1[1]}; // { { 1.0f, 0.0f }, { 0.0f, 1.0f } };
+
+    sf::Vector2f* normals_rect1 = all_normals_of_rect(rect1);
+    sf::Vector2f normals_1[4] = { normals_rect1[0], normals_rect1[1],  normals_rect1[2], normals_rect1[3] }; // { { 1.0f, 0.0f }, { 0.0f, 1.0f } };
     Rect_Vertecies vertecis_rect1 = get_vertecis_of_rectcol(rect1);
 
 
-    sf::Vector2f* normals_rect2 = normals_of_rect_withFunk(rect2); // should probably return a std::array<type, size>
-    sf::Vector2f normals_2[2] = { normals_rect1[0], normals_rect1[1] };
+    sf::Vector2f* normals_rect2 = all_normals_of_rect(rect2); // should probably return a std::array<type, size>
+    sf::Vector2f normals_2[4] = { normals_rect1[0], normals_rect1[1], normals_rect1[2], normals_rect1[3] };
     Rect_Vertecies vertecis_rect2 = get_vertecis_of_rectcol(rect2);
 
     float min_axis_overlap = 0;
     sf::Vector2f contact_normal = {};
+    float start_distance = rect1->getPosition().x * rect1->getPosition().y;
     /*
-    
+
     When two polytopes are colliding, the separating-axis test can also assist in com
     puting contact information. Instead of exiting early when an overlap is detected on
     an axis, all axes are tested for overlap. After all axes have been tested, the axis with
-    the least (normalized) overlap can be used as thecontact normal,andtheoverlapcan
+    the least (normalized) overlap can be used as the contact normal,and the overlap can
     be used to estimate the penetration depth. With some extra work,contact points can
     also be computed with the help of the separating axis.
-    
+
     */
 
-    int numb_of_rect1_normals = 2;
+    sf::Vector2f center_rect1 = rect1->getTransform() * rect1->getOrigin();
+
+    int numb_of_rect1_normals = 4;
     for (int i = 0; i < numb_of_rect1_normals; i++) {
 
 
-        if (!check_SAT_axis_overlap(normals_1[i], vertecis_rect1, vertecis_rect2, min_axis_overlap, contact_normal) ||
-            !check_SAT_axis_overlap(normals_2[i], vertecis_rect1, vertecis_rect2, min_axis_overlap, contact_normal))
-                return false;
+        if (!check_SAT_axis_overlap(normals_1[i], vertecis_rect1, vertecis_rect2, min_axis_overlap, contact_normal, start_distance, center_rect1) ||
+            !check_SAT_axis_overlap(normals_2[i], vertecis_rect1, vertecis_rect2, min_axis_overlap, contact_normal, start_distance, center_rect1))
+            return false;
     }
+    /*
+    
+    Sammla all data här i slutet, kolla alla normaler och se hur de skilljer sig
+    */
+
+
+
     // vet här nu vad contact normalen och axis overlap är så testa att använda?
-    respons_vector = contact_normal;
+   
+    //min_axis_overlap /= 10;
+    respons_vector = {contact_normal.y, -contact_normal.x};
+    respons_vector = respons_vector.normalized();
+    respons_vector *= min_axis_overlap;
     return true;
 }
 

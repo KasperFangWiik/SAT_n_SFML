@@ -22,6 +22,8 @@ Rect_Vertecies get_vertecis_of_rectcol(sf::Sprite* colid_sprite);
 
 sf::Vector2f* normals_of_rect_withFunk(sf::Sprite* colid_sprite);
 
+sf::Vector2f* all_normals_of_rect(sf::Sprite* colid_sprite);
+
 const sf::Vector2f min_max_projection_distance(const sf::Vector2f& projection_axis,
     const Rect_Vertecies& R_V);
 
@@ -29,11 +31,13 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     const Rect_Vertecies rect1_vertecis,
     const Rect_Vertecies rect2_vertecis);
 
-bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
+bool check_SAT_axis_overlap(sf::Vector2f& projection_axis,
     const Rect_Vertecies rect1_vertecis,
     const Rect_Vertecies rect2_vertecis,
     float& size_of_overlap,
-    sf::Vector2f& contact_normal);
+    sf::Vector2f& contact_normal,
+    float& center_distance,
+    sf::Vector2f& rect1_center);
 
 const sf::Vector2f simple_min_max_projection_distance(const sf::Vector2f& projection_axis,
     const Rect_Vertecies R_V);

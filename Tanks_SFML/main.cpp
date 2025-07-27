@@ -179,8 +179,10 @@ int main()
     const float piller_pixel_size = 15 * sprite_size_factor;
     piller.moveEnt({ piller_pixel_size * 6 , piller_pixel_size * 4 }); // 8*2*4 = 16 => 4 pixels, 16 pixels, 64 = 17 pix,  8*8-4 = 8*2*4-4 = 16*4-4 = 15*4
     
-    piller.spr->setRotation(sf::degrees(45));
+    //piller.spr->setRotation(sf::degrees(45));
     //piller.spr->rotate(sf::degrees(45));
+    
+
     // calls copy constructor?
     std::vector<Entity*> fixed_enlist;//  = { &piller };
     //fixed_enlist.emplace_back(&piller);
@@ -610,6 +612,7 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
         //n->dirMove(dt);
         float test = -1.0f;
         sf::Vector2f other_dir{ n->dirV.x * -1.3f, n->dirV.y * -1.3f };;
+        n->dirMove(dt);
         for (const Entity* m : moveb_enlist) {
 
             // checkar bara att de har samma pekare/minnes adress.. behövs starkare eqvivalence?
@@ -620,12 +623,20 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
 
             sf::Vector2f test_vec{};
             //if (current_colider_rect.findIntersection(tmp_colider_rect))
-                if (colid_Rotated_rectangles(n->spr, m->spr, test_vec)) {
+                if (n->speed > 0 && colid_Rotated_rectangles(n->spr, m->spr, test_vec)) { // should check here if object in motion
                     std::cout << "self_made collide" << "\n";
                     std::cout << "testvec "; print_SF2Dvec(test_vec);
                     std::cout << "testvec normalized"; print_SF2Dvec(test_vec.normalized());
-
-                    n->moveEnt(test_vec.normalized()* n->speed);
+                    std::cout << "pos:ncolider: "; print_SF2Dvec(n->spr->getPosition());
+                    std::cout << "pos:mcolide: "; print_SF2Dvec(m->spr->getPosition());
+                   
+                    Rect_Vertecies vet = get_vertecis_of_rectcol(m->spr);
+       
+                    // n->moveEnt(test.componentWiseMul(test2) );
+                    sf::Vector2f newvec = { clamp(test_vec.x,vet.vertecis[down_left].x,vet.vertecis[down_right].x),clamp(test_vec.x,vet.vertecis[down_left].y,vet.vertecis[top_left].y) };
+                    n->moveEnt(test_vec * dt); // * n->speed
+                    std::cout << "new_pos:ncolider: "; print_SF2Dvec(n->spr->getPosition());
+                    collision = true;
                 }
                 //sf::RectangleShape test;
                 //test.getGlobalBounds(); 
@@ -647,7 +658,7 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
         }
 
         if (!collision) {
-            n->dirMove(dt);
+           // n->dirMove(dt);
         }
     }
 }
