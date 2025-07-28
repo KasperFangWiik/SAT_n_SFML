@@ -44,17 +44,30 @@ Rect_Vertecies get_vertecis_of_rectcol(sf::Sprite* colid_sprite) {
     return R_V;
 }
 
+sf::Vector2f* normals_of_rect_withFunk(sf::Sprite* colid_sprite, Rect_Vertecies& Rect_verts) {
+
+    // Function could be generalized to all 
+    sf::Vector2f normals[2] = {};
+
+    sf::Vector2f* verteces = Rect_verts.vertecis;
+    normals[x_axis] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[Vertex::top_right]);
+    normals[y_axis] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[Vertex::down_left]);
+
+    return normals;
+}
+
 sf::Vector2f* normals_of_rect_withFunk(sf::Sprite* colid_sprite) {
 
     // Function could be generalized to all 
     sf::Vector2f normals[2] = {};
 
     sf::Vector2f* verteces = get_vertecis_of_rectcol(colid_sprite).vertecis;
-    normals[x_axis] = calc_normal_of_lineSegment(verteces[top_left], verteces[top_right]);
-    normals[y_axis] = calc_normal_of_lineSegment(verteces[top_right], verteces[down_right]);
+    normals[x_axis] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[Vertex::top_right]);
+    normals[y_axis] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[Vertex::down_left]);
 
     return normals;
 }
+
 
 sf::Vector2f* all_normals_of_rect(sf::Sprite* colid_sprite) {
 
@@ -202,7 +215,11 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     float& size_of_overlap,
     sf::Vector2f& contact_normal) {
 
-    sf::Vector2f min_max_dist1 = min_max_projection_distance(projection_axis, rect1_vertecis);
+    sf::Vector2f min1_vec{};
+    sf::Vector2f max1_vec{};
+
+    sf::Vector2f min_max_dist1 = min_max_projection_distance(projection_axis, rect1_vertecis, min1_vec, max1_vec);
+    //sf::Vector2f min_max_dist1 = min_max_projection_distance(projection_axis, rect1_vertecis);
     sf::Vector2f min_max_dist2 = min_max_projection_distance(projection_axis, rect2_vertecis);
 
 
@@ -236,6 +253,7 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
         if (abs(current_size_of_overlap) < abs(size_of_overlap)) { // this abs uses cstdlib
             size_of_overlap =  current_size_of_overlap;
             contact_normal = projection_axis;
+
         }
 
         return true;
@@ -383,14 +401,14 @@ bool intersect_rect(sf::Sprite* rect1, sf::Sprite* rect2) {
 
 bool simple_rect_collision(sf::Sprite* rect1, sf::Sprite* rect2, sf::Vector2f& respons_vector) {
 
-    sf::Vector2f* normals_rect1 = normals_of_rect_withFunk(rect1);
-    sf::Vector2f normals_1[2] = { normals_rect1[0], normals_rect1[1] }; // { { 1.0f, 0.0f }, { 0.0f, 1.0f } };
+    
     Rect_Vertecies vertecis_rect1 = get_vertecis_of_rectcol(rect1);
+    sf::Vector2f* normals_rect1 = normals_of_rect_withFunk(rect1, vertecis_rect1);
+    sf::Vector2f normals_1[2] = { normals_rect1[0], normals_rect1[1] }; // { { 1.0f, 0.0f }, { 0.0f, 1.0f } };
 
-
-    sf::Vector2f* normals_rect2 = normals_of_rect_withFunk(rect2); // should probably return a std::array<type, size>
-    sf::Vector2f normals_2[2] = { normals_rect1[0], normals_rect1[1] };
     Rect_Vertecies vertecis_rect2 = get_vertecis_of_rectcol(rect2);
+    sf::Vector2f* normals_rect2 = normals_of_rect_withFunk(rect2, vertecis_rect2); // should probably return a std::array<type, size>
+    sf::Vector2f normals_2[2] = { normals_rect2[0], normals_rect2[1] };
 
     float min_axis_overlap = std::numeric_limits<float>::max();
     sf::Vector2f contact_normal = {};
@@ -642,6 +660,18 @@ bool collision_circles(sf::CircleShape& circle1, sf::CircleShape& circle2, Colli
 
     return false;
 }
+
+/*
+1. fix collision with shifting rotating objects.
+2. rotation around center.
+3. collision with circle and OBB
+4. collision with circle and circle test
+5. fix so that bullet bounces
+6. collisions with just shapes... Not sprites
+7. colliding with different objects results in different Action class functions being called...
+
+Nead to make a collision Action class.
+*/
 
 /*
 // example of having one function for collision and a nother for the collision resolution 

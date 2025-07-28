@@ -33,6 +33,7 @@ public:
 
     sf::Vector2f dirV{}; // directinal vector
     float speed{};
+    float rot_angle{};
 
     // sf::Shape* texturebox{};  // shape for texture
 
@@ -85,20 +86,23 @@ public:
 
     // BEHÖVER kopplasamman rotation och move för att se om det sker knas...
     void moveEnt(sf::Vector2<float> v) {
-        /*
-        * if (!spr) // spr == NULL samma som !n->spr
-            coli->move(v);
-        else
-            spr->move(v);
-
-        */
-
         // borde möjlligen alldrig flytta på en sf::shape, bara ändra säga att den har samma kordinater/ possition som entityn? 
         if (coli) // spr == NULL samma som !n->spr
             coli->move(v);
 
         if (spr)
             spr->move(v);
+        
+    }
+
+    void RotEnt(float dt) { // might need to inforce that dt should be used
+        if (coli) { // spr == NULL samma som !n->spr
+            coli->rotate(sf::degrees(rot_angle * dt));
+        }
+
+        if (spr) {
+            spr->rotate(sf::degrees(rot_angle * dt));
+        }
 
     }
 

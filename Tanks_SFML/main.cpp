@@ -107,6 +107,7 @@ void uppdate_state(sf::RenderWindow& window, const ChunkTest& chunk, bool new_ch
     float test = moveb_enlist[0]->speed;
 
     //move_with_Coll_entitys(moveb_enlist, all_coliders, pixel_size_factor, dt.asSeconds());
+    
     move_intersect(moveb_enlist, all_coliders, pixel_size_factor, dt.asSeconds());
 
     render_Entitys(window, moveb_enlist);
@@ -178,8 +179,8 @@ int main()
     // one piller head is (15 * 4) in "pixel" size
     const float piller_pixel_size = 15 * sprite_size_factor;
     piller.moveEnt({ piller_pixel_size * 6 , piller_pixel_size * 4 }); // 8*2*4 = 16 => 4 pixels, 16 pixels, 64 = 17 pix,  8*8-4 = 8*2*4-4 = 16*4-4 = 15*4
-    
-    piller.spr->setRotation(sf::degrees(45));
+    piller.rot_angle = 100;
+    //piller.spr->setRotation(sf::degrees(45));
     
     
 
@@ -217,6 +218,7 @@ int main()
     ChunkTest ch = ChunkTest(map_path, map_size, sprite_size_factor, all_sprites, all_textures);
 
     playerOne.speed = 200.0f;
+    playerOne.rot_angle = 0.0f;
 
     /*
     // why does this make an error does moveb_enlist[0] not index the playerOne and
@@ -272,7 +274,6 @@ int main()
         //sf::Time dt = clock.getElapsedTime(); // .asMilliseconds() direkt här ?
 
         //std::cout << dt.asMilliseconds() << "\n";
-        //piller.spr->rotate(sf::degrees(1));
         uppdate_state(window, ch, new_chunk, fixed_enlist, moveb_enlist, all_coliders, clock);
         
         //std::cout << 1.0f / dt.asSeconds() << "\n";
@@ -611,7 +612,8 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
         n->set_direction();
         //n->dirMove(dt);
         float test = -1.0f;
-        sf::Vector2f other_dir{ n->dirV.x * -1.3f, n->dirV.y * -1.3f };;
+        sf::Vector2f other_dir{ n->dirV.x * -1.3f, n->dirV.y * -1.3f };
+        n->RotEnt(dt);
         n->dirMove(dt);
         for (const Entity* m : moveb_enlist) {
 
@@ -627,11 +629,14 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
                 if (n->speed > 0 && simple_rect_collision(n->spr, m->spr, test_vec)) { //colid_Rotated_rectangles()
                     if (test_vec == sf::Vector2f{ 0,0 })
                         continue;
+                    /*
                     std::cout << "self_made collide" << "\n";
                     std::cout << "testvec "; print_SF2Dvec(test_vec);
                     std::cout << "testvec normalized"; print_SF2Dvec(test_vec.normalized());
                     std::cout << "pos:ncolider: "; print_SF2Dvec(n->spr->getPosition());
                     std::cout << "pos:mcolide: "; print_SF2Dvec(m->spr->getPosition());
+                    
+                    */
                    
                     Rect_Vertecies vet = get_vertecis_of_rectcol(m->spr);
        
