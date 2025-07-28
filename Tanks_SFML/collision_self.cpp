@@ -33,7 +33,7 @@ Rect_Vertecies get_vertecis_of_rectcol(sf::Sprite* colid_sprite) {
     sf::Vector2f position = localRect.position;//.getPosition();
 
     
-    R_V.vertecis[top_left] = position;
+    R_V.vertecis[top_left] = { position.x, position.y };
     R_V.vertecis[down_left] = { position.x , position.y + localRect.size.y }; // y direction is inverted
     R_V.vertecis[top_right] = { position.x + localRect.size.x, position.y };
     R_V.vertecis[down_right] = { position.x + localRect.size.x , position.y + localRect.size.y };
@@ -225,6 +225,7 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     // should probably
     // find reference face on A and a incident face on B with normals closesd to the projection_axis
 
+
     float current_size_of_overlap = 0;
     // IF A < C AND B > C (Overlap in order object 1 -> object 2)
     if (A <= C && B >= C) { // original (A <= C && B >= C)
@@ -232,8 +233,8 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
 
         current_size_of_overlap = C - B;
 
-        if (current_size_of_overlap < size_of_overlap) {
-            size_of_overlap = current_size_of_overlap;
+        if (abs(current_size_of_overlap) < abs(size_of_overlap)) { // this abs uses cstdlib
+            size_of_overlap =  current_size_of_overlap;
             contact_normal = projection_axis;
         }
 
@@ -245,7 +246,8 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
         // Store the collison data
         current_size_of_overlap = A - D;
 
-        if (current_size_of_overlap < size_of_overlap) {
+        // should use abs or multiply?
+        if (abs(current_size_of_overlap) < abs(size_of_overlap)) {
             size_of_overlap = current_size_of_overlap;
             contact_normal = -projection_axis;
         }
@@ -390,7 +392,7 @@ bool simple_rect_collision(sf::Sprite* rect1, sf::Sprite* rect2, sf::Vector2f& r
     sf::Vector2f normals_2[2] = { normals_rect1[0], normals_rect1[1] };
     Rect_Vertecies vertecis_rect2 = get_vertecis_of_rectcol(rect2);
 
-    float min_axis_overlap = std::numeric_limits<float>::max(); 
+    float min_axis_overlap = std::numeric_limits<float>::max();
     sf::Vector2f contact_normal = {};
 
     int numb_of_rect1_normals = 2;
@@ -399,8 +401,13 @@ bool simple_rect_collision(sf::Sprite* rect1, sf::Sprite* rect2, sf::Vector2f& r
             !check_SAT_axis_overlap(normals_2[i], vertecis_rect1, vertecis_rect2, min_axis_overlap, contact_normal))
             return false;
     }
-    respons_vector = - contact_normal * min_axis_overlap;
-    respons_vector = { respons_vector.y, -respons_vector.x };
+
+    /*
+    we should not need to get the perpendicular vector to the contact_normal
+    
+    */
+    respons_vector = contact_normal * min_axis_overlap;
+    //respons_vector = { respons_vector.x, -respons_vector.y };
     return true;
 }
 

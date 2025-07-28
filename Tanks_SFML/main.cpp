@@ -179,8 +179,8 @@ int main()
     const float piller_pixel_size = 15 * sprite_size_factor;
     piller.moveEnt({ piller_pixel_size * 6 , piller_pixel_size * 4 }); // 8*2*4 = 16 => 4 pixels, 16 pixels, 64 = 17 pix,  8*8-4 = 8*2*4-4 = 16*4-4 = 15*4
     
-    //piller.spr->setRotation(sf::degrees(45));
-    //piller.spr->rotate(sf::degrees(45));
+    piller.spr->setRotation(sf::degrees(45));
+    
     
 
     // calls copy constructor?
@@ -272,9 +272,9 @@ int main()
         //sf::Time dt = clock.getElapsedTime(); // .asMilliseconds() direkt här ?
 
         //std::cout << dt.asMilliseconds() << "\n";
-
+        //piller.spr->rotate(sf::degrees(1));
         uppdate_state(window, ch, new_chunk, fixed_enlist, moveb_enlist, all_coliders, clock);
-
+        
         //std::cout << 1.0f / dt.asSeconds() << "\n";
         //std::cout << dt.asMilliseconds() << "\n";
 
@@ -637,8 +637,17 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
        
                     // n->moveEnt(test.componentWiseMul(test2) );
                     //sf::Vector2f newvec = { clamp(test_vec.x,vet.vertecis[down_left].x,vet.vertecis[down_right].x),clamp(test_vec.x,vet.vertecis[down_left].y,vet.vertecis[top_left].y) };
-                    n->moveEnt(test_vec*dt); // * n->speed   * dt
-                    std::cout << "new_pos:ncolider: "; print_SF2Dvec(n->spr->getPosition());
+                    
+                    // theres is a bugg where  test_vec / 2.0f gets stuck left rotated side...
+                    n->moveEnt(test_vec); 
+                    //m->spr->move(-test_vec / 2.0f);
+
+
+                    //n->dirMove(dt); // * n->speed   * dt,, * test_vec.normalized()
+                    //m->spr->move((n->speed * dt) * n->dirV);
+                    //m->spr->move( ( n->speed * dt  ) * -test_vec.normalized());
+
+                    //std::cout << "new_pos:ncolider: "; print_SF2Dvec(n->spr->getPosition());
                     collision = true;
                 }
                 //sf::RectangleShape test;
@@ -661,7 +670,7 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
         }
 
         if (!collision) {
-           // n->dirMove(dt);
+           //n->dirMove(dt); // när jag använder denna så blir de knas
         }
     }
 }

@@ -83,6 +83,7 @@ public:
         coli = c;
     }
 
+    // BEHÖVER kopplasamman rotation och move för att se om det sker knas...
     void moveEnt(sf::Vector2<float> v) {
         /*
         * if (!spr) // spr == NULL samma som !n->spr
