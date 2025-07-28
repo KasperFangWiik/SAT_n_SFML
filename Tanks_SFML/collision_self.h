@@ -38,6 +38,12 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     const Rect_Vertecies rect1_vertecis,
     const Rect_Vertecies rect2_vertecis);
 
+bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
+    const Rect_Vertecies rect1_vertecis,
+    const Rect_Vertecies rect2_vertecis,
+    float& size_of_overlap,
+    sf::Vector2f& contact_normal);
+
 bool check_SAT_axis_overlap(sf::Vector2f& projection_axis,
     const Rect_Vertecies rect1_vertecis,
     const Rect_Vertecies rect2_vertecis,
@@ -52,7 +58,7 @@ const sf::Vector2f simple_min_max_projection_distance(const sf::Vector2f& projec
     const Rect_Vertecies R_V);
 
 bool intersect_rect(sf::Sprite* rect1, sf::Sprite* rect2);
-
+bool simple_rect_collision(sf::Sprite* rect1, sf::Sprite* rect2, sf::Vector2f& respons_vector);
 void get_clamped_vertex(Vertex_pair& Incident_Face, Vertex_pair& Reference_Face);
 sf::Vector2f get_clamped_vertex(float In_x0, float In_y0, float In_x1, float In_y1, float Re_x, float Re_y);
 

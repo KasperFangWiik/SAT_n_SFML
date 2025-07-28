@@ -623,7 +623,10 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
 
             sf::Vector2f test_vec{};
             //if (current_colider_rect.findIntersection(tmp_colider_rect))
-                if (n->speed > 0 && colid_Rotated_rectangles(n->spr, m->spr, test_vec)) { // should check here if object in motion
+            
+                if (n->speed > 0 && simple_rect_collision(n->spr, m->spr, test_vec)) { //colid_Rotated_rectangles()
+                    if (test_vec == sf::Vector2f{ 0,0 })
+                        continue;
                     std::cout << "self_made collide" << "\n";
                     std::cout << "testvec "; print_SF2Dvec(test_vec);
                     std::cout << "testvec normalized"; print_SF2Dvec(test_vec.normalized());
@@ -634,7 +637,7 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
        
                     // n->moveEnt(test.componentWiseMul(test2) );
                     //sf::Vector2f newvec = { clamp(test_vec.x,vet.vertecis[down_left].x,vet.vertecis[down_right].x),clamp(test_vec.x,vet.vertecis[down_left].y,vet.vertecis[top_left].y) };
-                    n->moveEnt(test_vec); // * n->speed   * dt
+                    n->moveEnt(test_vec*dt); // * n->speed   * dt
                     std::cout << "new_pos:ncolider: "; print_SF2Dvec(n->spr->getPosition());
                     collision = true;
                 }

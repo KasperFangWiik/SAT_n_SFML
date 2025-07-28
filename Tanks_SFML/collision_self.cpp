@@ -1,5 +1,6 @@
 #pragma once
 #include<iostream>
+#include<limits>
 #include <tuple>
 
 #include<SFML/Graphics.hpp>
@@ -195,6 +196,67 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
 
 }
 
+bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
+    const Rect_Vertecies rect1_vertecis,
+    const Rect_Vertecies rect2_vertecis,
+    float& size_of_overlap,
+    sf::Vector2f& contact_normal) {
+
+    sf::Vector2f min_max_dist1 = min_max_projection_distance(projection_axis, rect1_vertecis);
+    sf::Vector2f min_max_dist2 = min_max_projection_distance(projection_axis, rect2_vertecis);
+
+
+    float A = min_max_dist1.x;
+    float B = min_max_dist1.y;
+
+    float C = min_max_dist2.x;
+    float D = min_max_dist2.y;
+
+    //Overlap Test
+    // Points go:
+    //       +-------------+
+    // +-----|-----+     2 |
+    // | 1   |     |       |
+    // |     +-----|-------+
+    // +-----------+
+    // A ----C---- B ----- D
+
+    // how do i calculate the size of the overlap?
+    // should probably
+    // find reference face on A and a incident face on B with normals closesd to the projection_axis
+
+    float current_size_of_overlap = 0;
+    // IF A < C AND B > C (Overlap in order object 1 -> object 2)
+    if (A <= C && B >= C) { // original (A <= C && B >= C)
+        // Store the collison data
+
+        current_size_of_overlap = C - B;
+
+        if (current_size_of_overlap < size_of_overlap) {
+            size_of_overlap = current_size_of_overlap;
+            contact_normal = projection_axis;
+        }
+
+        return true;
+    }
+
+    // IF C < A AND D > A (Overlap in order object 2 -> object 1)
+    if (C <= A && D >= A) { // original (C <= A && D >= A)
+        // Store the collison data
+        current_size_of_overlap = A - D;
+
+        if (current_size_of_overlap < size_of_overlap) {
+            size_of_overlap = current_size_of_overlap;
+            contact_normal = -projection_axis;
+        }
+
+        return true;
+    }
+
+    return false;
+
+}
+
 bool check_SAT_axis_overlap( sf::Vector2f& projection_axis,
     const Rect_Vertecies rect1_vertecis,
     const Rect_Vertecies rect2_vertecis,
@@ -317,7 +379,32 @@ bool intersect_rect(sf::Sprite* rect1, sf::Sprite* rect2) {
     return true;
 }
 
-void get_clamped_vertexes(Vertex_pair& Incident_Face, Vertex_pair& Reference_Face) {
+bool simple_rect_collision(sf::Sprite* rect1, sf::Sprite* rect2, sf::Vector2f& respons_vector) {
+
+    sf::Vector2f* normals_rect1 = normals_of_rect_withFunk(rect1);
+    sf::Vector2f normals_1[2] = { normals_rect1[0], normals_rect1[1] }; // { { 1.0f, 0.0f }, { 0.0f, 1.0f } };
+    Rect_Vertecies vertecis_rect1 = get_vertecis_of_rectcol(rect1);
+
+
+    sf::Vector2f* normals_rect2 = normals_of_rect_withFunk(rect2); // should probably return a std::array<type, size>
+    sf::Vector2f normals_2[2] = { normals_rect1[0], normals_rect1[1] };
+    Rect_Vertecies vertecis_rect2 = get_vertecis_of_rectcol(rect2);
+
+    float min_axis_overlap = std::numeric_limits<float>::max(); 
+    sf::Vector2f contact_normal = {};
+
+    int numb_of_rect1_normals = 2;
+    for (int i = 0; i < numb_of_rect1_normals; i++) {
+        if (!check_SAT_axis_overlap(normals_1[i], vertecis_rect1, vertecis_rect2, min_axis_overlap, contact_normal) ||
+            !check_SAT_axis_overlap(normals_2[i], vertecis_rect1, vertecis_rect2, min_axis_overlap, contact_normal))
+            return false;
+    }
+    respons_vector = - contact_normal * min_axis_overlap;
+    respons_vector = { respons_vector.y, -respons_vector.x };
+    return true;
+}
+
+void get_clamped_vertex(Vertex_pair& Incident_Face, Vertex_pair& Reference_Face) {
 
     float In_x0 = Incident_Face.vertecis[0].x;
     float In_y0 = Incident_Face.vertecis[0].y;
@@ -345,7 +432,7 @@ void get_clamped_vertexes(Vertex_pair& Incident_Face, Vertex_pair& Reference_Fac
     float Re_x1 = Reference_Face.vertecis[1].x;
     float Re_y1 = Reference_Face.vertecis[1].y;
 
-    float y_inc_clamped = k * Re_x1+ m;
+    y_inc_clamped = k * Re_x1+ m;
 
     if (!(y_inc_clamped < Re_y1 || y_inc_clamped > Re_y1)) {
         // uppdate to new clamped vertex
@@ -458,7 +545,7 @@ bool colid_Rotated_rectangles(sf::Sprite* rect1, sf::Sprite* rect2, sf::Vector2f
     
     Vertex_pair Incident = { Incident_Face[0],Incident_Face[1] };
     Vertex_pair Reference = { Reference_Face[0],Reference_Face[1] };
-    get_clamped_vertexes(Incident, Reference);
+    get_clamped_vertex(Incident, Reference);
 
     /*
     Incident_Face[0] = get_clamped_vertex(Incident_Face[0].x, Incident_Face[0].y, Incident_Face[1].x, Incident_Face[1].y, Reference_Face[0].x, Reference_Face[0].y );
