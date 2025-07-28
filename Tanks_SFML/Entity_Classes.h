@@ -103,9 +103,30 @@ public:
         if (spr) {
             spr->rotate(sf::degrees(rot_angle * dt));
         }
-
     }
+    /*
+    void CenterRotEnt(float dt) { // might need to inforce that dt should be used
+        if (coli) { // spr == NULL samma som !n->spr
 
+            // Kan generalisera functionen...
+            sf::Transform current_transform = coli->getTransform(); // getTransform() returns a constant transform
+            sf::Vector2f local_center =  coli->getOrigin();
+            sf::Vector2f global_center = current_transform * local_center;
+
+            current_transform.rotate(sf::degrees(rot_angle * dt), global_center);
+
+        }
+
+        if (spr) {
+            spr->rotate(sf::degrees(rot_angle * dt));
+            sf::Transform current_transform = spr->getTransform(); // getTransform() returns a constant transform
+            sf::Vector2f local_center = spr->getOrigin();
+            sf::Vector2f global_center = current_transform * local_center;
+
+            current_transform.rotate(sf::degrees(rot_angle * dt), global_center);
+        }
+    }
+    */
     virtual void set_direction() {}
 
     virtual void dirMove(float dt) { // move entity in the direction of direction vector   

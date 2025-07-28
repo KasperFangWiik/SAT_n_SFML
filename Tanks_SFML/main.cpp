@@ -173,6 +173,10 @@ int main()
     const char tex_piller_file_path[] = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/piller_head.png";
     make_sprite(tex_piller_file_path, sprite_size_factor, all_sprites, all_textures); // magic number 4.0 that is the size factor should be clearer strong typing?
     sf::Sprite* piller_sprite = &all_sprites.back();
+    
+    // change rotation origin /center to the center of the Sprite, i proobaby need to change the colid shapes center to...
+    piller_sprite->setOrigin((sf::Vector2f)piller_sprite->getTexture().getSize() / 2.f);
+    
     sf::FloatRect colid_pill = piller_sprite->getGlobalBounds();
     Entity piller(piller_sprite);
 
@@ -180,6 +184,7 @@ int main()
     const float piller_pixel_size = 15 * sprite_size_factor;
     piller.moveEnt({ piller_pixel_size * 6 , piller_pixel_size * 4 }); // 8*2*4 = 16 => 4 pixels, 16 pixels, 64 = 17 pix,  8*8-4 = 8*2*4-4 = 16*4-4 = 15*4
     piller.rot_angle = 100;
+
     //piller.spr->setRotation(sf::degrees(45));
     
     
@@ -196,8 +201,9 @@ int main()
     const char tex1[] = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/player.png";
     make_sprite(tex_piller_file_path, sprite_size_factor, all_sprites, all_textures);
     sf::Sprite* s = &all_sprites.back();// &all_sprites.back();
+    // changes the origin that we rotate around Could temporarly change the origin and rotate right?
+    s->setOrigin((sf::Vector2f)s->getTexture().getSize() / 2.f);
     Player playerOne(&shape2, s);
-
 
     std::vector<Entity*> moveb_enlist = { &playerOne }; // we are invoking the copy constructor here on &playerOne? and it's 
     moveb_enlist.push_back(&piller);

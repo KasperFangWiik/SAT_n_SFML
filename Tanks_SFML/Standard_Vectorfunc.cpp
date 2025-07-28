@@ -60,6 +60,21 @@ float clamp(float input, float max, float min) {
 }
 
 /*
+// THERE is to mutch work to make a general rotate around a generall point in SFML, instead i change the  origin/rotate point aka .setOrigin
+// sf::Shape and sf::Sprite is subtypes to sf::Transformable&
+void rotate_around_point(sf::Transformable& sh, sf::Vector2f& point, float rotation) {
+
+    sf::Transform current_transform = sh.getTransform(); // getTransform() returns a constant transform
+    sf::Vector2f local_center = sh.getOrigin();
+    sf::Vector2f global_center = current_transform * local_center;
+
+    current_transform.rotate(sf::degrees(rotation), global_center);
+
+}
+
+*/
+
+/*
 float abs(float x) {
 
     if (x < 0)
