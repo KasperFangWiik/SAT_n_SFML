@@ -277,6 +277,48 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
 
 }
 
+bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
+    const Vertex_pair circle_vertecis,
+    const Rect_Vertecies rect2_vertecis,
+    sf::Vector2f& contact_normal) {
+
+   
+    sf::Vector2f min_max_dist1 = { circle_vertecis.vertecis[0].dot(projection_axis),
+                                   circle_vertecis.vertecis[1].dot(projection_axis) };
+
+    sf::Vector2f min_max_dist2 = min_max_projection_distance(projection_axis, rect2_vertecis);
+
+
+    float A = min_max_dist1.x;
+    float B = min_max_dist1.y;
+
+    float C = min_max_dist2.x;
+    float D = min_max_dist2.y;
+
+
+    float current_size_of_overlap = 0;
+    // IF A < C AND B > C (Overlap in order object 1 -> object 2)
+    if (A <= C && B >= C) { // original (A <= C && B >= C)
+        // Store the collison data
+        current_size_of_overlap = C - B;
+        contact_normal = projection_axis * current_size_of_overlap;
+
+        return true;
+    }
+
+    // IF C < A AND D > A (Overlap in order object 2 -> object 1)
+    if (C <= A && D >= A) { // original (C <= A && D >= A)
+        // Store the collison data
+        current_size_of_overlap = A - D;
+        contact_normal = -projection_axis * current_size_of_overlap;
+
+        return true;
+    }
+
+    return false;
+
+}
+
 bool check_SAT_axis_overlap( sf::Vector2f& projection_axis,
     const Rect_Vertecies rect1_vertecis,
     const Rect_Vertecies rect2_vertecis,
@@ -630,6 +672,37 @@ calculate AABB betwee
 ----------------------------------------------------------------------------------------------
 */
 
+
+bool circle_rect_collision(sf::Shape* circle1, sf::Sprite* rect2, sf::Vector2f& respons_vector) {
+
+    
+    sf::FloatRect circle1_globalRect = circle1->getGlobalBounds();
+    sf::Vector2f x_y_axesVal = circle1_globalRect.size;
+    float radius = x_y_axesVal.y / 2.0f;
+
+    sf::Vector2f circle1_ceter = circle1->getTransform() * circle1->getGeometricCenter(); // might just need .getOrigin() if centrum correctly set...
+    sf::Vector2f rect2_ceter = rect2->getOrigin();
+
+    sf::Vector2f projection_axis = (circle1_ceter - rect2_ceter).normalized();
+
+    Rect_Vertecies vertecis_rect2 = get_vertecis_of_rectcol(rect2);
+
+    sf::Vector2f enhettyp = { 1,1 };
+    Vertex_pair circle_verts = { circle1_ceter + enhettyp * -radius, // projection_axis * -radius
+                                circle1_ceter + enhettyp * radius }; // {min_vert, max_vert}
+    /*
+    Vertex_pair circle_verts = { circle1_ceter + projection_axis * -circle1.getRadius(), 
+                                 circle1_ceter + projection_axis *  circle1.getRadius() }; // {min_vert, max_vert}
+    
+    */
+
+    //sf::Vector2f* normals_rect2 = normals_of_rect_withFunk(rect2, vertecis_rect2); // should probably return a std::array<type, size>
+    //sf::Vector2f normals_2[2] = { normals_rect2[0], normals_rect2[1] };
+
+    
+    return check_SAT_axis_overlap(projection_axis, circle_verts, vertecis_rect2, respons_vector);
+}
+
 bool intersect_circles(sf::CircleShape* circle1, sf::CircleShape* circle2) {
 
     sf::Vector2f center_cercle1 = circle1->getTransform() * circle1->getGeometricCenter();
@@ -662,13 +735,11 @@ bool collision_circles(sf::CircleShape& circle1, sf::CircleShape& circle2, Colli
 }
 
 /*
-1. fix collision with shifting rotating objects.
-2. rotation around center.
-3. collision with circle and OBB
-4. collision with circle and circle test
-5. fix so that bullet bounces
-6. collisions with just shapes... Not sprites
-7. colliding with different objects results in different Action class functions being called...
+1. collision with circle and OBB
+2. fix so that bullet bounces
+3. change functions collisions with just shapes... Not sprites
+4. colliding with different objects results in different Action class functions being called...
+5. (what should be the different acction when two moving ojects collide?)
 
 Nead to make a collision Action class.
 */

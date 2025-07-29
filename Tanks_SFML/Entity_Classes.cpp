@@ -52,10 +52,19 @@ Player::Player(sf::Shape* c, sf::Sprite* s) { // const sf::Texture &t
     spr = s;
 }
 
+Player::Player(sf::Shape* c) { // const sf::Texture &t
+    coli = c;
+    // .loadFromFile
+    //tex = t; // ("./Resource Files/FyshSkull.png", false);
+    spr = nullptr;
+}
+
 void Player::moveEnt(sf::Vector2<float> v) {
-    //if(coli != NULL)
-    coli->move(v);
-    spr->move(v);
+    if(coli != nullptr)
+        coli->move(v);
+
+    if (spr != nullptr)
+        spr->move(v);
 }
 
 void Player::set_direction() {

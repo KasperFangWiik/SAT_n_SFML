@@ -153,6 +153,8 @@ public:
 
     Player(sf::Shape* c, sf::Sprite* s);
 
+    Player(sf::Shape* c);
+
     void moveEnt(sf::Vector2<float> v);
 
     void set_direction();

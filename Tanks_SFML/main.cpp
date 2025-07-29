@@ -45,7 +45,6 @@ void move_entitys(const std::vector<Entity*>& moveb_enlist, float dt) {
         n->dirMove(dt);
 }
 
-
 // Ska nog ändast behålla render_chunk
 void render_Entitys(sf::RenderWindow& window, const std::vector<Entity*>& enlist) {
 
@@ -183,7 +182,7 @@ int main()
     // one piller head is (15 * 4) in "pixel" size
     const float piller_pixel_size = 15 * sprite_size_factor;
     piller.moveEnt({ piller_pixel_size * 6 , piller_pixel_size * 4 }); // 8*2*4 = 16 => 4 pixels, 16 pixels, 64 = 17 pix,  8*8-4 = 8*2*4-4 = 16*4-4 = 15*4
-    piller.rot_angle = 100;
+    piller.rot_angle = 0;//  100;
 
     //piller.spr->setRotation(sf::degrees(45));
     
@@ -203,7 +202,7 @@ int main()
     sf::Sprite* s = &all_sprites.back();// &all_sprites.back();
     // changes the origin that we rotate around Could temporarly change the origin and rotate right?
     s->setOrigin((sf::Vector2f)s->getTexture().getSize() / 2.f);
-    Player playerOne(&shape2, s);
+    Player playerOne(&shape2); //  Player playerOne(&shape2, s);
 
     std::vector<Entity*> moveb_enlist = { &playerOne }; // we are invoking the copy constructor here on &playerOne? and it's 
     moveb_enlist.push_back(&piller);
@@ -262,8 +261,6 @@ int main()
                 sf::FloatRect view(zero_pos, sf::Vector2f(new_view_size->size));
                 window.setView(sf::View(view));
             }
-
-          
 
             bool Pressed = false;
             if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
@@ -613,12 +610,8 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
 
     for (Entity* n : moveb_enlist) { // ska man använda const här? const entity n
         bool collision = false;
-        sf::Rect<float> current_colider_rect = n->spr->getGlobalBounds(); //n->coli->getGlobalBounds();
 
         n->set_direction();
-        //n->dirMove(dt);
-        float test = -1.0f;
-        sf::Vector2f other_dir{ n->dirV.x * -1.3f, n->dirV.y * -1.3f };
         n->RotEnt(dt);
         n->dirMove(dt);
         for (const Entity* m : moveb_enlist) {
@@ -631,8 +624,8 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
 
             sf::Vector2f test_vec{};
             //if (current_colider_rect.findIntersection(tmp_colider_rect))
-            
-                if (n->speed > 0 && simple_rect_collision(n->spr, m->spr, test_vec)) { //colid_Rotated_rectangles()
+            if(n->coli != nullptr)
+                if (n->speed > 0 && circle_rect_collision(n->coli, m->spr, test_vec)) { //simple_rect_collision(n->spr, m->spr, test_vec)
                     if (test_vec == sf::Vector2f{ 0,0 })
                         continue;
                     /*

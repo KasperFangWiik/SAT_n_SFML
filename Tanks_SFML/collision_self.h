@@ -64,6 +64,8 @@ sf::Vector2f get_clamped_vertex(float In_x0, float In_y0, float In_x1, float In_
 
 bool colid_Rotated_rectangles(sf::Sprite* rect1, sf::Sprite* rect2, sf::Vector2f& respons_vector);
 
+bool circle_rect_collision(sf::Shape* circle1, sf::Sprite* rect2, sf::Vector2f& respons_vector); // sf::CircleShape& circle1
+
 bool intersect_circles(sf::CircleShape* circle1, sf::CircleShape* circle2);
 
 bool collision_circles(sf::CircleShape& circle1, sf::CircleShape& circle2, CollisuinData& colid_data);
