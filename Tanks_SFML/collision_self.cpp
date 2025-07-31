@@ -278,30 +278,53 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
 }
 
 bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
-    const Vertex_pair circle_vertecis,
+    const float* circle_vert_pos,
     const Rect_Vertecies rect2_vertecis,
+    float& size_of_overlap,
     sf::Vector2f& contact_normal) {
 
    
+    // borde kunna göra dot product på centern till project axeln och sedan addera/ subtrahera radien..
+    /*
     sf::Vector2f min_max_dist1 = { circle_vertecis.vertecis[0].dot(projection_axis),
                                    circle_vertecis.vertecis[1].dot(projection_axis) };
+    
+    */
 
     sf::Vector2f min_max_dist2 = min_max_projection_distance(projection_axis, rect2_vertecis);
 
-
-    float A = min_max_dist1.x;
-    float B = min_max_dist1.y;
+    float A = circle_vert_pos[0];
+    float B = circle_vert_pos[1];
 
     float C = min_max_dist2.x;
     float D = min_max_dist2.y;
+
+    //Overlap Test
+    // Points go:
+    //       +-------------+
+    // +-----|-----+     2 |
+    // | 1   |     |       |
+    // |     +-----|-------+
+    // +-----------+
+    // A ----C---- B ----- D
+
+    // how do i calculate the size of the overlap?
+    // should probably
+    // find reference face on A and a incident face on B with normals closesd to the projection_axis
 
 
     float current_size_of_overlap = 0;
     // IF A < C AND B > C (Overlap in order object 1 -> object 2)
     if (A <= C && B >= C) { // original (A <= C && B >= C)
         // Store the collison data
+
         current_size_of_overlap = C - B;
-        contact_normal = projection_axis * current_size_of_overlap;
+
+        if (abs(current_size_of_overlap) < abs(size_of_overlap)) { // this abs uses cstdlib
+            size_of_overlap = current_size_of_overlap;
+            contact_normal = projection_axis;
+
+        }
 
         return true;
     }
@@ -310,7 +333,12 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     if (C <= A && D >= A) { // original (C <= A && D >= A)
         // Store the collison data
         current_size_of_overlap = A - D;
-        contact_normal = -projection_axis * current_size_of_overlap;
+
+        // should use abs or multiply?
+        if (abs(current_size_of_overlap) < abs(size_of_overlap)) {
+            size_of_overlap = current_size_of_overlap;
+            contact_normal = -projection_axis;
+        }
 
         return true;
     }
@@ -673,34 +701,82 @@ calculate AABB betwee
 */
 
 
+bool minVertex_overlap_to_circle(sf::Vector2f& circle_center, Rect_Vertecies& rect2_vertecis, 
+                                 float radia, float& min_axis_overlap, sf::Vector2f& contact_normal) {
+    
+
+    sf::Vector2f closest_vertex{};
+    float minnfloatVal = std::numeric_limits<float>::max();
+    float minDist{};
+
+    for(const sf::Vector2f n: rect2_vertecis.vertecis){
+        float dist_to_center = distance_between_points(n, circle_center);
+        if (minnfloatVal > dist_to_center) {
+            minnfloatVal = dist_to_center;
+            closest_vertex = n;
+            minDist = dist_to_center;
+        }
+    }
+
+    float overlap = minDist - radia; // if negative then overlap
+    bool is_overlapping = 0 > (overlap);
+
+    if (is_overlapping && abs(min_axis_overlap) > abs(overlap)) {
+        contact_normal = closest_vertex - circle_center;
+        min_axis_overlap = overlap;
+        return true; // return is_overlapping;
+    }
+
+    return is_overlapping; // might overlap but not be the smallest right?
+    
+}
+
+// i need to check so that center is correct... SVAR JA
+// float radius = x_y_axesVal.y / 2.0f; 
 bool circle_rect_collision(sf::Shape* circle1, sf::Sprite* rect2, sf::Vector2f& respons_vector) {
 
-    
+
     sf::FloatRect circle1_globalRect = circle1->getGlobalBounds();
     sf::Vector2f x_y_axesVal = circle1_globalRect.size;
     float radius = x_y_axesVal.y / 2.0f;
 
     sf::Vector2f circle1_ceter = circle1->getTransform() * circle1->getGeometricCenter(); // might just need .getOrigin() if centrum correctly set...
-    sf::Vector2f rect2_ceter = rect2->getOrigin();
+    sf::Vector2f rect2_ceter = rect2->getTransform() * rect2->getOrigin();
+
+
 
     sf::Vector2f projection_axis = (circle1_ceter - rect2_ceter).normalized();
 
+    float circle_pos_on_axis = circle1_ceter.dot(projection_axis);
+
+    //sf::Vector2f enhettyp = { 1,1 };
+    float circle_vert_pos[2] = {circle_pos_on_axis - radius, circle_pos_on_axis + radius}; // {min_vert, max_vert}
+
+    sf::Vector2f test[2] = { circle_vert_pos[0] * projection_axis, circle_vert_pos[2] * projection_axis };
+
     Rect_Vertecies vertecis_rect2 = get_vertecis_of_rectcol(rect2);
+    sf::Vector2f* normals_rect2 = normals_of_rect_withFunk(rect2, vertecis_rect2); // should probably return a std::array<type, size>
+    sf::Vector2f normals_2[2] = { normals_rect2[0], normals_rect2[1] };
 
-    sf::Vector2f enhettyp = { 1,1 };
-    Vertex_pair circle_verts = { circle1_ceter + enhettyp * -radius, // projection_axis * -radius
-                                circle1_ceter + enhettyp * radius }; // {min_vert, max_vert}
-    /*
-    Vertex_pair circle_verts = { circle1_ceter + projection_axis * -circle1.getRadius(), 
-                                 circle1_ceter + projection_axis *  circle1.getRadius() }; // {min_vert, max_vert}
-    
-    */
+    float min_axis_overlap = std::numeric_limits<float>::max();
+    sf::Vector2f contact_normal = {};
 
-    //sf::Vector2f* normals_rect2 = normals_of_rect_withFunk(rect2, vertecis_rect2); // should probably return a std::array<type, size>
-    //sf::Vector2f normals_2[2] = { normals_rect2[0], normals_rect2[1] };
+    int numb_of_rect1_normals = 2;
+    for (int i = 0; i < numb_of_rect1_normals; i++) {
 
-    
-    return check_SAT_axis_overlap(projection_axis, circle_verts, vertecis_rect2, respons_vector);
+        //float circle_pos_on_axis = circle1_ceter.dot(normals_2[i]);
+        //float circle_vert_pos[2] = { circle_pos_on_axis - radius, circle_pos_on_axis + radius };
+        float circle_pos_on_axis0 = test[0].dot(normals_2[i]);
+        float circle_pos_on_axis1 = test[1].dot(normals_2[i]);
+        float circle_vert_pos[2] = { circle_pos_on_axis0, circle_pos_on_axis1 };
+        if (!minVertex_overlap_to_circle(circle1_ceter, vertecis_rect2, radius, min_axis_overlap, contact_normal) ||
+            !check_SAT_axis_overlap(normals_2[i], circle_vert_pos, vertecis_rect2, min_axis_overlap, contact_normal) )
+            return false;
+    }
+
+    respons_vector = contact_normal * min_axis_overlap;
+
+    return true;
 }
 
 bool intersect_circles(sf::CircleShape* circle1, sf::CircleShape* circle2) {

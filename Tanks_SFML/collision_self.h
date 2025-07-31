@@ -44,6 +44,12 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     float& size_of_overlap,
     sf::Vector2f& contact_normal);
 
+bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
+    const Vertex_pair circle_vertecis,
+    const Rect_Vertecies rect2_vertecis,
+    float& size_of_overlap,
+    sf::Vector2f& contact_normal);
+
 bool check_SAT_axis_overlap(sf::Vector2f& projection_axis,
     const Rect_Vertecies rect1_vertecis,
     const Rect_Vertecies rect2_vertecis,

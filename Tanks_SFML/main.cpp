@@ -45,14 +45,40 @@ void move_entitys(const std::vector<Entity*>& moveb_enlist, float dt) {
         n->dirMove(dt);
 }
 
+sf::RectangleShape rect_at_point( sf::Vector2f pos, sf::Vector2f size, sf::Color color) {
+    sf::RectangleShape rect(size);
+    rect.setPosition(pos);
+    rect.setFillColor(color);
+    return rect;
+
+}
+
 // Ska nog ändast behålla render_chunk
 void render_Entitys(sf::RenderWindow& window, const std::vector<Entity*>& enlist) {
+     
 
-    for (Entity* n : enlist) {
-        if (!n->spr) // n->spr == NULL samma som !n->spr
+    for (const Entity* n : enlist) {
+        if (!n->spr) { // n->spr == NULL samma som !n->spr
             window.draw(*(n->coli));
-        else
+            sf::Vector2f center_pos = n->coli->getTransform() * n->coli->getGeometricCenter();
+            window.draw(rect_at_point(center_pos,{5.0f,5.0f}, sf::Color{0,255,0}));
+            
+            sf::FloatRect circle1_globalRect = n->coli->getGlobalBounds();
+            sf::Vector2f x_y_axesVal = circle1_globalRect.size;
+            float radius = x_y_axesVal.y / 2.0f;
+
+            sf::Vector2f enhettyp = { 1,1 };
+            Vertex_pair circle_verts = { center_pos + enhettyp * -radius, // projection_axis * -radius
+                                        center_pos + enhettyp * radius };
+
+            window.draw(rect_at_point(circle_verts.vertecis[0], {5.0f,5.0f}, sf::Color{0,255,0}));
+            window.draw(rect_at_point(circle_verts.vertecis[1], {5.0f,5.0f}, sf::Color{0,255,0}));
+
+        }
+        else {
             window.draw(*(n->spr));
+            window.draw(rect_at_point(n->spr->getTransform() * n->spr->getOrigin(), { 5.0f,5.0f }, sf::Color{ 0,0,255 }));
+        }
     }
 }
 
