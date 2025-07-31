@@ -296,22 +296,15 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     float A = circle_vert_pos[0];
     float B = circle_vert_pos[1];
 
+    float tmp = 0;
+    if (A>B) { // swap
+        tmp = A;
+        A = B;
+        B = tmp;
+    }
+
     float C = min_max_dist2.x;
     float D = min_max_dist2.y;
-
-    //Overlap Test
-    // Points go:
-    //       +-------------+
-    // +-----|-----+     2 |
-    // | 1   |     |       |
-    // |     +-----|-------+
-    // +-----------+
-    // A ----C---- B ----- D
-
-    // how do i calculate the size of the overlap?
-    // should probably
-    // find reference face on A and a incident face on B with normals closesd to the projection_axis
-
 
     float current_size_of_overlap = 0;
     // IF A < C AND B > C (Overlap in order object 1 -> object 2)
@@ -749,22 +742,22 @@ sf::Vector2f closest_polyVertex_to_circle(sf::Vector2f& circle_center, Rect_Vert
 // float radius = x_y_axesVal.y / 2.0f; 
 bool circle_rect_collision(sf::Shape* circle1, sf::Sprite* rect2, sf::Vector2f& respons_vector) {
 
+    sf::Vector2f circle1_ceter = circle1->getTransform() * circle1->getGeometricCenter(); // might just need .getOrigin() if centrum correctly set...
+    sf::Vector2f rect2_ceter = rect2->getTransform() * rect2->getOrigin();
 
     sf::FloatRect circle1_globalRect = circle1->getGlobalBounds();
     sf::Vector2f x_y_axesVal = circle1_globalRect.size;
     float radius = x_y_axesVal.y / 2.0f;
 
-    sf::Vector2f circle1_ceter = circle1->getTransform() * circle1->getGeometricCenter(); // might just need .getOrigin() if centrum correctly set...
-    sf::Vector2f rect2_ceter = rect2->getTransform() * rect2->getOrigin();
-
-
-
     Rect_Vertecies vertecis_rect2 = get_vertecis_of_rectcol(rect2);
     sf::Vector2f* normals_rect2 = normals_of_rect_withFunk(rect2, vertecis_rect2); // should probably return a std::array<type, size>
-    
-    
-    sf::Vector2f circle_normal = (circle1_ceter - closest_polyVertex_to_circle(circle1_ceter, vertecis_rect2)).normalized();
-    sf::Vector2f normals[3] = { normals_rect2[0], normals_rect2[1], circle_normal };
+    sf::Vector2f normals_rect2test2[2]{ normals_rect2[0], normals_rect2[1] };
+
+    // varför "korrupteras" normals_rect2 efter vi passerar vertecis_rect2 till closest_polyVertex_to_circle functionen?
+    sf::Vector2f closest_vertex = closest_polyVertex_to_circle(circle1_ceter, vertecis_rect2);
+    sf::Vector2f circle_normal = (closest_vertex - circle1_ceter).normalized();
+   
+    sf::Vector2f normals[3] = { normals_rect2test2[0], normals_rect2test2[1], circle_normal };
 
     float min_axis_overlap = std::numeric_limits<float>::max();
     sf::Vector2f contact_normal = {};

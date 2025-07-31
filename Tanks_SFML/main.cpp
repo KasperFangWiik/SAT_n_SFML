@@ -212,7 +212,7 @@ int main()
     // one piller head is (15 * 4) in "pixel" size
     const float piller_pixel_size = 15 * sprite_size_factor;
     piller.moveEnt({ piller_pixel_size * 6 , piller_pixel_size * 4 }); // 8*2*4 = 16 => 4 pixels, 16 pixels, 64 = 17 pix,  8*8-4 = 8*2*4-4 = 16*4-4 = 15*4
-    piller.rot_angle = 0;//  100;
+    piller.rot_angle = 100;
 
     //piller.spr->setRotation(sf::degrees(45));
     
