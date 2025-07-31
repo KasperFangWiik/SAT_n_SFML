@@ -731,6 +731,20 @@ bool minVertex_overlap_to_circle(sf::Vector2f& circle_center, Rect_Vertecies& re
     
 }
 
+sf::Vector2f closest_polyVertex_to_circle(sf::Vector2f& circle_center, Rect_Vertecies& rect2_vertecis) {
+
+    sf::Vector2f closest_vertex{};
+    float minnfloatVal = std::numeric_limits<float>::max();
+    for (const sf::Vector2f n : rect2_vertecis.vertecis) {
+        float dist_to_center = distance_between_points(n, circle_center);
+        if (minnfloatVal > dist_to_center) {
+            minnfloatVal = dist_to_center;
+            closest_vertex = n;
+        }
+    }
+    return closest_vertex;
+}
+
 // i need to check so that center is correct... SVAR JA
 // float radius = x_y_axesVal.y / 2.0f; 
 bool circle_rect_collision(sf::Shape* circle1, sf::Sprite* rect2, sf::Vector2f& respons_vector) {
@@ -745,32 +759,22 @@ bool circle_rect_collision(sf::Shape* circle1, sf::Sprite* rect2, sf::Vector2f& 
 
 
 
-    sf::Vector2f projection_axis = (circle1_ceter - rect2_ceter).normalized();
-
-    float circle_pos_on_axis = circle1_ceter.dot(projection_axis);
-
-    //sf::Vector2f enhettyp = { 1,1 };
-    float circle_vert_pos[2] = {circle_pos_on_axis - radius, circle_pos_on_axis + radius}; // {min_vert, max_vert}
-
-    sf::Vector2f test[2] = { circle_vert_pos[0] * projection_axis, circle_vert_pos[2] * projection_axis };
-
     Rect_Vertecies vertecis_rect2 = get_vertecis_of_rectcol(rect2);
     sf::Vector2f* normals_rect2 = normals_of_rect_withFunk(rect2, vertecis_rect2); // should probably return a std::array<type, size>
-    sf::Vector2f normals_2[2] = { normals_rect2[0], normals_rect2[1] };
+    
+    
+    sf::Vector2f circle_normal = (circle1_ceter - closest_polyVertex_to_circle(circle1_ceter, vertecis_rect2)).normalized();
+    sf::Vector2f normals[3] = { normals_rect2[0], normals_rect2[1], circle_normal };
 
     float min_axis_overlap = std::numeric_limits<float>::max();
     sf::Vector2f contact_normal = {};
 
-    int numb_of_rect1_normals = 2;
-    for (int i = 0; i < numb_of_rect1_normals; i++) {
+    int numb_of_normals = 3;
+    for (int i = 0; i < numb_of_normals; i++) {
 
-        //float circle_pos_on_axis = circle1_ceter.dot(normals_2[i]);
-        //float circle_vert_pos[2] = { circle_pos_on_axis - radius, circle_pos_on_axis + radius };
-        float circle_pos_on_axis0 = test[0].dot(normals_2[i]);
-        float circle_pos_on_axis1 = test[1].dot(normals_2[i]);
-        float circle_vert_pos[2] = { circle_pos_on_axis0, circle_pos_on_axis1 };
-        if (!minVertex_overlap_to_circle(circle1_ceter, vertecis_rect2, radius, min_axis_overlap, contact_normal) ||
-            !check_SAT_axis_overlap(normals_2[i], circle_vert_pos, vertecis_rect2, min_axis_overlap, contact_normal) )
+        float circle_pos_on_axis = circle1_ceter.dot(normals[i]);
+        float circle_vert_pos[2] = { circle_pos_on_axis - radius, circle_pos_on_axis + radius };
+        if (!check_SAT_axis_overlap(normals[i], circle_vert_pos, vertecis_rect2, min_axis_overlap, contact_normal) )
             return false;
     }
 

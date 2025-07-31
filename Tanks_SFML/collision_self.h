@@ -45,7 +45,7 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     sf::Vector2f& contact_normal);
 
 bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
-    const Vertex_pair circle_vertecis,
+    const float* circle_vert_pos,
     const Rect_Vertecies rect2_vertecis,
     float& size_of_overlap,
     sf::Vector2f& contact_normal);
@@ -69,6 +69,17 @@ void get_clamped_vertex(Vertex_pair& Incident_Face, Vertex_pair& Reference_Face)
 sf::Vector2f get_clamped_vertex(float In_x0, float In_y0, float In_x1, float In_y1, float Re_x, float Re_y);
 
 bool colid_Rotated_rectangles(sf::Sprite* rect1, sf::Sprite* rect2, sf::Vector2f& respons_vector);
+
+/*
+------------------------------------------------------------------------------------------------------------------
+Circle collisions related:
+------------------------------------------------------------------------------------------------------------------
+*/
+
+bool minVertex_overlap_to_circle(sf::Vector2f& circle_center, Rect_Vertecies& rect2_vertecis,
+    float radia, float& min_axis_overlap, sf::Vector2f& contact_normal);
+
+sf::Vector2f closest_polyVertex_to_circle(sf::Vector2f& circle_center, Rect_Vertecies& rect2_vertecis);
 
 bool circle_rect_collision(sf::Shape* circle1, sf::Sprite* rect2, sf::Vector2f& respons_vector); // sf::CircleShape& circle1
 
