@@ -53,7 +53,7 @@ sf::Vector2f* normals_of_rect_withFunk(sf::Sprite* colid_sprite, Rect_Vertecies&
     normals[x_axis] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[Vertex::top_right]);
     normals[y_axis] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[Vertex::down_left]);
 
-    return normals;
+    return normals; // this returns a temporary varible...
 }
 
 sf::Vector2f* normals_of_rect_withFunk(sf::Sprite* colid_sprite) {
@@ -68,7 +68,7 @@ sf::Vector2f* normals_of_rect_withFunk(sf::Sprite* colid_sprite) {
     return normals;
 }
 
-
+//behövs inte...
 sf::Vector2f* all_normals_of_rect(sf::Sprite* colid_sprite) {
 
     // Function could be generalized to all 
@@ -724,12 +724,13 @@ bool minVertex_overlap_to_circle(sf::Vector2f& circle_center, Rect_Vertecies& re
     
 }
 
-sf::Vector2f closest_polyVertex_to_circle(sf::Vector2f& circle_center, Rect_Vertecies& rect2_vertecis) {
+//kan generalisera denna...
+sf::Vector2f closest_polyVertex_to_point(sf::Vector2f& point, Rect_Vertecies& rect2_vertecis) {
 
     sf::Vector2f closest_vertex{};
     float minnfloatVal = std::numeric_limits<float>::max();
     for (const sf::Vector2f n : rect2_vertecis.vertecis) {
-        float dist_to_center = distance_between_points(n, circle_center);
+        float dist_to_center = squared_distance_between_points(n, point);
         if (minnfloatVal > dist_to_center) {
             minnfloatVal = dist_to_center;
             closest_vertex = n;
@@ -754,7 +755,7 @@ bool circle_rect_collision(sf::Shape* circle1, sf::Sprite* rect2, sf::Vector2f& 
     sf::Vector2f normals_rect2test2[2]{ normals_rect2[0], normals_rect2[1] };
 
     // varför "korrupteras" normals_rect2 efter vi passerar vertecis_rect2 till closest_polyVertex_to_circle functionen?
-    sf::Vector2f closest_vertex = closest_polyVertex_to_circle(circle1_ceter, vertecis_rect2);
+    sf::Vector2f closest_vertex = closest_polyVertex_to_point(circle1_ceter, vertecis_rect2);
     sf::Vector2f circle_normal = (closest_vertex - circle1_ceter).normalized();
    
     sf::Vector2f normals[3] = { normals_rect2test2[0], normals_rect2test2[1], circle_normal };
@@ -808,7 +809,6 @@ bool collision_circles(sf::CircleShape& circle1, sf::CircleShape& circle2, Colli
 }
 
 /*
-1. collision with circle and OBB
 2. fix so that bullet bounces
 3. change functions collisions with just shapes... Not sprites
 4. colliding with different objects results in different Action class functions being called...

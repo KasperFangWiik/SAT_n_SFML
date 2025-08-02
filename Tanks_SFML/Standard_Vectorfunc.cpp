@@ -46,11 +46,9 @@ float distance_between_points(const sf::Vector2f& point1, const sf::Vector2f& po
     return std::sqrt((point2.x - point1.x) * (point2.x - point1.x) + (point2.y - point1.y) * (point2.x - point1.x));
 }
 
-/*
-float non_squared_distance_between_points(sf::Vector2f& point1, sf::Vector2f& point2) {
-    return std::sqrt((point2.x - point1.x) * (point2.x - point1.x) + (point2.y - point1.y) * (point2.x - point1.x));
+float squared_distance_between_points(const sf::Vector2f& point1, const sf::Vector2f& point2) {
+    return (point2.x - point1.x) * (point2.x - point1.x) + (point2.y - point1.y) * (point2.x - point1.x);
 }
-*/
 
 void print_SF2Dvec(sf::Vector2f vec) {
     std::cout << "Vector_output" << "{" << vec.x << ", " << vec.y << "}" << "\n";

@@ -79,7 +79,7 @@ void render_Entitys(sf::RenderWindow& window, const std::vector<Entity*>& enlist
             window.draw(*(n->spr));
             window.draw(rect_at_point(n->spr->getTransform() * n->spr->getOrigin(), { 5.0f,5.0f }, sf::Color{ 0,0,255 }));
             Rect_Vertecies test = get_vertecis_of_rectcol(n->spr);
-            sf::Vector2f closest_vrtex = closest_polyVertex_to_circle(circle_center_pos, test);
+            sf::Vector2f closest_vrtex = closest_polyVertex_to_point(circle_center_pos, test);
             window.draw(rect_at_point(closest_vrtex, { 5.0f,5.0f }, sf::Color{ 0,0,255 }));
   
         }
@@ -194,7 +194,7 @@ int main()
     all_coliders.reserve(20);
 
 
-    // skulle detta vara en lösning till resize problemet, Svar Nej
+    // skulle deta vara en lösning till resize problemet, Svar Nej
     // i teori är det lättar e att hålla koll på när resize sker och att då ändra pekaren då kanske
     //std::vector<spri_textur> all_sprites_textures;
     const float sprite_size_factor = 4.0;
@@ -222,7 +222,7 @@ int main()
     std::vector<Entity*> fixed_enlist;//  = { &piller };
     //fixed_enlist.emplace_back(&piller);
 
-    sf::CircleShape shape2(50.f);
+    sf::CircleShape shape2(25.f);
     //shape2.setFillColor(sf::Color::Red);
     //shape2.move(200.f, 200.f);
 
@@ -320,128 +320,7 @@ int main()
 
 }
 
-class Entitytest1 {
 
-    //varför sätter folk pos i private och mutator functions i public?
-    //should i use smart pointers hear?
-public:
-    sf::Vector2<float> posV{}; // position in window
-    sf::Vector2<float> dirV{}; // directinal vector
-    float speed{};
-    sf::Shape* coli{};        // colition- & hitbox.
-    sf::Shape* texturebox{};  // shape for texture
-    //sf::Texture tex;      // the texture
-
-    bool w{}, a{}, s{}, d{};
-
-    void moveEnt(sf::Vector2<float> v) {
-        coli->move(v);
-        texturebox->move(v);
-    }
-
-    virtual void dirMove() { // move entity in the direction of direction vector   
-        moveEnt(dirV * speed); // scales the drection vector by the speed
-    }
-
-    //resulting acceleration vector for next time it uppdates? (how do i make quater frames?)
-
-    Entitytest1() {}
-
-
-    Entitytest1(sf::Shape* c) {
-        //passing one shape setts the colider to the texture box
-        coli = texturebox = c;
-    }
-
-    //should we pass "pointers/refferences" instead of just float?
-    Entitytest1(float x, float y, sf::Shape* c) {
-        posV.x = x, posV.y = y;
-
-        //passing one shape setts the colider to the texture box
-        coli = texturebox = c;
-    }
-
-    //private:
-
-    //protected:
-
-};
-
-class Entitytest2 {
-
-    //varför sätter folk pos i private och mutator functions i public?
-    //should i use smart pointers hear?
-public:
-    sf::Vector2<float> posV{}; // position in window
-    sf::Vector2<float> dirV{}; // directinal vector
-    float speed{};
-    sf::Shape* coli{};        // colition- & hitbox.
-    sf::Shape* texturebox{};  // shape for texture
-    //sf::Texture tex;      // the texture
-
-    bool w{}, a{}, s{}, d{};
-
-    void moveEnt(sf::Vector2<float> v) {
-        coli->move(v);
-        texturebox->move(v);
-    }
-
-    virtual void dirMove() { // move entity in the direction of direction vector   
-        moveEnt(dirV * speed); // scales the drection vector by the speed
-    }
-
-    //resulting acceleration vector for next time it uppdates? (how do i make quater frames?)
-
-    sf::Shape* form(sf::Shape* universalShape) {
-
-        // hur tar man och skapar en variabel som alla object i klassen har till gång till
-        // skapa ny textur så att vi kan använda en univerrsal shape istället för flera
-        sf::Texture testTex;
-        testTex.resize({ 100, 100 });
-
-        const sf::Texture* nytextur = &testTex;
-
-        universalShape->setTexture(nytextur, true);
-
-        /*
-
-        bool 	loadFromFile (const std::string &filename, const IntRect &area=IntRect())
-            Load the texture from a file on disk
-
-        bool create (unsigned int width, unsigned int height)
-            Create the texture
-
-
-        sf::Shape::setTexture	(	const Texture *	texture, bool	resetRect = false )
-        texture	New texture
-        resetRect	Should the texture rect be reset to the size of the new texture?
-
-        */
-        return universalShape;
-    }
-
-    Entitytest2() {}// standard constructor
-
-
-    Entitytest2(sf::Shape* c) {
-        //passing one shape setts the colider to the texture box
-        coli = texturebox = c;
-    }
-
-    //should we pass "pointers/refferences" instead of just float?
-    Entitytest2(float x, float y, sf::Shape* c) {
-        posV.x = x, posV.y = y;
-
-        //passing one shape setts the colider to the texture box
-        coli = texturebox = c;
-    }
-
-private:
-    static sf::Shape* universalShape; // const? och 
-
-    //protected:
-
-};
 
 /*
 ______________________________________________________________________________
@@ -482,99 +361,7 @@ Manifolds.
 
 
 
-//-------------------------------------------------------------- Det över är mer gennerella func
 
-
-/*
-
-//The function should probably return a std::span aka a pointer and the length of the arr,  (C++20)
-// (sf::Rect<float>* rect, sf::Transform transform_matrix)
-sf::Vector2f* calculate_normals_of_rect(sf::Sprite* colid_sprite) {
-
-    sf::FloatRect localRect = colid_sprite->getLocalBounds();
-    sf::Transform transformMatrix = colid_sprite->getTransform();
-
-    // behöver jag initializera på detta sätt?
-    sf::Vector2f normals[2] = { sf::Vector2f{}, sf::Vector2f{} };
-
-    // we transform the local boumds...
-    sf::Vector2f starting_point = localRect.position; //transform_matrix * rect->getPosition();
-    sf::Vector2f xy2_axis_side_x = { starting_point.x + localRect.size.x, starting_point.y };
-    sf::Vector2f xy2_axis_side_y = { starting_point.x , starting_point.y + localRect.size.y };
-
-    starting_point = transformMatrix * starting_point;
-    xy2_axis_side_x = transformMatrix * xy2_axis_side_x;
-    xy2_axis_side_y = transformMatrix * xy2_axis_side_y;
-
-    normals[0] = calc_normal_of_lineSegment(starting_point, xy2_axis_side_x);
-    normals[1] = calc_normal_of_lineSegment(starting_point, xy2_axis_side_y);
-
-    return normals;
-    // if we define dx=x2-x1 and dy=y2-y1, then the normals are (-dy, dx) and (dy, -dx)
-}
-
-
-
-
-//-------------------------
-// SIMPLIFIED rectangle kollision with out rotation/transformation exemp size and directiom:
-
-sf::Vector2f* simplefide_normals_of_rect(const sf::Rect<float>& rect) {
-
-    // behöver jag initializera på detta sätt?
-    sf::Vector2f normals[2] = { sf::Vector2f{}, sf::Vector2f{} };
-
-    sf::Vector2f starting_point = rect.position;
-
-
-    sf::Vector2f xy2_axis_side_x = { starting_point.x + rect.size.x, starting_point.y };
-    normals[0] = calc_normal_of_lineSegment(starting_point, xy2_axis_side_x);
-
-
-    sf::Vector2f xy2_axis_side_y = { starting_point.x, starting_point.y + rect.size.y };
-    normals[1] = calc_normal_of_lineSegment(starting_point, xy2_axis_side_y);
-
-    
-    return normals;
-    // if we define dx=x2-x1 and dy=y2-y1, then the normals are (-dy, dx) and (dy, -dx)
-}
-
-*/
-
-bool colid_nonRotated_rectangles(sf::Sprite* rect1, sf::Sprite* rect2) {
-
-    bool collison = true;
-    sf::Vector2f* normals_rect1 = normals_of_rect_withFunk(rect1);
-    sf::Vector2f* vertecis_rect1 = get_vertecis_of_rectcol(rect1).vertecis;
-
-    sf::Vector2f* normals_rect2 = normals_of_rect_withFunk(rect2);
-    sf::Vector2f* vertecis_rect2 = get_vertecis_of_rectcol(rect2).vertecis;
-
-    //int numb_vertecis = sizeof(vertecis_rect1);
-
-    // HÄR BORDE JAG BARA SE OM Värdena över är korrect!!
-
-    //  distance = a * b_normal, a is the vertex vector
-
-    std::vector<float> axis_distances_1 = {};
-    std::vector<float> axis_distances_2 = {};
-    //return check_SAT_axis_overlap() || check_SAT_axis_overlap();
-    float Xmin_distance1 = dot_product(vertecis_rect1[Vertex::top_left], normals_rect1[Projection::x_axis]);
-    float Xmax_distance1 = dot_product(vertecis_rect1[Vertex::top_right], normals_rect1[Projection::x_axis]);
-
-    float Xmin_distance2 = dot_product(vertecis_rect2[Vertex::top_left], normals_rect2[Projection::x_axis]);
-    float Xmax_distance2 = dot_product(vertecis_rect2[Vertex::top_right], normals_rect2[Projection::x_axis]);
-
-    // if we find one not overlapping then return false aka we cant be intersecting
-
-
-    dot_product(vertecis_rect1[top_left], normals_rect1[x_axis]);
-    dot_product(vertecis_rect2[top_left], normals_rect2[top_left]);
-
-
-    // get the all the points/vertexes of the rectangles and 
-    return collison;
-}
 
 //-------------------------
 // jag borde skillja på functionen som checkar kollisions och  movar?
@@ -636,7 +423,6 @@ void move_with_Coll_entitys(const std::vector<Entity*>& moveb_enlist, std::vecto
 
 // semi funkar, ett problm är att jag inte vet hur mycket jag ska röra mig bakåt..
 void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Shape*> all_coliders, float pixel_size_factor, float dt) {
-
 
     for (Entity* n : moveb_enlist) { // ska man använda const här? const entity n
         bool collision = false;
@@ -711,26 +497,7 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
 
 
 
-/*
-// BORDE Utgå från punkten och checka frammåt eller?
-        for (sf::Vector2f i = end_point; vectf2_leng(i) <= vectf2_leng(starting_point); i -= ((n->dirV) * pixel_size_factor) ){ //  i teorin är 4 en pixel
 
-            bool collision = false;
-            sf::Rect<float> current_colider_rect = n->coli->getGlobalBounds();
-
-            // i have to check so that we are not testing aoure selves...
-            for (Entity* m : moveb_enlist) {
-
-                sf::Rect<float> tmp_colider_rect = m->coli->getGlobalBounds();
-
-                if (current_colider_rect.intersects(tmp_colider_rect)) {
-                    // save the closest point from this object (maby give i that value - 1pixel)
-                }
-
-            }
-        }
-
-*/
 
 /*
 Cmake forwarding..

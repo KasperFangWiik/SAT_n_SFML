@@ -79,7 +79,7 @@ Circle collisions related:
 bool minVertex_overlap_to_circle(sf::Vector2f& circle_center, Rect_Vertecies& rect2_vertecis,
     float radia, float& min_axis_overlap, sf::Vector2f& contact_normal);
 
-sf::Vector2f closest_polyVertex_to_circle(sf::Vector2f& circle_center, Rect_Vertecies& rect2_vertecis);
+sf::Vector2f closest_polyVertex_to_point(sf::Vector2f& point, Rect_Vertecies& rect2_vertecis);
 
 bool circle_rect_collision(sf::Shape* circle1, sf::Sprite* rect2, sf::Vector2f& respons_vector); // sf::CircleShape& circle1
 
