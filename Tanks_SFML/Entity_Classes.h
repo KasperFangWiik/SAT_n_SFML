@@ -17,8 +17,10 @@ class Player;
 
 
 sf::Sprite* make_spritetest(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures);
+
 void make_sprite(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures);
 //void make_sprite(std::string sprite_path, float size_factor, std::vector<spri_textur>& all_sprites_textures);
+
 void playerKeyEvent(sf::Keyboard::Scancode key_code, bool pressed, Player& const playerOne);
 void keyPressControll(std::optional<sf::Event> event, Player* const playerOne);
 
@@ -34,6 +36,10 @@ public:
     sf::Vector2f dirV{}; // directinal vector
     float speed{};
     float rot_angle{};
+    const int id;
+    // förklaring till inline's användning i detta forum: https://cplusplus.com/forum/beginner/282511/, only sinnse c++17
+    //static inline int ID_sum = 0;
+    
 
     // sf::Shape* texturebox{};  // shape for texture
 
@@ -41,11 +47,14 @@ public:
     //sf::Texture* tex{};      // the texture
     sf::Sprite* spr{};
 
-    Entity() {}// standard constructor
+    Entity(): id(++ID_sum) {
+        // id = ++ID_sum; // says  error E0137 expression most be a modefible lvalue 
+    }// standard constructor
+
     ~Entity() {} // standard destructor
 
     // copy constructor (needed for use in std::vector, s there a standard?)
-    Entity(const Entity& other) : coli(other.coli), spr(other.spr) {}
+    Entity(const Entity& other) : coli(other.coli), spr(other.spr), id(++ID_sum) {}
 
     /*
     Entity(const Entity& other) : coli(other.coli),
@@ -68,21 +77,25 @@ public:
     }
     */
 
-    Entity(sf::Shape& c, sf::Sprite* s) {
+    Entity(sf::Shape& c, sf::Sprite* s) : id(++ID_sum) {
         //passing one shape setts the colider to the texture box
         spr = s;
         coli = &c;
+
     }
 
-    Entity(sf::Sprite* s) {
+    Entity(sf::Sprite* s) : id(++ID_sum) {
         //passing one shape setts the colider to the texture box
         spr = s;
     }
 
-    Entity(sf::Shape* c) {
+    Entity(sf::Shape* c) : id(++ID_sum) {
         //passing one shape setts the colider to the texture box
         coli = c;
     }
+
+    // DENNA LÖSTE Problemet med std::vector som uppcom då const int id; las till
+    Entity& operator =(const Entity&) {}
 
     // BEHÖVER kopplasamman rotation och move för att se om det sker knas...
     void moveEnt(sf::Vector2<float> v) {
@@ -127,6 +140,7 @@ public:
         }
     }
     */
+
     virtual void set_direction() {}
 
     virtual void dirMove(float dt) { // move entity in the direction of direction vector   
@@ -137,10 +151,11 @@ public:
         moveEnt(other_dir * speed * dt); // scales the drection vector by the speed
     }
 
+    protected:
+        static int ID_sum;
     //private:
-    //protected:
+    //    static int ID_sum;
 };
-
 
 // used only so that players are shecked for inputs
 class Player : public Entity {
@@ -148,6 +163,8 @@ class Player : public Entity {
 public:
     //sf::Vector2f dirV{}; // directinal vector
     //float speed{};
+
+    //const int id; // varför kan jag inte ärva denna ??? GÖR detta och behöver inte änns öka den i constructorn..
 
     bool w{}, a{}, s{}, d{};
 

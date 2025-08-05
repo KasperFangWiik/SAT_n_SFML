@@ -1,5 +1,8 @@
 #include"Entity_Classes.h"
 
+
+
+int Entity::ID_sum = 0;
 // const char* sprite_path
 void make_sprite(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures) {
 
@@ -38,14 +41,15 @@ sf::Sprite* make_spritetest(std::string sprite_path, float size_factor, std::vec
 }
 
 
-
 /*
 -------------------------------------------------------------------------------
 Player related code:
 -------------------------------------------------------------------------------
 */
 
+// behöver för någon anledning inte skriva : id(++ID_sum) detta görs av sig skälv, varför?
 Player::Player(sf::Shape* c, sf::Sprite* s) { // const sf::Texture &t
+    
     coli = c;
     // .loadFromFile
     //tex = t; // ("./Resource Files/FyshSkull.png", false);

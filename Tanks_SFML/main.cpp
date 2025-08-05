@@ -13,9 +13,42 @@
 #include "collision_self.h"
 
 
-
-
 //#define ONE_DIV_SQRTWO 0.70706781f //float value of ONE_DIV_SQRTWO = 1/sqrt(2)
+
+
+
+/*
+______________________________________________________________________________
+                                TODO LIST:
+
+    2. Creat two list of shapes, one for rectangles and one for circles... Eatch shape needs to have a ID connected to a entity...
+    3. Creat a function that sifts throu the two lists and resolvs collisions...
+    4. implement mecanic where you can shoot "bullets" in the direction of muse
+    5. make them bounce once and disaper the next time...
+
+    Implement simplistic broad faze collision?
+    2. make a function that divides a map in to chunks, Semi correct formuleratt...
+    4. (State machine creator...)
+______________________________________________________________________________
+
+Questions:
+1. make so that every entity has a unik ID, use static varible? Or other ways?  BORDE VARA KLAR
+    UNDERSÖK:!!!!!!!!!!!!!!!!!!!!!!!
+    // DENNA LÖSTE Problemet med std::vector som uppcom då const int id; las till
+    Entity& operator =(const Entity&) {}
+
+    // behöver för någon anledning inte skriva : id(++ID_sum) detta görs av sig skälv, varför?
+     Player::Player(sf::Shape* c, sf::Sprite* s)
+
+
+
+Noah snackade något om hur man skulle  hantera texturer eller shapes...
+
+std::vector nyttjar sig av RAII och deletar sig skälv efter gåt ut ur scope
+och kallar på destructorn av objectet inom den men om denna destructor inte
+kallar på delet kommer det skapa minnes luckor?
+
+*/
 
 
 // skriv inte för mycket kod, testa med att få grund saker att funka 
@@ -28,20 +61,11 @@
 // there is a difference between moving and non-moving entitys
 // maby this should be a identity factory 
 
-// https://en.cppreference.com/w/cpp/container/vector
-//Reallocations are usually costly operations in terms of performance. 
-//The reserve() function can be used to eliminate reallocations 
-//if the number of elements is known beforehand.
-// 
-// do we whant an std::vector<entity>* or std::vector<shape>*?
-
-//std::vector<sf::Sprite>::iterator
-void move_with_Coll_entitys(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Shape*> all_coliders, float pixel_size_factor, float dt);
 void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Shape*> all_coliders, float pixel_size_factor, float dt);
 
 void move_entitys(const std::vector<Entity*>& moveb_enlist, float dt) {
 
-    for (Entity* n : moveb_enlist) // ska man använda const här? const entity n
+    for (Entity* const n : moveb_enlist) // ska man använda const här? const entity n
         n->dirMove(dt);
 }
 
@@ -56,32 +80,12 @@ sf::RectangleShape rect_at_point( sf::Vector2f pos, sf::Vector2f size, sf::Color
 // Ska nog ändast behålla render_chunk
 void render_Entitys(sf::RenderWindow& window, const std::vector<Entity*>& enlist) {
      
-    sf::Vector2f circle_center_pos{};
     for (const Entity* n : enlist) {
         if (!n->spr) { // n->spr == NULL samma som !n->spr
             window.draw(*(n->coli));
-            circle_center_pos = n->coli->getTransform() * n->coli->getGeometricCenter();
-            window.draw(rect_at_point(circle_center_pos,{5.0f,5.0f}, sf::Color{0,255,0}));
-            
-            sf::FloatRect circle1_globalRect = n->coli->getGlobalBounds();
-            sf::Vector2f x_y_axesVal = circle1_globalRect.size;
-            float radius = x_y_axesVal.y / 2.0f;
-
-            sf::Vector2f enhettyp = { 1,1 };
-            Vertex_pair circle_verts = { circle_center_pos + enhettyp * -radius, // projection_axis * -radius
-                                        circle_center_pos + enhettyp * radius };
-
-            window.draw(rect_at_point(circle_verts.vertecis[0], {5.0f,5.0f}, sf::Color{0,255,0}));
-            window.draw(rect_at_point(circle_verts.vertecis[1], {5.0f,5.0f}, sf::Color{0,255,0}));
-
         }
         else {
             window.draw(*(n->spr));
-            window.draw(rect_at_point(n->spr->getTransform() * n->spr->getOrigin(), { 5.0f,5.0f }, sf::Color{ 0,0,255 }));
-            Rect_Vertecies test = get_vertecis_of_rectcol(n->spr);
-            sf::Vector2f closest_vrtex = closest_polyVertex_to_point(circle_center_pos, test);
-            window.draw(rect_at_point(closest_vrtex, { 5.0f,5.0f }, sf::Color{ 0,0,255 }));
-  
         }
     }
 }
@@ -189,7 +193,7 @@ int main()
     all_sprites.reserve(20);
     std::vector<sf::Texture> all_textures;
     all_textures.reserve(20);
-    // i cant call reserve here because sf::Shape is not copyable; KOLLA detta fel/error igen för du förstod inte denna !!!!!!!!
+    // Borde ha två olika listor, en med circle shape och en för rectangle shapes... och resolva kollision genom att gå igenom dem alla...
     std::vector<sf::Shape*>  all_coliders;
     all_coliders.reserve(20);
 
@@ -213,26 +217,24 @@ int main()
     const float piller_pixel_size = 15 * sprite_size_factor;
     piller.moveEnt({ piller_pixel_size * 6 , piller_pixel_size * 4 }); // 8*2*4 = 16 => 4 pixels, 16 pixels, 64 = 17 pix,  8*8-4 = 8*2*4-4 = 16*4-4 = 15*4
     piller.rot_angle = 100;
-
+    std::cout << piller.id << "\n";
     //piller.spr->setRotation(sf::degrees(45));
     
-    
-
-    // calls copy constructor?
+   
     std::vector<Entity*> fixed_enlist;//  = { &piller };
     //fixed_enlist.emplace_back(&piller);
 
     sf::CircleShape shape2(25.f);
-    //shape2.setFillColor(sf::Color::Red);
-    //shape2.move(200.f, 200.f);
 
     // this might make one extra copy...
     const char tex1[] = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/player.png";
     make_sprite(tex_piller_file_path, sprite_size_factor, all_sprites, all_textures);
     sf::Sprite* s = &all_sprites.back();// &all_sprites.back();
+
     // changes the origin that we rotate around Could temporarly change the origin and rotate right?
     s->setOrigin((sf::Vector2f)s->getTexture().getSize() / 2.f);
     Player playerOne(&shape2); //  Player playerOne(&shape2, s);
+    std::cout << playerOne.id << "\n";
 
     std::vector<Entity*> moveb_enlist = { &playerOne }; // we are invoking the copy constructor here on &playerOne? and it's 
     moveb_enlist.push_back(&piller);
@@ -320,28 +322,6 @@ int main()
 
 }
 
-
-
-/*
-______________________________________________________________________________
-                                TODO LIST:
-    1. Make a system for applying textures to shapes
-    2. make a function that divides a map in to chunks
-    3. make a system for checking collisons
-    4. (State machine creator...)
-______________________________________________________________________________
-
-Questions:
-Noah snackade något om hur man skulle  hantera texturer eller shapes...
-
-std::vector nyttjar sig av RAII och deletar sig skälv efter gåt ut ur scope
-och kallar på destructorn av objectet inom den men om denna destructor inte
-kallar på delet kommer det skapa minnes luckor?
-
-*/
-
-
-
 /*
 ______________________________________________________________________________
                                 Collisondetection:
@@ -362,64 +342,6 @@ Manifolds.
 
 
 
-
-//-------------------------
-// jag borde skillja på functionen som checkar kollisions och  movar?
-void move_with_Coll_entitys(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Shape*> all_coliders, float pixel_size_factor, float dt) {
-
-    int i = 0;
-    for (Entity* n : moveb_enlist) { // ska man använda const här? const entity n
-
-        sf::Vector2f starting_point = n->spr->getPosition(); // should i just use get pos or possition values in entitiy?
-        sf::Vector2f end_point = (starting_point)+(n->dirV) * (n->speed) * dt;
-        sf::Vector2f vals = (n->dirV) * (n->speed) * dt;
-
-        float fraction = 16.0; // maby the fraction value should depend on the length, then we would allways test the same number of times... no...
-        sf::Vector2f end_point_fraction = { end_point.x / fraction, end_point.y / fraction };
-
-        std::cout << "index:" << i++ << "\n";
-        std::cout << "starting_point:" << " { " << starting_point.x << " , " << starting_point.y << " } " << "\n";
-        std::cout << "end_point:" << " { " << end_point.x << " , " << end_point.y << " } " << "\n";
-        std::cout << "end_point_fraction:" << " { " << end_point_fraction.x << " , " << end_point_fraction.y << " } " << "\n";
-        std::cout << "vals:" << " { " << vals.x << " , " << vals.y << " } " << "\n";
-        std::cout << "speed:" << " { " << n->speed << " } " << "\n"; // varför är alltid speed noll? 
-        bool collision = false;
-
-        // (i.x < end_point.x || i.y < end_point.y) funkar inte 
-        for (sf::Vector2f i = starting_point; vectf2_leng(i) < vectf2_leng(end_point) || (i.x < end_point.x || i.y < end_point.y); i += end_point_fraction) { // this i += end_point_fraction floating point arithmetics might make it impossible to reatche one specific pont..
-
-            sf::Rect<float> current_colider_rect = n->spr->getGlobalBounds(); //n->coli->getGlobalBounds();
-            n->moveEnt(i);
-
-            for (Entity* m : moveb_enlist) {
-                // checking against others are made
-                std::cout << "checking against others" << "\n";
-                // i have to check so that we are not testing aoure selves...
-                if (m == n) {
-                    //std::cout << "colison was made" << "\n";
-                    continue;
-                }
-
-                sf::Rect<float> tmp_colider_rect = m->spr->getGlobalBounds(); // m->coli->getGlobalBounds();
-
-                // constexpr std::optional<Rect<T>> Rect<T>::findIntersection
-                if (current_colider_rect.findIntersection(tmp_colider_rect) ) {
-                    // normalt vill vi typ göra detta men vad om vill utföra en action som också kan bero på vilka två object som colidar?
-                    // och vad händer om något movar på ett annat sätt typ teleportar skulle de då vara en action istället? eller ska move och action va kopplat?
-                    n->moveEnt(i - end_point_fraction);
-                    collision = true;
-                    std::cout << "colison was made" << "\n";
-                }
-            }
-        }
-        /*
-        if (!collision) {
-            n->dirMove(dt);
-        }
-        */
-
-    }
-}
 
 // semi funkar, ett problm är att jag inte vet hur mycket jag ska röra mig bakåt..
 void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Shape*> all_coliders, float pixel_size_factor, float dt) {
@@ -503,81 +425,6 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
 Cmake forwarding..
 
 x är först i kön och testar sinn colison så om y som går efter rör sig sammtidigt emot x så kommer väll x putta y? NEJ
-*/
-
-
-
-// ------------------------------
-// Movement functions/functionelity should be sepperate from entity, we should only be calling on move functions if the entity is expected to move..
-
-/*
-void moveEnt(sf::Vector2<float> v) {
-    coli->move(v);
-    texturebox->move(v);
-}
-
-virtual void dirMove(float dt) { // move entity in the direction of direction vector
-    moveEnt(dirV * speed * dt); // scales the drection vector by the speed
-}
-
-*/
-// ------------------------------
-
-
-/*
-
-class Movable_Entity: public Entity {
-
-    //varför sätter folk pos i private och mutator functions i public?
-    //should i use smart pointers hear?
-public:
-
-    sf::Vector2<float> dirV{}; // directinal vector
-    float speed{};
-    //sf::Texture tex;      // the texture
-
-    Movable_Entity() {} // standard constructor
-    ~Movable_Entity() {} // standard destructor
-
-
-    Movable_Entity(sf::Shape* c) {
-        //passing one shape setts the colider to the texture box
-        coli = texturebox = c;
-    }
-
-    //should we pass "pointers/refferences" instead of just float?
-    Movable_Entity(float x, float y, sf::Shape* c) {
-        posV.x = x, posV.y = y;
-
-        //passing one shape setts the colider to the texture box
-        coli = texturebox = c;
-    }
-
-    Movable_Entity(float x, float y, sf::Shape* c, float speed) {
-        posV.x = x, posV.y = y;
-        this->speed = speed;
-        //passing one shape setts the colider to the texture box
-        coli = texturebox = c;
-    }
-
-
-    void moveEnt(sf::Vector2<float> v) {
-        coli->move(v);
-        texturebox->move(v);
-    }
-
-    virtual void dirMove(float dt) { // move entity in the direction of direction vector
-        moveEnt(dirV * speed * dt); // scales the drection vector by the speed
-    }
-
-    //private:
-
-    //protected:
-
-};
-
-
-
 */
 
 
