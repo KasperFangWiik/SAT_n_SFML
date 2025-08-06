@@ -55,7 +55,7 @@ Circle collisions related:
 ------------------------------------------------------------------------------------------------------------------
 */
 
-bool intersect(sf::CircleShape* circle1, sf::CircleShape* circle2);
+bool intersect(sf::CircleShape& circle1, sf::CircleShape& circle2);
 bool collision(sf::CircleShape& circle1, sf::CircleShape& circle2, sf::Vector2f& respons_vector);
 
 /*

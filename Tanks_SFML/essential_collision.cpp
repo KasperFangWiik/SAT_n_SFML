@@ -111,7 +111,8 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     float min_rect2 = min_max_dist2.at(0);
     float max_rect2 = min_max_dist2.at(1);
 
-    return (min_rect1 <= min_rect2 && max_rect1 >= min_rect2) || (min_rect2 <= min_rect1 && min_rect2 >= min_rect1) ;
+    return (min_rect1 <= min_rect2 && max_rect1 >= min_rect2) || 
+           (min_rect2 <= min_rect1 && min_rect2 >= min_rect1) ;
 }
 
 bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
@@ -201,15 +202,15 @@ Circle collisions related:
 ------------------------------------------------------------------------------------------------------------------
 */
 
-bool intersect(sf::CircleShape* circle1, sf::CircleShape* circle2) {
+bool intersect(sf::CircleShape& circle1, sf::CircleShape& circle2) {
 
-    sf::Vector2f center_cercle1 = circle1->getTransform() * circle1->getGeometricCenter();
-    sf::Vector2f center_cercle2 = circle2->getTransform() * circle2->getGeometricCenter();
+    sf::Vector2f center_cercle1 = circle1.getTransform() * circle1.getOrigin();
+    sf::Vector2f center_cercle2 = circle2.getTransform() * circle2.getOrigin();
 
     float distance_between = distance_between_points(center_cercle1, center_cercle2);
 
     // returns if they collide but not where...
-    return (distance_between <= circle1->getRadius() + circle2->getRadius());
+    return (distance_between <= circle1.getRadius() + circle2.getRadius());
 }
 bool collision(sf::CircleShape& circle1, sf::CircleShape& circle2, sf::Vector2f& respons_vector) {
 
@@ -305,12 +306,12 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     return false;
 }
 
-//kan generalisera denna... Med std::vector
+// kan generalisera denna... Med std::vector
 sf::Vector2f closest_polyVertex_to_point(sf::Vector2f& point, std::array<sf::Vector2f, 4>& rect2_vertices) {
 
     sf::Vector2f closest_vertex{};
     float minnfloatVal = std::numeric_limits<float>::max();
-    for (const sf::Vector2f n : rect2_vertices) {
+    for (const sf::Vector2f& n : rect2_vertices) {
         float dist_to_center = squared_distance_between_points(n, point);
         if (minnfloatVal > dist_to_center) {
             minnfloatVal = dist_to_center;
