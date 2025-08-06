@@ -6,14 +6,7 @@
 
 /*
 
-Kommentar:.
-
-En Idè är att jag beräknar en swept collision för tanksen som rör sig, detta innebär att alla tansk collisions boxar
-behöver förlängas i sinn hastighets riktning innan de chechas med SAT collisions algoritmen,
-där efter för flyttas objectet upp till den närmsta punkten av den koliderade objectet.
-Hur hanterar jag tid aka vet när/om de skulle ha missat varandra... (vet inte...)
-
-Eller om den swept obb'n intersectar med två stycken framför sig men den ena e framför den andra?
+Kommentar:
 
 TODOS?: 
 
@@ -40,12 +33,12 @@ Rectangle collisions related:
 ------------------------------------------------------------------------------------------------------------------
 */
 
-std::array< sf::Vector2f, 4> get_vertecis_of_rectcol(sf::RectangleShape& colid_sprite) {
+std::array<sf::Vector2f, 4> get_vertecis_of_rectcol(sf::RectangleShape& colid_sprite) {
 
     std::array< sf::Vector2f, 4> vertices = {};
     sf::FloatRect localRect = colid_sprite.getLocalBounds();
     sf::Transform transformMatrix = colid_sprite.getTransform();
-    sf::Vector2f position = localRect.position;//.getPosition();
+    sf::Vector2f position = localRect.position;
 
 
     vertices.at(top_left) = { position.x, position.y };
@@ -67,12 +60,12 @@ std::array<sf::Vector2f, 2> normals_of_rect_withFunk(const std::array< sf::Vecto
     normals.at(x_axis) = calc_normal_of_lineSegment(rect_vertices.at(Vertex::top_left), rect_vertices.at(Vertex::top_right));
     normals.at(y_axis) = calc_normal_of_lineSegment(rect_vertices.at(Vertex::top_left), rect_vertices.at(Vertex::down_left));
 
-    return normals; // this returns a temporary varible...
+    return normals;
 }
 
 const std::array<float, 2> min_max_projection_distance(const sf::Vector2f& projection_axis,
-                                               const std::array<sf::Vector2f, 4>& rect_vertices) {
-    // dot_product
+                                                       const std::array<sf::Vector2f, 4>& rect_vertices) {
+
     float min_distance = rect_vertices.at(0).dot(projection_axis);
     float max_distance = rect_vertices.at(1).dot(projection_axis);
     float tmp_distance = {};
@@ -135,7 +128,7 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     if (min_rect1 <= min_rect2 && max_rect1 >= min_rect2) {
 
         current_size_of_overlap = min_rect2 - max_rect1;
-        if (abs(current_size_of_overlap) < abs(respons_data.penetration)) { // this abs uses cstdlib
+        if (abs(current_size_of_overlap) < abs(respons_data.penetration)) { // abs from cstdlib, should use abs or multiply?
             respons_data.penetration = current_size_of_overlap;
             respons_data.contact_normal = projection_axis;
         }
@@ -147,7 +140,6 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     if (min_rect2 <= min_rect1 && min_rect2 >= min_rect1) {
 
         current_size_of_overlap = min_rect1 - max_rect2;
-        // should use abs or multiply?
         if (abs(current_size_of_overlap) < abs(respons_data.penetration)) {
             respons_data.penetration = current_size_of_overlap;
             respons_data.contact_normal = -projection_axis;
@@ -209,7 +201,6 @@ bool intersect(sf::CircleShape& circle1, sf::CircleShape& circle2) {
 
     float distance_between = distance_between_points(center_cercle1, center_cercle2);
 
-    // returns if they collide but not where...
     return (distance_between <= circle1.getRadius() + circle2.getRadius());
 }
 bool collision(sf::CircleShape& circle1, sf::CircleShape& circle2, sf::Vector2f& respons_vector) {
@@ -282,8 +273,7 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     if (circle_min_dist <= rect_min_dist && circle_max_dist >= rect_min_dist) {
 
         current_size_of_overlap = rect_min_dist - circle_max_dist;
-
-        if (abs(current_size_of_overlap) < abs(respons_data.penetration)) { // this abs uses cstdlib
+        if (abs(current_size_of_overlap) < abs(respons_data.penetration)) {
             respons_data.penetration = current_size_of_overlap;
             respons_data.contact_normal = projection_axis;
         }
@@ -294,15 +284,12 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     if (rect_min_dist <= circle_min_dist && rect_max_dist >= circle_min_dist) {
 
         current_size_of_overlap = circle_min_dist - rect_max_dist;
-
-        // should use abs or multiply?
         if (abs(current_size_of_overlap) < abs(respons_data.penetration)) {
             respons_data.penetration = current_size_of_overlap;
             respons_data.contact_normal = -projection_axis;
         }
         return true;
     }
-
     return false;
 }
 
@@ -323,8 +310,8 @@ sf::Vector2f closest_polyVertex_to_point(sf::Vector2f& point, std::array<sf::Vec
 
 bool intersect(sf::CircleShape& circle1, sf::RectangleShape& rect2) {
 
-    sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getOrigin(); // might just need .getOrigin() if centrum correctly set...
-    sf::Vector2f rect2_ceter = rect2.getTransform() * rect2.getOrigin();
+    sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getOrigin();
+    sf::Vector2f rect2_ceter   = rect2.getTransform() * rect2.getOrigin();
 
     float radius = circle1.getRadius();
 
@@ -350,8 +337,8 @@ bool intersect(sf::CircleShape& circle1, sf::RectangleShape& rect2) {
 }
 bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector) {
 
-    sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getOrigin(); // might just need .getOrigin() if centrum correctly set...
-    sf::Vector2f rect2_ceter = rect2.getTransform() * rect2.getOrigin();
+    sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getOrigin();
+    sf::Vector2f rect2_ceter   = rect2.getTransform() * rect2.getOrigin();
 
     float radius = circle1.getRadius();
 

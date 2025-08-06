@@ -4,6 +4,7 @@
 #include<SFML/System/Vector2.hpp>
 #include "Standard_Vectorfunc.h"
 
+//maby classes..
 struct RectShapeIdPair {
     const int entity_id;
     sf::RectangleShape shape;
