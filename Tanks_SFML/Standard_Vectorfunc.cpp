@@ -16,7 +16,7 @@ float dot_product(const sf::Vector2f& vec1, const sf::Vector2f& vec2) {
     return vec1.x * vec2.x + vec1.y * vec2.y;
 }
 
-sf::Vector2f calc_normal_of_lineSegment(sf::Vector2f& starting_point, sf::Vector2f& end_point) {
+sf::Vector2f calc_normal_of_lineSegment(const sf::Vector2f& starting_point, const sf::Vector2f& end_point) {
 
     sf::Vector2f dxy = end_point - starting_point;
     sf::Vector2f normal = { dxy.y, -dxy.x };
@@ -26,7 +26,7 @@ sf::Vector2f calc_normal_of_lineSegment(sf::Vector2f& starting_point, sf::Vector
     return normal / vectf2_leng(normal); // should you be able to decide direction? / vectf2_leng(normal)
 }
 
-sf::Vector2f calc_normal_of_lineSegment(sf::Vector2f& starting_point, sf::Vector2f& end_point, bool direction) {
+sf::Vector2f calc_normal_of_lineSegment(const sf::Vector2f& starting_point, const sf::Vector2f& end_point, bool direction) {
 
     sf::Vector2f dxy = end_point - starting_point;
     sf::Vector2f normal{};

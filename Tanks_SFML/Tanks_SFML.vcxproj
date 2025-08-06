@@ -134,12 +134,14 @@
     <ClCompile Include="collision_self.cpp" />
     <ClCompile Include="collision_self.h" />
     <ClCompile Include="Entity_Classes.cpp" />
+    <ClCompile Include="essential_collision.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map_classes.h" />
     <ClCompile Include="Standard_Vectorfunc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity_Classes.h" />
+    <ClInclude Include="essential_collision.h" />
     <ClInclude Include="Standard_Vectorfunc.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

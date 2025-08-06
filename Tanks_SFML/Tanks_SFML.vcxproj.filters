@@ -33,12 +33,18 @@
     <ClCompile Include="Standard_Vectorfunc.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="essential_collision.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity_Classes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Standard_Vectorfunc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="essential_collision.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

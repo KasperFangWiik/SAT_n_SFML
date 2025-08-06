@@ -2,7 +2,7 @@
 #include<iostream>
 #include<filesystem>
 #include <string>
-#include <tuple>
+//#include <tuple>
 
 #include<SFML/Graphics.hpp>
 #include<SFML/System/Vector2.hpp>
