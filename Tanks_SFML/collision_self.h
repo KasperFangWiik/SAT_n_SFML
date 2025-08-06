@@ -6,8 +6,18 @@
 #include<SFML/System/Vector2.hpp>
 #include "Standard_Vectorfunc.h"
 
+struct Rect_Shape_Id_Pair {
+    const int entity_id;
+    sf::RectangleShape shape;
+};
+
+struct Circle_Shape_Id_Pair {
+    const int entity_id;
+    sf::CircleShape shape;
+};
+
 struct Rect_Vertecies {
-    sf::Vector2f vertecis[4] = {};
+    sf::Vector2f vertices[4] = {};
 };
 
 struct CollisuinData {
@@ -17,7 +27,7 @@ struct CollisuinData {
 };
 
 struct Vertex_pair{
-    sf::Vector2f vertecis[2] = {};
+    sf::Vector2f vertices[2] = {};
 };
 
 //sf::Vector2f* get_vertecis_of_rectcol(sf::Sprite* colid_sprite);

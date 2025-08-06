@@ -22,8 +22,9 @@ ______________________________________________________________________________
                                 TODO LIST:
 
     2. Creat two list of shapes, one for rectangles and one for circles... Eatch shape needs to have a ID connected to a entity...
+        the class or struct with shape should be in collision .h/.cpp files..
     3. Creat a function that sifts throu the two lists and resolvs collisions...
-    4. implement mecanic where you can shoot "bullets" in the direction of muse
+    4. implement mecanic where you can shoot "bullets" in the direction of mose
     5. make them bounce once and disaper the next time...
 
     Implement simplistic broad faze collision?

@@ -33,12 +33,12 @@ Rect_Vertecies get_vertecis_of_rectcol(sf::Sprite* colid_sprite) {
     sf::Vector2f position = localRect.position;//.getPosition();
 
     
-    R_V.vertecis[top_left] = { position.x, position.y };
-    R_V.vertecis[down_left] = { position.x , position.y + localRect.size.y }; // y direction is inverted
-    R_V.vertecis[top_right] = { position.x + localRect.size.x, position.y };
-    R_V.vertecis[down_right] = { position.x + localRect.size.x , position.y + localRect.size.y };
+    R_V.vertices[top_left] = { position.x, position.y };
+    R_V.vertices[down_left] = { position.x , position.y + localRect.size.y }; // y direction is inverted
+    R_V.vertices[top_right] = { position.x + localRect.size.x, position.y };
+    R_V.vertices[down_right] = { position.x + localRect.size.x , position.y + localRect.size.y };
     
-    for (sf::Vector2f& n : R_V.vertecis) {
+    for (sf::Vector2f& n : R_V.vertices) {
         n = transformMatrix * n;
     }
     return R_V;
@@ -49,7 +49,7 @@ sf::Vector2f* normals_of_rect_withFunk(sf::Sprite* colid_sprite, Rect_Vertecies&
     // Function could be generalized to all 
     sf::Vector2f normals[2] = {};
 
-    sf::Vector2f* verteces = Rect_verts.vertecis;
+    sf::Vector2f* verteces = Rect_verts.vertices;
     normals[x_axis] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[Vertex::top_right]);
     normals[y_axis] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[Vertex::down_left]);
 
@@ -61,7 +61,7 @@ sf::Vector2f* normals_of_rect_withFunk(sf::Sprite* colid_sprite) {
     // Function could be generalized to all 
     sf::Vector2f normals[2] = {};
 
-    sf::Vector2f* verteces = get_vertecis_of_rectcol(colid_sprite).vertecis;
+    sf::Vector2f* verteces = get_vertecis_of_rectcol(colid_sprite).vertices;
     normals[x_axis] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[Vertex::top_right]);
     normals[y_axis] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[Vertex::down_left]);
 
@@ -76,7 +76,7 @@ sf::Vector2f* all_normals_of_rect(sf::Sprite* colid_sprite) {
     // Function could be generalized to all 
     sf::Vector2f normals[4] = {};
 
-    sf::Vector2f* verteces = get_vertecis_of_rectcol(colid_sprite).vertecis;
+    sf::Vector2f* verteces = get_vertecis_of_rectcol(colid_sprite).vertices;
     // tekniskt särr x_axis_up (0,1) och x_axis_down (0,-1)
     normals[y_axis_up] = calc_normal_of_lineSegment(verteces[Vertex::top_left], verteces[Vertex::top_right]);
     normals[y_axis_down] = calc_normal_of_lineSegment(verteces[Vertex::down_right], verteces[Vertex::down_left]);
@@ -104,8 +104,8 @@ std::array<sf::Vector2f,2> test_normals_of_rect_withFunk(sf::Sprite* colid_sprit
 const sf::Vector2f min_max_projection_distance(const sf::Vector2f& projection_axis,
                                                const Rect_Vertecies& R_V) {
     // dot_product
-    float min_distance = R_V.vertecis[0].dot(projection_axis);
-    float max_distance = R_V.vertecis[1].dot(projection_axis);
+    float min_distance = R_V.vertices[0].dot(projection_axis);
+    float max_distance = R_V.vertices[1].dot(projection_axis);
     float tmp_distance{};
 
     if (min_distance > max_distance) {
@@ -115,7 +115,7 @@ const sf::Vector2f min_max_projection_distance(const sf::Vector2f& projection_ax
     }
 
     for (int i = 2; i < 4; i++) {
-        tmp_distance = R_V.vertecis[i].dot(projection_axis);
+        tmp_distance = R_V.vertices[i].dot(projection_axis);
 
         if (min_distance > tmp_distance) {
             min_distance = tmp_distance;
@@ -134,8 +134,8 @@ const sf::Vector2f min_max_projection_distance(const sf::Vector2f& projection_ax
 
     int min_vec_index = 0;
     int max_vec_index = 1;
-    float min_distance = R_V.vertecis[0].dot(projection_axis);
-    float max_distance = R_V.vertecis[1].dot(projection_axis);
+    float min_distance = R_V.vertices[0].dot(projection_axis);
+    float max_distance = R_V.vertices[1].dot(projection_axis);
     float tmp_distance{};
 
     if (min_distance > max_distance) {
@@ -147,7 +147,7 @@ const sf::Vector2f min_max_projection_distance(const sf::Vector2f& projection_ax
     }
 
     for (int i = 2; i < 4; i++) {
-        tmp_distance = R_V.vertecis[i].dot(projection_axis);
+        tmp_distance = R_V.vertices[i].dot(projection_axis);
 
         if (min_distance > tmp_distance) {
             min_distance = tmp_distance;
@@ -160,8 +160,8 @@ const sf::Vector2f min_max_projection_distance(const sf::Vector2f& projection_ax
         }
     }
 
-    min_dist_vec = R_V.vertecis[min_vec_index];
-    max_dist_vec = R_V.vertecis[max_vec_index];
+    min_dist_vec = R_V.vertices[min_vec_index];
+    max_dist_vec = R_V.vertices[max_vec_index];
 
     return { min_distance, max_distance };
 }
@@ -426,13 +426,13 @@ const sf::Vector2f simple_min_max_projection_distance(const sf::Vector2f& projec
                                                 const Rect_Vertecies R_V) {
 
     if (projection_axis == sf::Vector2f{ 1.0f,0.0f }) {
-        float min_distance = R_V.vertecis[top_left].dot(projection_axis);
-        float max_distance = R_V.vertecis[top_right].dot(projection_axis);
+        float min_distance = R_V.vertices[top_left].dot(projection_axis);
+        float max_distance = R_V.vertices[top_right].dot(projection_axis);
         return { min_distance, max_distance };
     }
     else {
-        float min_distance =  R_V.vertecis[top_right].dot(projection_axis);
-        float max_distance = R_V.vertecis[down_right].dot(projection_axis);
+        float min_distance =  R_V.vertices[top_right].dot(projection_axis);
+        float max_distance = R_V.vertices[down_right].dot(projection_axis);
         return { min_distance, max_distance };
     }
 
@@ -494,14 +494,14 @@ bool simple_rect_collision(sf::Sprite* rect1, sf::Sprite* rect2, sf::Vector2f& r
 
 void get_clamped_vertex(Vertex_pair& Incident_Face, Vertex_pair& Reference_Face) {
 
-    float In_x0 = Incident_Face.vertecis[0].x;
-    float In_y0 = Incident_Face.vertecis[0].y;
+    float In_x0 = Incident_Face.vertices[0].x;
+    float In_y0 = Incident_Face.vertices[0].y;
 
-    float In_x1 = Incident_Face.vertecis[1].x;
-    float In_y1 = Incident_Face.vertecis[1].y;
+    float In_x1 = Incident_Face.vertices[1].x;
+    float In_y1 = Incident_Face.vertices[1].y;
 
-    float Re_x0 = Reference_Face.vertecis[0].x;
-    float Re_y0 = Reference_Face.vertecis[0].y;
+    float Re_x0 = Reference_Face.vertices[0].x;
+    float Re_y0 = Reference_Face.vertices[0].y;
 
     float k = (In_x1 - In_x0) / (In_y1 - In_y0); // (x1-x0)/(y1-y0) = k
     float m = (k * In_x0) - In_y0;  // m = k * x0 - y0
@@ -514,11 +514,11 @@ void get_clamped_vertex(Vertex_pair& Incident_Face, Vertex_pair& Reference_Face)
         In_x0 = Re_x0;
         In_y0 = y_inc_clamped;
     }
-    Incident_Face.vertecis[0] = { In_x0 ,In_y0 };
+    Incident_Face.vertices[0] = { In_x0 ,In_y0 };
 
 
-    float Re_x1 = Reference_Face.vertecis[1].x;
-    float Re_y1 = Reference_Face.vertecis[1].y;
+    float Re_x1 = Reference_Face.vertices[1].x;
+    float Re_y1 = Reference_Face.vertices[1].y;
 
     y_inc_clamped = k * Re_x1+ m;
 
@@ -528,7 +528,7 @@ void get_clamped_vertex(Vertex_pair& Incident_Face, Vertex_pair& Reference_Face)
         In_y1 = y_inc_clamped;
     }
 
-    Incident_Face.vertecis[1] = { In_x1 ,In_y1 };
+    Incident_Face.vertices[1] = { In_x1 ,In_y1 };
 }
 
 // can i minnimize the copying of values but allso keep the readabuility
@@ -702,7 +702,7 @@ bool minVertex_overlap_to_circle(sf::Vector2f& circle_center, Rect_Vertecies& re
     float minnfloatVal = std::numeric_limits<float>::max();
     float minDist{};
 
-    for(const sf::Vector2f n: rect2_vertecis.vertecis){
+    for(const sf::Vector2f n: rect2_vertecis.vertices){
         float dist_to_center = distance_between_points(n, circle_center);
         if (minnfloatVal > dist_to_center) {
             minnfloatVal = dist_to_center;
@@ -729,7 +729,7 @@ sf::Vector2f closest_polyVertex_to_point(sf::Vector2f& point, Rect_Vertecies& re
 
     sf::Vector2f closest_vertex{};
     float minnfloatVal = std::numeric_limits<float>::max();
-    for (const sf::Vector2f n : rect2_vertecis.vertecis) {
+    for (const sf::Vector2f n : rect2_vertecis.vertices) {
         float dist_to_center = squared_distance_between_points(n, point);
         if (minnfloatVal > dist_to_center) {
             minnfloatVal = dist_to_center;
