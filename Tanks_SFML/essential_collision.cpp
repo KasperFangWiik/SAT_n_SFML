@@ -1,17 +1,12 @@
 #pragma once
 #include<iostream>
-
 #include<SFML/Graphics.hpp>
 #include<SFML/System/Vector2.hpp>
 #include "essential_collision.h"
 
 /*
 
-Kommentar:
-Kanske ska seöver att nyttja std::array
-
-
-// returning raw pointers is not advisable by CHAT so maby we don't, instead we return structs or vectors
+Kommentar:.
 
 En Idè är att jag beräknar en swept collision för tanksen som rör sig, detta innebär att alla tansk collisions boxar
 behöver förlängas i sinn hastighets riktning innan de chechas med SAT collisions algoritmen,
@@ -44,6 +39,7 @@ std::out_of_range
 Rectangle collisions related:
 ------------------------------------------------------------------------------------------------------------------
 */
+
 std::array< sf::Vector2f, 4> get_vertecis_of_rectcol(sf::RectangleShape& colid_sprite) {
 
     std::array< sf::Vector2f, 4> vertices = {};
@@ -162,7 +158,7 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     return false;
 }
 
-bool intersect_rect(sf::RectangleShape& rect1, sf::RectangleShape& rect2) {
+bool intersect(sf::RectangleShape& rect1, sf::RectangleShape& rect2) {
 
     std::array<sf::Vector2f, 4> vertecis_rect1 = get_vertecis_of_rectcol(rect1);
     std::array<sf::Vector2f, 2> normals_1 = normals_of_rect_withFunk(vertecis_rect1);
@@ -179,8 +175,7 @@ bool intersect_rect(sf::RectangleShape& rect1, sf::RectangleShape& rect2) {
 
     return true;
 }
-
-bool rect_collision(sf::RectangleShape& rect1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector) {
+bool collision(sf::RectangleShape& rect1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector) {
 
     std::array<sf::Vector2f, 4> vertecis_rect1 = get_vertecis_of_rectcol(rect1);
     std::array<sf::Vector2f, 2> normals_1 = normals_of_rect_withFunk(vertecis_rect1);
@@ -205,7 +200,8 @@ bool rect_collision(sf::RectangleShape& rect1, sf::RectangleShape& rect2, sf::Ve
 Circle collisions related:
 ------------------------------------------------------------------------------------------------------------------
 */
-bool intersect_circles(sf::CircleShape* circle1, sf::CircleShape* circle2) {
+
+bool intersect(sf::CircleShape* circle1, sf::CircleShape* circle2) {
 
     sf::Vector2f center_cercle1 = circle1->getTransform() * circle1->getGeometricCenter();
     sf::Vector2f center_cercle2 = circle2->getTransform() * circle2->getGeometricCenter();
@@ -215,8 +211,7 @@ bool intersect_circles(sf::CircleShape* circle1, sf::CircleShape* circle2) {
     // returns if they collide but not where...
     return (distance_between <= circle1->getRadius() + circle2->getRadius());
 }
-
-bool collision_circles(sf::CircleShape& circle1, sf::CircleShape& circle2, sf::Vector2f& respons_vector) {
+bool collision(sf::CircleShape& circle1, sf::CircleShape& circle2, sf::Vector2f& respons_vector) {
 
     sf::Vector2f center_cercle1 = circle1.getTransform() * circle1.getGeometricCenter();
     sf::Vector2f center_cercle2 = circle2.getTransform() * circle2.getGeometricCenter();
@@ -236,16 +231,15 @@ bool collision_circles(sf::CircleShape& circle1, sf::CircleShape& circle2, sf::V
     return false;
 }
 
-
 /*
 ------------------------------------------------------------------------------------------------------------------
 Circle V Rect collisions related:
 ------------------------------------------------------------------------------------------------------------------
 */
+
 bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
-    const std::array<float, 2>& circle_vert_pos,
-    const std::array<sf::Vector2f, 4>& rect2_vertecis,
-    CollisionResponseData& respons_data) {
+                            const std::array<float, 2>& circle_vert_pos,
+                            const std::array<sf::Vector2f, 4>& rect2_vertecis) {
 
     std::array<float, 2> min_max_dist2 = min_max_projection_distance(projection_axis, rect2_vertecis);
     float rect_min_dist = min_max_dist2.at(0);
@@ -255,7 +249,31 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     float circle_min_dist = circle_vert_pos.at(0);
     float circle_max_dist = circle_vert_pos.at(1);
 
-    std::swap(circle_min_dist, circle_max_dist);
+    if (circle_min_dist > circle_max_dist) {
+        std::swap(circle_min_dist, circle_max_dist);
+    }
+
+    return (circle_min_dist <= rect_min_dist && circle_max_dist >= rect_min_dist) || 
+           (rect_min_dist <= circle_min_dist && rect_max_dist >= circle_min_dist);
+
+}
+
+bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
+                            const std::array<float, 2>& circle_vert_pos,
+                            const std::array<sf::Vector2f, 4>& rect2_vertecis,
+                            CollisionResponseData& respons_data) {
+
+    std::array<float, 2> min_max_dist2 = min_max_projection_distance(projection_axis, rect2_vertecis);
+    float rect_min_dist = min_max_dist2.at(0);
+    float rect_max_dist = min_max_dist2.at(1);
+
+
+    float circle_min_dist = circle_vert_pos.at(0);
+    float circle_max_dist = circle_vert_pos.at(1);
+
+    if (circle_min_dist > circle_max_dist) {
+        std::swap(circle_min_dist, circle_max_dist);
+    }
 
     float current_size_of_overlap = 0;
 
@@ -302,7 +320,34 @@ sf::Vector2f closest_polyVertex_to_point(sf::Vector2f& point, std::array<sf::Vec
     return closest_vertex;
 }
 
-bool circle_rect_collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector) {
+bool intersect(sf::CircleShape& circle1, sf::RectangleShape& rect2) {
+
+    sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getOrigin(); // might just need .getOrigin() if centrum correctly set...
+    sf::Vector2f rect2_ceter = rect2.getTransform() * rect2.getOrigin();
+
+    float radius = circle1.getRadius();
+
+
+    std::array<sf::Vector2f, 4> vertecis_rect2 = get_vertecis_of_rectcol(rect2);
+    std::array<sf::Vector2f, 2> normals_2 = normals_of_rect_withFunk(vertecis_rect2);
+
+
+    sf::Vector2f closest_vertex = closest_polyVertex_to_point(circle1_ceter, vertecis_rect2);
+    sf::Vector2f circle_normal = (closest_vertex - circle1_ceter).normalized();
+
+    std::array<sf::Vector2f, 3> normals = { normals_2.at(0), normals_2.at(1), circle_normal };
+
+    for (const sf::Vector2f& normal : normals) {
+
+        float circle_pos_on_axis = circle1_ceter.dot(normal);
+        std::array<float, 2> circle_vert_pos = { circle_pos_on_axis - radius, circle_pos_on_axis + radius };
+
+        if (!check_SAT_axis_overlap(normal, circle_vert_pos, vertecis_rect2))
+            return false;
+    }
+    return true;
+}
+bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector) {
 
     sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getOrigin(); // might just need .getOrigin() if centrum correctly set...
     sf::Vector2f rect2_ceter = rect2.getTransform() * rect2.getOrigin();
@@ -332,3 +377,4 @@ bool circle_rect_collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, 
     respons_vector = respons_data.penetration * respons_data.contact_normal;
     return true;
 }
+
