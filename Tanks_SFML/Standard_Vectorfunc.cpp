@@ -64,7 +64,7 @@ float clamp(float input, float max, float min) {
 }
 
 /*
-// THERE is to mutch work to make a general rotate around a generall point in SFML, instead i change the  origin/rotate point aka .setOrigin
+// THERE is to mutch work to make a general function for rotateing around a generall point in SFML, instead i change the  origin/rotate point aka .setOrigin
 // sf::Shape and sf::Sprite is subtypes to sf::Transformable&
 void rotate_around_point(sf::Transformable& sh, sf::Vector2f& point, float rotation) {
 

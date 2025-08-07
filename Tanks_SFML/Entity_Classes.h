@@ -15,13 +15,30 @@ struct spri_textur {
 class Entity;
 class Player;
 
+// Id_Pair& operator =(const Id_Pair&) {} //will i have to do this??
+
+template <typename T>
+struct Id_Pair{
+    const int entity_id;
+    T value;
+};
+/*
+// assosiating more than one might be usefull
+template<typename T, size_t L>
+class MyArray
+{
+    T arr[L];
+public:
+    MyArray() { ... }
+};
+*/
 
 sf::Sprite* make_spritetest(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures);
 
 void make_sprite(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures);
 //void make_sprite(std::string sprite_path, float size_factor, std::vector<spri_textur>& all_sprites_textures);
 
-void playerKeyEvent(sf::Keyboard::Scancode key_code, bool pressed, Player& const playerOne);
+void playerKeyEvent(sf::Keyboard::Scancode key_code, bool pressed, Player& playerOne);
 void keyPressControll(std::optional<sf::Event> event, Player* const playerOne);
 
 //sf::Sprite make_sprite(const char* sprite_path, float size_factor);
@@ -96,6 +113,17 @@ public:
 
     // DENNA LÖSTE Problemet med std::vector som uppcom då const int id; las till
     Entity& operator =(const Entity&) {}
+
+    template <typename T>
+    Id_Pair<T> assosiate_vall_to_entity_id(const T& value ) {
+        return Id_Pair<T>{ id, value };
+    }
+
+    // should const T& value be const T&& value?
+    template <typename T>
+    void add_assosiate_vall_entity_id_to_vec(const T& value, std::vector<Id_Pair<T>>& vector) {
+        vector.emplace_back(Id_Pair<T>{ id, value });
+    }
 
     // BEHÖVER kopplasamman rotation och move för att se om det sker knas...
     void moveEnt(sf::Vector2<float> v) {

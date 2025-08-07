@@ -96,7 +96,7 @@ void Player::dirMove(float dt) { // the function is overiding a virtual function
     moveEnt(dirV * speed * dt); // scales the drection vector by the speed
 }
 
-void playerKeyEvent(sf::Keyboard::Scancode key_code, bool pressed ,Player& const playerOne){
+void playerKeyEvent(sf::Keyboard::Scancode key_code, bool pressed ,Player& playerOne){
     typedef sf::Keyboard::Scancode S_Code;
 
     switch (key_code) {

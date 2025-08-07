@@ -6,15 +6,6 @@
 #include<SFML/System/Vector2.hpp>
 #include "Standard_Vectorfunc.h"
 
-struct Rect_Shape_Id_Pair {
-    const int entity_id;
-    sf::RectangleShape shape;
-};
-
-struct Circle_Shape_Id_Pair {
-    const int entity_id;
-    sf::CircleShape shape;
-};
 
 struct Rect_Vertecies {
     sf::Vector2f vertices[4] = {};

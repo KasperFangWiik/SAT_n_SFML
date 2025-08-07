@@ -21,8 +21,7 @@
 ______________________________________________________________________________
                                 TODO LIST:
 
-    2. Creat two list of shapes, one for rectangles and one for circles... Eatch shape needs to have a ID connected to a entity...
-        the class or struct with shape should be in collision .h/.cpp files..
+    2. Move rendering functions and sprites+colider vectors to chunk kode and call render on chunk
     3. Creat a function that sifts throu the two lists and resolvs collisions...
     4. implement mecanic where you can shoot "bullets" in the direction of mose
     5. make them bounce once and disaper the next time...
@@ -190,6 +189,19 @@ int main()
      DET JAG VILL GÖRA ÄR ATT SPARA Hash key'n till den texturen som är assosierad med entityn...
     */
 
+    // i don't think i will have a problem with resizing vectors with shapes, no dependency on references like sprites for texture ref
+    std::vector<Id_Pair<sf::RectangleShape>> all_rect_colliders;
+    all_rect_colliders.reserve(20);
+    std::vector<Id_Pair<sf::CircleShape>> all_circle_colliders;
+    all_circle_colliders.reserve(20);
+
+
+    std::vector<Id_Pair<sf::Sprite>> sprites_in_chunk;
+    all_rect_colliders.reserve(20);
+    std::vector<Id_Pair<sf::Texture>> textures_in_chunk;
+    all_circle_colliders.reserve(20);
+
+
     std::vector<sf::Sprite>  all_sprites;
     all_sprites.reserve(20);
     std::vector<sf::Texture> all_textures;
@@ -235,7 +247,11 @@ int main()
     // changes the origin that we rotate around Could temporarly change the origin and rotate right?
     s->setOrigin((sf::Vector2f)s->getTexture().getSize() / 2.f);
     Player playerOne(&shape2); //  Player playerOne(&shape2, s);
+
+    playerOne.add_assosiate_vall_entity_id_to_vec(shape2, all_circle_colliders);
+
     std::cout << playerOne.id << "\n";
+    std::cout << "should be id of shape vec: " << all_circle_colliders.at(0).entity_id << "\n";
 
     std::vector<Entity*> moveb_enlist = { &playerOne }; // we are invoking the copy constructor here on &playerOne? and it's 
     moveb_enlist.push_back(&piller);
