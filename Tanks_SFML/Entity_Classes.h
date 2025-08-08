@@ -15,6 +15,7 @@ struct spri_textur {
 class Entity;
 class Player;
 
+
 // Id_Pair& operator =(const Id_Pair&) {} //will i have to do this??
 
 template <typename T>
@@ -22,6 +23,21 @@ struct Id_Pair{
     const int entity_id;
     T value;
 };
+
+/*
+två problem:
+
+1. när std::vector<sf::Sprite> resizas så borde vi fortfarande ha problemet med att 
+    Sprite(&texture) borde invalidata &texture referencen eller tar std::shared_ptr<T> 
+    och fixar det?
+2. om vi har std::vector<std::shared_ptr<sf::Texture>> då är pekarna satta continuerligt i minnet men 
+   Varje sf::Texture object ligger sudo randomly omkring på heapen
+*/
+struct Texture_Id_Pair {
+    const int Texture_id;
+    std::shared_ptr<sf::Texture> tex; 
+};
+
 /*
 // assosiating more than one might be usefull
 template<typename T, size_t L>

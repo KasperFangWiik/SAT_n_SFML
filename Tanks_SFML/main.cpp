@@ -201,6 +201,7 @@ int main()
     std::vector<Id_Pair<sf::Texture>> textures_in_chunk;
     all_circle_colliders.reserve(20);
 
+    // std::vector<Sprite_Texture_Id_Pair> sprites_n_textures_in_chunk; // maby when one is not found assume resize and re sett all texture references?
 
     std::vector<sf::Sprite>  all_sprites;
     all_sprites.reserve(20);
