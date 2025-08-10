@@ -136,7 +136,7 @@ public:
     }
 
     // DENNA LÖSTE Problemet med std::vector som uppcom då const int id; las till
-    Entity& operator =(const Entity&) {}
+    Entity& operator =(const Entity& other) {}
 
     template <typename T>
     Id_Pair<T> assosiate_vall_to_entity_id(const T& value ) {
@@ -216,7 +216,7 @@ public:
 
 bool find_entity_with_id(int search_id, std::vector<Entity>& entitys, Entity& return_entity) {
 
-    for (Entity& const e : entitys) {
+    for (Entity& const e : entitys) { // anachronism used ???
         if (search_id == e.id) {
             return_entity = e;
             return true;

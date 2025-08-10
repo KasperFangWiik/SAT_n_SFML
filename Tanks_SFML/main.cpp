@@ -215,6 +215,9 @@ int main()
     // skulle deta vara en lösning till resize problemet, Svar Nej
     // i teori är det lättar e att hålla koll på när resize sker och att då ändra pekaren då kanske
     //std::vector<spri_textur> all_sprites_textures;
+
+    sf::CircleShape shape1(25.f);
+
     const float sprite_size_factor = 4.0;
 
     const char tex_piller_file_path[] = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/piller_head.png";
@@ -225,7 +228,7 @@ int main()
     piller_sprite->setOrigin((sf::Vector2f)piller_sprite->getTexture().getSize() / 2.f);
     
     sf::FloatRect colid_pill = piller_sprite->getGlobalBounds();
-    Entity piller(piller_sprite);
+    Entity piller(&shape1); // piller_sprite
 
     // one piller head is (15 * 4) in "pixel" size
     const float piller_pixel_size = 15 * sprite_size_factor;
@@ -247,7 +250,7 @@ int main()
 
     // changes the origin that we rotate around Could temporarly change the origin and rotate right?
     s->setOrigin((sf::Vector2f)s->getTexture().getSize() / 2.f);
-    Player playerOne(&shape2); //  Player playerOne(&shape2, s);
+    Player playerOne(&shape2,s); //  Player playerOne(&shape2, s);
 
     playerOne.add_assosiate_vall_entity_id_to_vec(shape2, all_circle_colliders);
 
@@ -381,7 +384,7 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
             sf::Vector2f test_vec{};
             //if (current_colider_rect.findIntersection(tmp_colider_rect))
             if(n->coli != nullptr)
-                if (n->speed > 0 && circle_rect_collision(n->coli, m->spr, test_vec)) { //simple_rect_collision(n->spr, m->spr, test_vec)
+                if (n->speed > 0 && circle_rect_collision(m->coli, n->spr, test_vec)) { //simple_rect_collision(n->spr, m->spr, test_vec)
                     if (test_vec == sf::Vector2f{ 0,0 })
                         continue;
                     /*
@@ -392,8 +395,6 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
                     std::cout << "pos:mcolide: "; print_SF2Dvec(m->spr->getPosition());
                     
                     */
-                   
-                    Rect_Vertecies vet = get_vertecis_of_rectcol(m->spr);
        
                     // n->moveEnt(test.componentWiseMul(test2) );
                     //sf::Vector2f newvec = { clamp(test_vec.x,vet.vertecis[down_left].x,vet.vertecis[down_right].x),clamp(test_vec.x,vet.vertecis[down_left].y,vet.vertecis[top_left].y) };

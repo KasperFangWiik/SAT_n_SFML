@@ -4,6 +4,7 @@
 #include<SFML/System/Vector2.hpp>
 #include<filesystem>
 #include"Entity_Classes.h"
+#include"essential_collision.h"
 /*
 ______________________________________________________________________________
                     Map and chunk classes in progress:
@@ -182,6 +183,63 @@ public:
         for (int i = 0; i < numb_circles; i++) {
             circle_coliders.at(i);
 
+        }
+    }
+
+
+    void resolv_coll(Id_Pair<sf::RectangleShape> r1){
+        int numb_rect = rect_coliders.size();
+        int numb_circles = circle_coliders.size();
+
+        for (int i = 0; i < numb_rect; i++) {
+
+            Id_Pair r1 = rect_coliders.at(i);
+            int r1_id = r1.entity_id;
+
+            Entity r_entity{}; // is speed set to zero in standard constructor? Can i be serten that logical gate is evaluated from left to right? answer YES
+            if (find_entity_with_id(r1_id, chunks_entitys, r_entity))
+                if (r_entity.speed == 0) { // same as if(r_entity.speed)
+                    continue;
+                }
+
+            sf::RectangleShape r1_shape = r1.value; 
+
+
+            for (int j = 0; j < numb_rect; j++) {
+
+                Id_Pair r2 = rect_coliders.at(j);
+                int r2_id = r2.entity_id;
+
+                // assumes that every entity has one collidior and can't collide with a nother with same entity_id
+                if (r1_id == r2_id) {
+                    continue;
+                }
+
+                sf::RectangleShape r2_shape = r2.value;
+
+                sf::Vector2f respons_vector{};
+                if (collision(r1_shape, r2_shape, respons_vector))
+                    r_entity.moveEnt(respons_vector);
+            }
+
+            for (int j = 0; j < numb_rect; j++) {
+
+                Id_Pair c2 = circle_coliders.at(j);
+                int c2_id = c2.entity_id;
+
+                // assumes that every entity has one collidior and can't collide with a nother with same entity_id
+                // a circle id can be assumed to not be the same as a rectangles
+                /*
+                if (r1_id == c2_id) {
+                    continue;
+                }
+                */
+                sf::CircleShape c2_shape = c2.value;
+
+                sf::Vector2f respons_vector{};
+                if (collision(c2_shape, r1_shape, respons_vector))
+                    r_entity.moveEnt(respons_vector);
+            }
         }
     }
     //private:
