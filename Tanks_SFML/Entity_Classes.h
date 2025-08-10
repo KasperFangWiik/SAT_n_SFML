@@ -22,7 +22,15 @@ template <typename T>
 struct Id_Pair{
     const int entity_id;
     T value;
+
+    bool compair_id(Id_Pair<T>& other_pair) {
+        return entity_id == other_pair.entity_id;
+    }
 };
+
+// a entity can be contected to more than one collider but no colider whill be contected to more than one.
+// a collider vill always have the same transform as the entity/sprite could this lead to double calculation?
+// maby only when colliders are rendred to...
 
 /*
 två problem:
@@ -141,6 +149,11 @@ public:
         vector.emplace_back(Id_Pair<T>{ id, value });
     }
 
+    template<typename T>
+    bool compair_entity_id(Id_Pair<T> other_pair) {
+        return id == other_pair.entity_id;
+    }
+
     // BEHÖVER kopplasamman rotation och move för att se om det sker knas...
     void moveEnt(sf::Vector2<float> v) {
         // borde möjlligen alldrig flytta på en sf::shape, bara ändra säga att den har samma kordinater/ possition som entityn? 
@@ -200,6 +213,19 @@ public:
     //private:
     //    static int ID_sum;
 };
+
+bool find_entity_with_id(int search_id, std::vector<Entity>& entitys, Entity& return_entity) {
+
+    for (Entity& const e : entitys) {
+        if (search_id == e.id) {
+            return_entity = e;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 
 // used only so that players are shecked for inputs
 class Player : public Entity {

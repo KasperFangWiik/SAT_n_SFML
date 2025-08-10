@@ -40,7 +40,7 @@ sf::Sprite* make_spritetest(std::string sprite_path, float size_factor, std::vec
     return &all_sprites.back();
 }
 
-
+bool find_entity_with_id(int search_id, std::vector<Entity>& entitys, Entity& return_entity);
 /*
 -------------------------------------------------------------------------------
 Player related code:

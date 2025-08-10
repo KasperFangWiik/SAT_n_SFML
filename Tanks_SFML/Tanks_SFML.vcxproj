@@ -140,6 +140,7 @@
     <ClCompile Include="Standard_Vectorfunc.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="chunk_uppdate.h" />
     <ClInclude Include="Entity_Classes.h" />
     <ClInclude Include="essential_collision.h" />
     <ClInclude Include="Standard_Vectorfunc.h" />
