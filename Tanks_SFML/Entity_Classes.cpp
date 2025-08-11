@@ -72,14 +72,6 @@ Player::Player(sf::Shape* c) { // const sf::Texture &t
     spr = nullptr;
 }
 
-void Player::moveEnt(sf::Vector2<float> v) {
-    if(coli != nullptr)
-        coli->move(v);
-
-    if (spr != nullptr)
-        spr->move(v);
-}
-
 void Player::set_direction() {
     dirV.y = int(w xor s);
     dirV.x = int(a xor d);
@@ -95,14 +87,6 @@ void Player::set_direction() {
 
     if (a == true)
         dirV.x = -dirV.x;
-}
-
-void Player::dirMove(float dt) { // the function is overiding a virtual function, then the function is automatically considered virtual function in the derived class
-
-    //set_direction();
-
-    //std:: cout << "( " << n.dirV.x << ", " << n.dirV.y << " )" <<"\n";
-    moveEnt(dirV * speed * dt); // scales the drection vector by the speed
 }
 
 void playerKeyEvent(sf::Keyboard::Scancode key_code, bool pressed ,Player& playerOne){

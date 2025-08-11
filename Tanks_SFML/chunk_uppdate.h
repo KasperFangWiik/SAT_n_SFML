@@ -104,6 +104,21 @@ public:
         background = s;
     }
 
+    void render_chunk(sf::RenderWindow& window) {
+
+        // varför har man get funktioner...
+        //window.draw(*chunk.background);
+
+        const std::vector<Entity>& enlist = chunks_entitys;
+        for (const Entity& n : enlist) {
+            if (!n.spr)
+                window.draw(*(n.coli));
+            else
+                window.draw(*(n.spr));
+        }
+    }
+
+
     /*
     BEHÖVS:
 

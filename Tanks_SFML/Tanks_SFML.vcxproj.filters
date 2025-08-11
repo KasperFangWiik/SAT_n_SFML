@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Under Construction">
+      <UniqueIdentifier>{7acf2880-c8e7-4b0c-b182-fe090606f451}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -33,8 +36,11 @@
     <ClCompile Include="Standard_Vectorfunc.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="Entity_remake.h">
+      <Filter>Under Construction</Filter>
+    </ClCompile>
     <ClCompile Include="essential_collision.cpp">
-      <Filter>Resource Files</Filter>
+      <Filter>Under Construction</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -45,10 +51,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="essential_collision.h">
-      <Filter>Header Files</Filter>
+      <Filter>Under Construction</Filter>
     </ClInclude>
     <ClInclude Include="chunk_uppdate.h">
-      <Filter>Header Files</Filter>
+      <Filter>Under Construction</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

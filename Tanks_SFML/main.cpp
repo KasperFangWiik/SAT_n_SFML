@@ -225,15 +225,16 @@ int main()
     sf::Sprite* piller_sprite = &all_sprites.back();
     
     // change rotation origin /center to the center of the Sprite, i proobaby need to change the colid shapes center to...
-    piller_sprite->setOrigin((sf::Vector2f)piller_sprite->getTexture().getSize() / 2.f);
+    //piller_sprite->setOrigin((sf::Vector2f)piller_sprite->getTexture().getSize() / 2.f);
     
     sf::FloatRect colid_pill = piller_sprite->getGlobalBounds();
-    Entity piller(&shape1); // piller_sprite
+    //Entity piller(&shape1); // piller_sprite
+    Entity piller(piller_sprite);
 
     // one piller head is (15 * 4) in "pixel" size
     const float piller_pixel_size = 15 * sprite_size_factor;
     piller.moveEnt({ piller_pixel_size * 6 , piller_pixel_size * 4 }); // 8*2*4 = 16 => 4 pixels, 16 pixels, 64 = 17 pix,  8*8-4 = 8*2*4-4 = 16*4-4 = 15*4
-    piller.rot_angle = 100;
+    piller.rot_angle = 50;
     std::cout << piller.id << "\n";
     //piller.spr->setRotation(sf::degrees(45));
     
@@ -323,8 +324,6 @@ int main()
             else if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>()) {
                 playerKeyEvent(keyReleased->scancode, Pressed, playerOne);
             }
-
-
         }
 
         //sf::Time dt = clock.getElapsedTime(); // .asMilliseconds() direkt här ?
@@ -383,8 +382,9 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
 
             sf::Vector2f test_vec{};
             //if (current_colider_rect.findIntersection(tmp_colider_rect))
-            if(m->coli != nullptr|| n->spr != nullptr)
-                if (n->speed > 0 && circle_rect_collision(m->coli, n->spr, test_vec)) { //simple_rect_collision(n->spr, m->spr, test_vec)
+            //if(m->coli != nullptr|| n->spr != nullptr)
+            if (m->coli != nullptr || n->spr != nullptr)
+                if (n->speed > 0 && simple_rect_collision(n->spr,m->spr, test_vec)) { //simple_rect_collision(n->spr, m->spr, test_vec)
                     if (test_vec == sf::Vector2f{ 0,0 })
                         continue;
                     /*

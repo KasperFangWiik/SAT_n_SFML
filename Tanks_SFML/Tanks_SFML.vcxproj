@@ -134,6 +134,7 @@
     <ClCompile Include="collision_self.cpp" />
     <ClCompile Include="collision_self.h" />
     <ClCompile Include="Entity_Classes.cpp" />
+    <ClCompile Include="Entity_remake.h" />
     <ClCompile Include="essential_collision.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map_classes.h" />
