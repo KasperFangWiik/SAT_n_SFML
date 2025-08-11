@@ -50,10 +50,16 @@ public:
 
     sf::Sprite* background{};
 
-    // std::vector<Entity*> chunks_entitys{};
-    std::vector<Entity> chunks_entitys{};
-    std::vector<Player> chunks_players{};
-    std::vector<sf::Shape*> coliders{};        // colition- & hitbox
+    // when i have moved to composition version of player class then this std::vector<Entity*> changed to std::vector<Entity> 
+    std::vector<Entity*> chunks_entitys{};
+
+    // when chunks_entitys changes to std::vector<Entity> then the two vectors can be sett together
+    std::vector<Entity> tmp_backgound_chunks_entitys{};
+    
+
+
+    // std::vector<Entity> chunks_entitys{};
+    // std::vector<Player> chunks_players{};
 
     // not needed, we only need the size of the sprite?
     int x{};
@@ -62,63 +68,103 @@ public:
     //sf::Texture tex;      // the texture
 
     /*
-    
+    should have a function that reads a file, could be of JSON format, and constructs entitys and there colliders.. 
+
     */
+
+
+    // i will start with haveing the Sprite's and textures in main and include all...
     Chunk(std::string map_path, int sprite_num, float size_factor,
         std::vector<sf::Sprite>& all_sprites,
         std::vector<sf::Texture>& all_textures) {
 
         chunks_entitys.reserve(sprite_num);
 
-        bool back_first = true;
+        bool background_first = true;
 
         for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(map_path)) {
             std::string file_path = dirEntry.path().string();
 
-            if (back_first) {
-                back_first = false;
+            if (background_first) {
+                background_first = false;
                 background = make_spritetest(file_path, size_factor, all_sprites, all_textures);
             }
             else {
-                chunks_entitys.emplace_back(Entity(make_spritetest(file_path, size_factor, all_sprites, all_textures)));
+                tmp_backgound_chunks_entitys.emplace_back(std::move(Entity(make_spritetest(file_path, size_factor, all_sprites, all_textures))));
+                //chunks_entitys.emplace_back(Entity(make_spritetest(file_path, size_factor, all_sprites, all_textures)));
             }
         }
-    }
-
-
-    Chunk(sf::Sprite* b, std::vector<Entity> s_e, std::vector<sf::Shape*> c) {
-
-        background = b;
-        chunks_entitys = s_e;
-        coliders = c;
-    }
-
-    Chunk(sf::Sprite* b, std::vector<Entity> s_e) {
-
-        background = b;
-        chunks_entitys = s_e;
-    }
-
-
-    Chunk(sf::Sprite* s) {
-        background = s;
     }
 
     void render_chunk(sf::RenderWindow& window) {
 
-        // varför har man get funktioner...
-        //window.draw(*chunk.background);
+        window.draw(*background);
 
-        const std::vector<Entity>& enlist = chunks_entitys;
-        for (const Entity& n : enlist) {
-            if (!n.spr)
-                window.draw(*(n.coli));
-            else
+        for (const Entity* n : chunks_entitys) {
+
+            if(n->spr)
+                window.draw(*(n->spr));
+
+            if (n->coli)
+                window.draw(*(n->coli));
+        }
+
+        for (const Entity& n : tmp_backgound_chunks_entitys) {
+
+            if (n.spr)
                 window.draw(*(n.spr));
+
+            if (n.coli)
+                window.draw(*(n.coli));
         }
     }
 
+    // write a move function first then include collisions later
+    void move_transformables(float dt) { 
+        // WE SHOULD MAKE IT So that the dirMove, RotEnt and set_direction is called on all relevant parties aka all sprites and colliders in chunk
 
+        // here we should have a function that just setts the player's direction that is called before we move anny thing.
+
+        for (Entity* n : chunks_entitys) { // ska man använda const här? const entity n
+
+           /* if (n->dirV == sf::Vector2f{0,0})
+                continue;
+                */
+            n->set_direction(); // should probably not be heare
+            n->RotEnt(dt);
+            n->dirMove(dt);
+        }
+    }
+
+    void colider_move_ent_to_chunk(Entity* ent, const sf::RectangleShape&& rect_colider) {
+        chunks_entitys.push_back(ent); // could use emplace_back? especially if changed to this std::vector<Entity>...
+        ent->add_assosiate_vall_entity_id_to_vec(std::move(rect_colider), rect_coliders);
+    }
+    void colider_move_ent_to_chunk(Entity* ent, const sf::CircleShape&& circle_colider) {
+        chunks_entitys.push_back(ent); // could use emplace_back? especially if changed to this std::vector<Entity>...
+        ent->add_assosiate_vall_entity_id_to_vec(std::move(circle_colider), circle_coliders);
+    }
+
+
+    void add_ent_to_chunk(Entity* ent, Id_Pair<sf::RectangleShape> rect_colider) {
+        chunks_entitys.push_back(ent);
+        rect_coliders.push_back(rect_colider);
+    }
+    void add_ent_to_chunk(Entity* ent, Id_Pair<sf::CircleShape> circle_colider) {
+        chunks_entitys.push_back(ent);
+        circle_coliders.push_back(circle_colider);
+    }
+
+    void print_entity_ids() {
+        // this function show that the constructor of entity is called extremly more times than it should be
+        for (const Entity& c_n : tmp_backgound_chunks_entitys) {
+            std::cout << "id:" << c_n.id << "\n" ;
+        }
+
+        for (const Entity* c_n : chunks_entitys) {
+            std::cout << "id:" << c_n->id << "\n";
+        }
+    }
     /*
     BEHÖVS:
 
@@ -128,12 +174,14 @@ public:
     4. testa så att collision  med två saker som rör på sig ser bra ut och inte eller behöver ha egna functioner eller annat?
     
     */
+    
+    /* 
     void resolve_collisions() {
 
         int numb_rect = rect_coliders.size();
         int numb_circles = circle_coliders.size();
 
-        /*
+       
         * if both are moving then we need to call an nother collision function????
         when should we not check collisio?
 
@@ -143,14 +191,7 @@ public:
         2. when we find same colider we should not check (maby same entity_id?).
         3. 
 
-        */
-
-        /*
-        for (const Id_Pair<sf::RectangleShape>& r : rect_coliders) {
-
-        }
-        
-        */
+      
 
         for (int i = 0; i < numb_rect; i++) {
 
@@ -189,7 +230,7 @@ public:
                 if (r1_id == c2_id) {
                     continue;
                 }
-                */
+           
                 sf::CircleShape c2_shape = c2.value;
             }
         }
@@ -244,11 +285,10 @@ public:
 
                 // assumes that every entity has one collidior and can't collide with a nother with same entity_id
                 // a circle id can be assumed to not be the same as a rectangles
-                /*
-                if (r1_id == c2_id) {
-                    continue;
-                }
-                */
+                //if (r1_id == c2_id) {
+                //    continue;
+                //}
+                
                 sf::CircleShape c2_shape = c2.value;
 
                 sf::Vector2f respons_vector{};
@@ -257,6 +297,7 @@ public:
             }
         }
     }
+    */
 
     //private:
 

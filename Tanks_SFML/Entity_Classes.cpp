@@ -39,11 +39,11 @@ sf::Sprite* make_spritetest(std::string sprite_path, float size_factor, std::vec
     return &all_sprites.back();
 }
 
-bool find_entity_with_id(int search_id, std::vector<Entity>& entitys, Entity& return_entity) {
+bool find_entity_with_id(int search_id, std::vector<Entity*>& entitys, Entity& return_entity) {
 
-    for (Entity& e : entitys) { // const leads to anachronism used ???
-        if (search_id == e.id) {
-            return_entity = e; // this does not work if one varible in entity class is constant 
+    for (Entity* e : entitys) { // const leads to anachronism used ???
+        if (search_id == e->id) {
+            return_entity = *e; // this does not work if one varible in entity class is constant , Might work know when we are just copying memmory address?
             return true;
         }
     }
@@ -73,8 +73,8 @@ Player::Player(sf::Shape* c) { // const sf::Texture &t
 }
 
 void Player::set_direction() {
-    dirV.y = int(w xor s);
-    dirV.x = int(a xor d);
+    dirV.y = float(w xor s);
+    dirV.x = float(a xor d);
 
     // better as const float instead of macro
     const float ONE_DIV_SQRTWO = 0.70706781f;

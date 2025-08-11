@@ -168,7 +168,7 @@ Player:
 class Player{
 
 public:
-    // maby a player id is all that we should need...
+    // maby a player id is all that we should need... Maby we should make this private?
     Entity* player_entity{};
 
     bool w{}, a{}, s{}, d{};
@@ -179,8 +179,8 @@ public:
 
         sf::Vector2f& dirV = player_entity->dirV;
 
-        dirV.y = int(w xor s);
-        dirV.x = int(a xor d);
+        dirV.y = float(w xor s);
+        dirV.x = float(a xor d);
 
         // better as const float instead of macro
         const float ONE_DIV_SQRTWO = 0.70706781f;
@@ -201,6 +201,9 @@ public:
     //protected:
 };
 
+/*
+
+
 void playerKeyEvent(sf::Keyboard::Scancode key_code, bool pressed, Player& playerOne) {
     typedef sf::Keyboard::Scancode S_Code;
 
@@ -218,3 +221,4 @@ void playerKeyEvent(sf::Keyboard::Scancode key_code, bool pressed, Player& playe
         playerOne.d = pressed;
     }
 }
+*/

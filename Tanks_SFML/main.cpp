@@ -11,7 +11,7 @@
 #include "map_classes.h"
 //#include "Standard_Vectorfunc.h"
 #include "collision_self.h"
-
+#include "chunk_uppdate.h"
 
 //#define ONE_DIV_SQRTWO 0.70706781f //float value of ONE_DIV_SQRTWO = 1/sqrt(2)
 
@@ -61,7 +61,7 @@ kallar på delet kommer det skapa minnes luckor?
 // there is a difference between moving and non-moving entitys
 // maby this should be a identity factory 
 
-void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Shape*> all_coliders, float pixel_size_factor, float dt);
+//void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Shape*> all_coliders, float pixel_size_factor, float dt);
 
 void move_entitys(const std::vector<Entity*>& moveb_enlist, float dt) {
 
@@ -107,7 +107,7 @@ void render_chunk(sf::RenderWindow& window, const ChunkTest& chunk) {
 
 
 // above uppdate state function and maby uppdate state function should probably be in map_classes.h/.cpp right?
-void uppdate_state(sf::RenderWindow& window, const ChunkTest& chunk, bool new_chunk, const std::vector<Entity*>& fixed_enlist, std::vector<Entity*>& moveb_enlist, std::vector<sf::Shape*>   all_coliders, sf::Clock& clock) {
+void uppdate_state(sf::RenderWindow& window, Chunk& chunk, bool new_chunk, const std::vector<Entity*>& fixed_enlist, std::vector<Entity*>& moveb_enlist, std::vector<sf::Shape*>   all_coliders, sf::Clock& clock) {
 
     sf::Time dt = clock.getElapsedTime(); // .asMilliseconds() direkt här ?
 
@@ -131,6 +131,10 @@ void uppdate_state(sf::RenderWindow& window, const ChunkTest& chunk, bool new_ch
         new_chunk = false;
     }
 
+    chunk.move_transformables(dt.asSeconds());
+    chunk.render_chunk(window);
+
+    /*
     window.draw(*chunk.background);
 
     // if(moved) then uppdate move...
@@ -147,8 +151,11 @@ void uppdate_state(sf::RenderWindow& window, const ChunkTest& chunk, bool new_ch
 
     render_chunk(window, chunk);
     render_Entitys(window, fixed_enlist);
+    
+    
+    */
 
-    clock.restart().asSeconds(); //clock->restart().asMilliseconds();
+    clock.restart(); //clock.restart().asSeconds(); // clock->restart().asMilliseconds();
 
     window.display();
 }
@@ -211,14 +218,18 @@ int main()
     std::vector<sf::Shape*>  all_coliders;
     all_coliders.reserve(20);
 
+    const float sprite_size_factor = 4.0;
+
+    std::string map_path = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/chuncks";
+    int map_size = 9;
+    Chunk ch = Chunk(map_path, map_size, sprite_size_factor, all_sprites, all_textures);
+    bool new_chunk = true;
 
     // skulle deta vara en lösning till resize problemet, Svar Nej
     // i teori är det lättar e att hålla koll på när resize sker och att då ändra pekaren då kanske
     //std::vector<spri_textur> all_sprites_textures;
 
     sf::CircleShape shape1(25.f);
-
-    const float sprite_size_factor = 4.0;
 
     const char tex_piller_file_path[] = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/piller_head.png";
     make_sprite(tex_piller_file_path, sprite_size_factor, all_sprites, all_textures); // magic number 4.0 that is the size factor should be clearer strong typing?
@@ -231,11 +242,13 @@ int main()
     //Entity piller(&shape1); // piller_sprite
     Entity piller(piller_sprite);
 
+    ch.colider_move_ent_to_chunk(&piller,std::move(shape1));
+
     // one piller head is (15 * 4) in "pixel" size
     const float piller_pixel_size = 15 * sprite_size_factor;
     piller.moveEnt({ piller_pixel_size * 6 , piller_pixel_size * 4 }); // 8*2*4 = 16 => 4 pixels, 16 pixels, 64 = 17 pix,  8*8-4 = 8*2*4-4 = 16*4-4 = 15*4
     piller.rot_angle = 50;
-    std::cout << piller.id << "\n";
+    //std::cout << piller.id << "\n";
     //piller.spr->setRotation(sf::degrees(45));
     
    
@@ -251,12 +264,17 @@ int main()
 
     // changes the origin that we rotate around Could temporarly change the origin and rotate right?
     s->setOrigin((sf::Vector2f)s->getTexture().getSize() / 2.f);
+    shape2.setOrigin((sf::Vector2f)s->getTexture().getSize() / 2.f);
+
     Player playerOne(&shape2,s); //  Player playerOne(&shape2, s);
 
-    playerOne.add_assosiate_vall_entity_id_to_vec(shape2, all_circle_colliders);
+    ch.add_ent_to_chunk(&playerOne, playerOne.assosiate_vall_to_entity_id(std::move(shape2)));
 
-    std::cout << playerOne.id << "\n";
-    std::cout << "should be id of shape vec: " << all_circle_colliders.at(0).entity_id << "\n";
+    ch.print_entity_ids();
+    //playerOne.add_assosiate_vall_entity_id_to_vec(std::move(shape2), all_circle_colliders);
+
+    //std::cout << playerOne.id << "\n";
+    //std::cout << "should be id of shape vec: " << all_circle_colliders.at(0).entity_id << "\n";
 
     std::vector<Entity*> moveb_enlist = { &playerOne }; // we are invoking the copy constructor here on &playerOne? and it's 
     moveb_enlist.push_back(&piller);
@@ -272,10 +290,6 @@ int main()
     
     */
 
-    std::string map_path = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/chuncks";
-    int map_size = 9;
-    ChunkTest ch = ChunkTest(map_path, map_size, sprite_size_factor, all_sprites, all_textures);
-
     playerOne.speed = 200.0f;
     playerOne.rot_angle = 0.0f;
 
@@ -288,9 +302,8 @@ int main()
     //Player* plone = dynamic_cast<Player*>(moveb_enlist.front());
 
     // Inte bra med magic numbers...
-    bool new_chunk = true;
 
-    sf::FloatRect bounds = ch.background->getGlobalBounds();
+    //sf::FloatRect bounds = ch.background->getGlobalBounds();
 
     sf::RenderWindow window(sf::VideoMode({20, 20}), "SFML works!");
 
@@ -361,8 +374,7 @@ Manifolds.
 
 
 
-
-
+/*
 // semi funkar, ett problm är att jag inte vet hur mycket jag ska röra mig bakåt..
 void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Shape*> all_coliders, float pixel_size_factor, float dt) {
 
@@ -387,28 +399,8 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
                 if (n->speed > 0 && simple_rect_collision(n->spr,m->spr, test_vec)) { //simple_rect_collision(n->spr, m->spr, test_vec)
                     if (test_vec == sf::Vector2f{ 0,0 })
                         continue;
-                    /*
-                    std::cout << "self_made collide" << "\n";
-                    std::cout << "testvec "; print_SF2Dvec(test_vec);
-                    std::cout << "testvec normalized"; print_SF2Dvec(test_vec.normalized());
-                    std::cout << "pos:ncolider: "; print_SF2Dvec(n->spr->getPosition());
-                    std::cout << "pos:mcolide: "; print_SF2Dvec(m->spr->getPosition());
-                    
-                    */
-       
-                    // n->moveEnt(test.componentWiseMul(test2) );
-                    //sf::Vector2f newvec = { clamp(test_vec.x,vet.vertecis[down_left].x,vet.vertecis[down_right].x),clamp(test_vec.x,vet.vertecis[down_left].y,vet.vertecis[top_left].y) };
-                    
-                    // theres is a bugg where  test_vec / 2.0f gets stuck left rotated side...
+
                     n->moveEnt(test_vec); 
-                    //m->spr->move(-test_vec / 2.0f);
-
-
-                    //n->dirMove(dt); // * n->speed   * dt,, * test_vec.normalized()
-                    //m->spr->move((n->speed * dt) * n->dirV);
-                    //m->spr->move( ( n->speed * dt  ) * -test_vec.normalized());
-
-                    //std::cout << "new_pos:ncolider: "; print_SF2Dvec(n->spr->getPosition());
                     collision = true;
                 }
                 //sf::RectangleShape test;
@@ -416,18 +408,6 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
                 
             // semi race condition som sker i collison om man byter direction och är inne i functionen aka innan other_dir sätts rätt så  kan fel vector nyttjas
             // verkar främst ske när jag trycker ned två knappar sammtidigt i olika ricktningar
-            /* 
-            if (current_colider_rect.findIntersection(tmp_colider_rect)) {
-                collision = true;
-                std::cout << "colison was made" << "\n";
-                std::cout << "n->dirV_before:" << " { " << n->dirV.x << " , " << n->dirV.y << " } " << "\n";
-                sf::Vector2f other_dirtw = { other_dir.x * test, other_dir.y * test };
-                std::cout << "n->dirV_after:" << " { " << n->dirV.x << " , " << n->dirV.y << " } " << "\n";
-                std::cout << "other_dir:" << " { " << other_dir.x << " , " << other_dir.y << " } " << "\n";
-                n->give_dir_Move(other_dir, dt);
-                test -= 0.01f;
-            }
-            */
         }
 
         if (!collision) {
@@ -436,7 +416,7 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
     }
 }
 
-
+*/
 
 
 

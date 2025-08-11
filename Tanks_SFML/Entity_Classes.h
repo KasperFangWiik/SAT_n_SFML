@@ -160,13 +160,13 @@ public:
 
 
     template <typename T>
-    Id_Pair<T> assosiate_vall_to_entity_id(const T& value ) {
+    Id_Pair<T> assosiate_vall_to_entity_id(const T&& value ) {
         return Id_Pair<T>{ id, value };
     }
 
     // should const T& value be const T&& value?
     template <typename T>
-    void add_assosiate_vall_entity_id_to_vec(const T& value, std::vector<Id_Pair<T>>& vector) {
+    void add_assosiate_vall_entity_id_to_vec(const T&& value, std::vector<Id_Pair<T>>& vector) {
         vector.emplace_back(Id_Pair<T>{ id, value });
     }
 
@@ -212,7 +212,7 @@ public:
     //    static int ID_sum;
 };
 
-bool find_entity_with_id(int search_id, std::vector<Entity>& entitys, Entity& return_entity);
+bool find_entity_with_id(int search_id, std::vector<Entity*>& entitys, Entity& return_entity);
 
 
 // used only so that players are shecked for inputs
