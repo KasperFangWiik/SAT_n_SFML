@@ -21,7 +21,9 @@
 ______________________________________________________________________________
                                 TODO LIST:
 
-    2. Move rendering functions and sprites+colider vectors to chunk kode and call render on chunk
+    1. find how manny copy constructor calls that are made and se if you can iliminate them we should at this momment probably have one copy call per entity and player
+    2. fix rect on circle collision...
+    3.1. fix so that player class does not inherrit, instead it uses composition
     3. Creat a function that sifts throu the two lists and resolvs collisions...
     4. implement mecanic where you can shoot "bullets" in the direction of mose
     5. make them bounce once and disaper the next time...
@@ -107,12 +109,12 @@ void render_chunk(sf::RenderWindow& window, const ChunkTest& chunk) {
 
 
 // above uppdate state function and maby uppdate state function should probably be in map_classes.h/.cpp right?
-void uppdate_state(sf::RenderWindow& window, Chunk& chunk, bool new_chunk, const std::vector<Entity*>& fixed_enlist, std::vector<Entity*>& moveb_enlist, std::vector<sf::Shape*>   all_coliders, sf::Clock& clock) {
+void uppdate_state(sf::RenderWindow& window, Chunk& chunk, bool new_chunk, sf::Clock& clock) {
 
     sf::Time dt = clock.getElapsedTime(); // .asMilliseconds() direkt här ?
 
     // varför är "frameraten" alltid lite större
-    //std::cout << 1.0f / dt.asSeconds() << "\n";
+    std::cout << 1.0f / dt.asSeconds() << "\n";
 
 
     // we also whant to check if the moveble objects are
@@ -151,8 +153,6 @@ void uppdate_state(sf::RenderWindow& window, Chunk& chunk, bool new_chunk, const
 
     render_chunk(window, chunk);
     render_Entitys(window, fixed_enlist);
-    
-    
     */
 
     clock.restart(); //clock.restart().asSeconds(); // clock->restart().asMilliseconds();
@@ -197,16 +197,6 @@ int main()
     */
 
     // i don't think i will have a problem with resizing vectors with shapes, no dependency on references like sprites for texture ref
-    std::vector<Id_Pair<sf::RectangleShape>> all_rect_colliders;
-    all_rect_colliders.reserve(20);
-    std::vector<Id_Pair<sf::CircleShape>> all_circle_colliders;
-    all_circle_colliders.reserve(20);
-
-
-    std::vector<Id_Pair<sf::Sprite>> sprites_in_chunk;
-    all_rect_colliders.reserve(20);
-    std::vector<Id_Pair<sf::Texture>> textures_in_chunk;
-    all_circle_colliders.reserve(20);
 
     // std::vector<Sprite_Texture_Id_Pair> sprites_n_textures_in_chunk; // maby when one is not found assume resize and re sett all texture references?
 
@@ -214,9 +204,6 @@ int main()
     all_sprites.reserve(20);
     std::vector<sf::Texture> all_textures;
     all_textures.reserve(20);
-    // Borde ha två olika listor, en med circle shape och en för rectangle shapes... och resolva kollision genom att gå igenom dem alla...
-    std::vector<sf::Shape*>  all_coliders;
-    all_coliders.reserve(20);
 
     const float sprite_size_factor = 4.0;
 
@@ -270,25 +257,11 @@ int main()
 
     ch.add_ent_to_chunk(&playerOne, playerOne.assosiate_vall_to_entity_id(std::move(shape2)));
 
-    ch.print_entity_ids();
+    //ch.print_entity_ids();
     //playerOne.add_assosiate_vall_entity_id_to_vec(std::move(shape2), all_circle_colliders);
-
-    //std::cout << playerOne.id << "\n";
-    //std::cout << "should be id of shape vec: " << all_circle_colliders.at(0).entity_id << "\n";
-
-    std::vector<Entity*> moveb_enlist = { &playerOne }; // we are invoking the copy constructor here on &playerOne? and it's 
-    moveb_enlist.push_back(&piller);
-    //moveb_enlist.emplace_back(&playerOne);
 
 
     // all_textures.resize(2); // tydligt visande att resize på all_textures är vad som stör all_sprites 
-
-    /*
-    * const char tex2[] = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/Map_test1.png";
-    make_sprite(tex2, sprite_size_factor, all_sprites, all_textures);
-    sf::Sprite* chunk_sprite = &all_sprites.back(); //*all_sprites.end();
-    
-    */
 
     playerOne.speed = 200.0f;
     playerOne.rot_angle = 0.0f;
@@ -299,12 +272,8 @@ int main()
     Player& plone = &(moveb_enlist[0]);
 
     */
-    //Player* plone = dynamic_cast<Player*>(moveb_enlist.front());
 
     // Inte bra med magic numbers...
-
-    //sf::FloatRect bounds = ch.background->getGlobalBounds();
-
     sf::RenderWindow window(sf::VideoMode({20, 20}), "SFML works!");
 
     // kan inte ha för hög frame rate det leder till att man har alldeles för liten korregering till hasstigheten som rundas ned till noll
@@ -342,7 +311,7 @@ int main()
         //sf::Time dt = clock.getElapsedTime(); // .asMilliseconds() direkt här ?
 
         //std::cout << dt.asMilliseconds() << "\n";
-        uppdate_state(window, ch, new_chunk, fixed_enlist, moveb_enlist, all_coliders, clock);
+        uppdate_state(window, ch, new_chunk, clock);
         
         //std::cout << 1.0f / dt.asSeconds() << "\n";
         //std::cout << dt.asMilliseconds() << "\n";

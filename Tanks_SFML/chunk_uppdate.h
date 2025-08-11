@@ -39,9 +39,7 @@ hur kan dessa uppfyllas?
 
 */
 
-struct sprite_point {
-    sf::Sprite* not_same_pointer;
-};
+
 class Chunk {
     // chunk id? Or should it'sda position in the array/vector be
 public:
@@ -82,6 +80,7 @@ public:
         std::vector<sf::Texture>& all_textures) {
 
         chunks_entitys.reserve(sprite_num);
+        tmp_backgound_chunks_entitys.reserve(sprite_num);
 
         bool background_first = true;
 
@@ -93,11 +92,8 @@ public:
                 background = make_spritetest(file_path, size_factor, all_sprites, all_textures);
             }
             else {
-                sf::Sprite* new_spritepointer{};
-                make_spritetesttv(file_path, size_factor, all_sprites, all_textures, new_spritepointer);
-                //Entity test = Entity(make_spritetesttv(file_path, size_factor, all_sprites, all_textures,));
-                tmp_backgound_chunks_entitys.emplace_back(Entity(new_spritepointer));
-                //chunks_entitys.emplace_back(Entity(make_spritetest(file_path, size_factor, all_sprites, all_textures)));
+                // when the std::vector resizes then the copy constructor is called to move the objects to a new location 
+                tmp_backgound_chunks_entitys.emplace_back(Entity(make_spritetest(file_path, size_factor, all_sprites, all_textures)));
             }
         }
     }
@@ -142,6 +138,7 @@ public:
         }
     }
 
+    // should be able to add entitys without colider and add coliders without entity!!!
     void colider_move_ent_to_chunk(Entity* ent, const sf::RectangleShape&& rect_colider) {
         chunks_entitys.push_back(ent); // could use emplace_back? especially if changed to this std::vector<Entity>...
         ent->add_assosiate_vall_entity_id_to_vec(std::move(rect_colider), rect_coliders);

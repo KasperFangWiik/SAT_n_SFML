@@ -57,8 +57,12 @@ public:
 };
 */
 
+struct sprite_point {
+    sf::Sprite* not_same_pointer;
+};
+
 sf::Sprite* make_spritetest(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures);
-void make_spritetesttv(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures, sf::Sprite* return_pointer);
+sprite_point make_spritetesttv(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures);
 
 void make_sprite(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures);
 //void make_sprite(std::string sprite_path, float size_factor, std::vector<spri_textur>& all_sprites_textures);
@@ -98,7 +102,7 @@ public:
 
     // copy constructor (needed for use in std::vector, s there a standard?)
     // how does std::move() directly work..
-    Entity(const Entity& other) : coli(other.coli), spr(other.spr), id(ID_sum) {}
+    Entity(const Entity& other) : coli(other.coli), spr(other.spr), id(other.id) {} // ID_sum
 
     /*
     Entity(const Entity& other) : coli(other.coli),

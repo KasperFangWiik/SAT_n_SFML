@@ -40,7 +40,7 @@ sf::Sprite* make_spritetest(std::string sprite_path, float size_factor, std::vec
     return &all_sprites.back();
 }
 
-void make_spritetesttv(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures, sf::Sprite& return_pointer) {
+sprite_point make_spritetesttv(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures) {
 
     // after push_back here the pointer to all_sprites textures becomes a dangling pointer probably because of all_textures resize..
     all_textures.emplace_back();
@@ -56,7 +56,7 @@ void make_spritetesttv(std::string sprite_path, float size_factor, std::vector<s
     sf::Vector2f scale = (all_sprites.back()).getScale();
     (all_sprites.back()).setScale(scale * size_factor);
 
-    return_pointer = all_sprites.back();
+    return sprite_point{ &all_sprites.back() };
 }
 
 
