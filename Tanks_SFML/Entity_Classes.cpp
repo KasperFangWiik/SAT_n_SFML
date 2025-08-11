@@ -20,13 +20,14 @@ void make_sprite(std::string sprite_path, float size_factor, std::vector<sf::Spr
 
 }
 
+// the problem is probably that the id
 sf::Sprite* make_spritetest(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures) {
 
     // after push_back here the pointer to all_sprites textures becomes a dangling pointer probably because of all_textures resize..
     all_textures.emplace_back();
 
     if (!((all_textures.back()).loadFromFile(sprite_path))) {
-        std::cout << "Path for Entity did not work" << "\n";
+        std::cout << "Path for the Entity's texture did not work" << "\n";
     }
 
     all_sprites.emplace_back(sf::Sprite(all_textures.back()));

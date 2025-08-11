@@ -90,7 +90,8 @@ public:
                 background = make_spritetest(file_path, size_factor, all_sprites, all_textures);
             }
             else {
-                tmp_backgound_chunks_entitys.emplace_back(std::move(Entity(make_spritetest(file_path, size_factor, all_sprites, all_textures))));
+                Entity test = Entity(make_spritetest(file_path, size_factor, all_sprites, all_textures));
+                tmp_backgound_chunks_entitys.emplace_back(test);
                 //chunks_entitys.emplace_back(Entity(make_spritetest(file_path, size_factor, all_sprites, all_textures)));
             }
         }
@@ -157,8 +158,8 @@ public:
 
     void print_entity_ids() {
         // this function show that the constructor of entity is called extremly more times than it should be
-        for (const Entity& c_n : tmp_backgound_chunks_entitys) {
-            std::cout << "id:" << c_n.id << "\n" ;
+        for (const Entity& n : tmp_backgound_chunks_entitys) {
+            std::cout << "id:" << n.id << "\n" ;
         }
 
         for (const Entity* c_n : chunks_entitys) {
