@@ -58,6 +58,7 @@ public:
 */
 
 sf::Sprite* make_spritetest(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures);
+void make_spritetesttv(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures, sf::Sprite* return_pointer);
 
 void make_sprite(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures);
 //void make_sprite(std::string sprite_path, float size_factor, std::vector<spri_textur>& all_sprites_textures);

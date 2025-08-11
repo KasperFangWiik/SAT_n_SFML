@@ -39,6 +39,9 @@ hur kan dessa uppfyllas?
 
 */
 
+struct sprite_point {
+    sf::Sprite* not_same_pointer;
+};
 class Chunk {
     // chunk id? Or should it'sda position in the array/vector be
 public:
@@ -90,8 +93,10 @@ public:
                 background = make_spritetest(file_path, size_factor, all_sprites, all_textures);
             }
             else {
-                Entity test = Entity(make_spritetest(file_path, size_factor, all_sprites, all_textures));
-                tmp_backgound_chunks_entitys.emplace_back(test);
+                sf::Sprite* new_spritepointer{};
+                make_spritetesttv(file_path, size_factor, all_sprites, all_textures, new_spritepointer);
+                //Entity test = Entity(make_spritetesttv(file_path, size_factor, all_sprites, all_textures,));
+                tmp_backgound_chunks_entitys.emplace_back(Entity(new_spritepointer));
                 //chunks_entitys.emplace_back(Entity(make_spritetest(file_path, size_factor, all_sprites, all_textures)));
             }
         }

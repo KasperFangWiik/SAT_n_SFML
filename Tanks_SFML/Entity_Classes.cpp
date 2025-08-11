@@ -40,6 +40,26 @@ sf::Sprite* make_spritetest(std::string sprite_path, float size_factor, std::vec
     return &all_sprites.back();
 }
 
+void make_spritetesttv(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures, sf::Sprite& return_pointer) {
+
+    // after push_back here the pointer to all_sprites textures becomes a dangling pointer probably because of all_textures resize..
+    all_textures.emplace_back();
+
+    if (!((all_textures.back()).loadFromFile(sprite_path))) {
+        std::cout << "Path for the Entity's texture did not work" << "\n";
+    }
+
+    all_sprites.emplace_back(sf::Sprite(all_textures.back()));
+
+    auto sizeVec_sp = all_sprites.size() - 1;
+
+    sf::Vector2f scale = (all_sprites.back()).getScale();
+    (all_sprites.back()).setScale(scale * size_factor);
+
+    return_pointer = all_sprites.back();
+}
+
+
 bool find_entity_with_id(int search_id, std::vector<Entity*>& entitys, Entity& return_entity) {
 
     for (Entity* e : entitys) { // const leads to anachronism used ???
