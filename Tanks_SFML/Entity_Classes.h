@@ -97,7 +97,7 @@ public:
 
     // copy constructor (needed for use in std::vector, s there a standard?)
     // how does std::move() directly work..
-    Entity(const Entity& other) : coli(other.coli), spr(other.spr), id(++ID_sum) {}
+    Entity(const Entity& other) : coli(other.coli), spr(other.spr), id(ID_sum) {}
 
     /*
     Entity(const Entity& other) : coli(other.coli),
