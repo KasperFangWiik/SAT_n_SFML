@@ -187,7 +187,7 @@ public:
     }
 
 
-    void resolv_coll(Id_Pair<sf::RectangleShape> r1){
+    void resolve_Rect_coll(Id_Pair<sf::RectangleShape>&& r1){
         int numb_rect = rect_coliders.size();
         int numb_circles = circle_coliders.size();
 
@@ -242,6 +242,7 @@ public:
             }
         }
     }
+
     //private:
 
     //protected:

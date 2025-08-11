@@ -1,7 +1,6 @@
 #include"Entity_Classes.h"
 
 
-
 int Entity::ID_sum = 0;
 // const char* sprite_path
 void make_sprite(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures) {
@@ -40,7 +39,17 @@ sf::Sprite* make_spritetest(std::string sprite_path, float size_factor, std::vec
     return &all_sprites.back();
 }
 
-bool find_entity_with_id(int search_id, std::vector<Entity>& entitys, Entity& return_entity);
+bool find_entity_with_id(int search_id, std::vector<Entity>& entitys, Entity& return_entity) {
+
+    for (Entity& e : entitys) { // const leads to anachronism used ???
+        if (search_id == e.id) {
+            return_entity = e; // this does not work if one varible in entity class is constant 
+            return true;
+        }
+    }
+
+    return false;
+}
 /*
 -------------------------------------------------------------------------------
 Player related code:

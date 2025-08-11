@@ -77,7 +77,8 @@ public:
     sf::Vector2f dirV{}; // directinal vector
     float speed{};
     float rot_angle{};
-    const int id;
+    //const int id;
+    int id;
     // förklaring till inline's användning i detta forum: https://cplusplus.com/forum/beginner/282511/, only sinnse c++17
     //static inline int ID_sum = 0;
     
@@ -95,6 +96,7 @@ public:
     ~Entity() {} // standard destructor
 
     // copy constructor (needed for use in std::vector, s there a standard?)
+    // how does std::move() directly work..
     Entity(const Entity& other) : coli(other.coli), spr(other.spr), id(++ID_sum) {}
 
     /*
@@ -135,8 +137,27 @@ public:
         coli = c;
     }
 
-    // DENNA LÖSTE Problemet med std::vector som uppcom då const int id; las till
-    Entity& operator =(const Entity& other) {}
+    /*
+     // DENNA LÖSTE Problemet med std::vector som uppcom då const int id; las till, e denna korrect?
+    Entity& operator =(const Entity& other) = delete;//{ --ID_sum; return ; }
+
+    Entity(Entity&& other) noexcept : 
+        coli(other.coli), spr(other.spr), id(ID_sum) {}
+
+    Entity& operator =(Entity&& other) {
+        coli = std::move(other.coli);
+        spr = std::move(other.spr);
+
+        dirV = std::move(other.dirV);
+        speed = std::move(other.speed);
+        rot_angle = std::move(other.rot_angle);
+        return *this;
+    }
+    
+    
+    */
+
+
 
     template <typename T>
     Id_Pair<T> assosiate_vall_to_entity_id(const T& value ) {
@@ -214,17 +235,7 @@ public:
     //    static int ID_sum;
 };
 
-bool find_entity_with_id(int search_id, std::vector<Entity>& entitys, Entity& return_entity) {
-
-    for (Entity& const e : entitys) { // anachronism used ???
-        if (search_id == e.id) {
-            return_entity = e;
-            return true;
-        }
-    }
-
-    return false;
-}
+bool find_entity_with_id(int search_id, std::vector<Entity>& entitys, Entity& return_entity);
 
 
 // used only so that players are shecked for inputs

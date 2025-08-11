@@ -383,7 +383,7 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
 
             sf::Vector2f test_vec{};
             //if (current_colider_rect.findIntersection(tmp_colider_rect))
-            if(n->coli != nullptr)
+            if(m->coli != nullptr|| n->spr != nullptr)
                 if (n->speed > 0 && circle_rect_collision(m->coli, n->spr, test_vec)) { //simple_rect_collision(n->spr, m->spr, test_vec)
                     if (test_vec == sf::Vector2f{ 0,0 })
                         continue;
