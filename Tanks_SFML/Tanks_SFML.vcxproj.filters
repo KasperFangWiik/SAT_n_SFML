@@ -48,7 +48,7 @@
       <Filter>Under Construction</Filter>
     </ClInclude>
     <ClInclude Include="chunk_composition.h">
-      <Filter>Under Construction</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
