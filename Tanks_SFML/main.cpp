@@ -23,6 +23,9 @@
 ______________________________________________________________________________
                                 TODO LIST:
 
+    // this function needs to be revisit to controll when entitys are renderd to simulate depth
+    void render_chunk(sf::RenderWindow& window)
+
     1. find how manny copy constructor calls that are made and se if you can iliminate them we should at this momment probably have one copy call per entity and player
     2. fix rect on circle collision...
     3.1. fix so that player class does not inherrit, instead it uses composition
@@ -100,7 +103,7 @@ void uppdate_state(sf::RenderWindow& window, Player& players, Chunk& chunk, bool
 
     players.set_direction();
     chunk.move_transformables(dt.asSeconds());
-    chunk.render_chunk(window);
+    chunk.render_chunk(window); // how do i wan't to decied the order of rendering to decide depth
     chunk.render_chunk_coliders(window);
 
     /*
@@ -200,6 +203,7 @@ int main()
     const float piller_pixel_size = 15 * sprite_size_factor;
     piller.moveEnt({ piller_pixel_size * 6 , piller_pixel_size * 4 }); // 8*2*4 = 16 => 4 pixels, 16 pixels, 64 = 17 pix,  8*8-4 = 8*2*4-4 = 16*4-4 = 15*4
     piller.rot_angle = 50;
+    shape1.setOrigin(piller_sprite->getOrigin());
 
     ch.colider_move_ent_to_chunk(piller,std::move(shape1));
 

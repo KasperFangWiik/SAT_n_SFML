@@ -47,9 +47,6 @@
     <ClInclude Include="essential_collision.h">
       <Filter>Under Construction</Filter>
     </ClInclude>
-    <ClInclude Include="chunk_uppdate.h">
-      <Filter>Under Construction</Filter>
-    </ClInclude>
     <ClInclude Include="chunk_composition.h">
       <Filter>Under Construction</Filter>
     </ClInclude>

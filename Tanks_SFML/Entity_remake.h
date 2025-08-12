@@ -26,6 +26,10 @@ struct Id_Pair {
     bool compair_id(Id_Pair<T>& other_pair) {
         return entity_id == other_pair.entity_id;
     }
+
+    T* getvalue() {
+        return &value;
+    }
 };
 
 // a entity can be contected to more than one collider but no colider whill be contected to more than one.
@@ -113,11 +117,40 @@ public:
     template<typename T>
     T* find_id_pair(std::vector<Id_Pair<T>> other_pairs ) {
         for (Id_Pair<T>& other_pair : other_pairs)
-            if (compair_entity_id(other_pair))
-                return &(other_pair.value);
-
+            if (compair_entity_id(other_pair)) {
+                T* test = &(other_pair.value);
+                return test;
+            }
         // what happens when nothing, return a nullptr?
         return nullptr;
+    }
+
+    sf::CircleShape* find_circleid_pair(std::vector<Id_Pair<sf::CircleShape>> other_pairs) {
+        for (Id_Pair<sf::CircleShape>& other_pair : other_pairs)
+            if (compair_entity_id(other_pair)) {
+                //sf::CircleShape ttt = other_pair.value;
+                sf::CircleShape* test = other_pair.getvalue();
+                return test;
+            }
+        // what happens when nothing, return a nullptr?
+        return nullptr;
+    }
+
+
+    // Might need to clearify that int i = 0; is a index of a specific vector
+    template<typename T>
+    bool find_index_of_id_pair(std::vector<Id_Pair<T>> other_pairs, int& index) {
+        int i = 0;
+        for (Id_Pair<T>& other_pair : other_pairs) {
+
+            if (compair_entity_id(other_pair)) {
+                index = i;
+                return true;
+            }
+            i++;
+        }
+        // what happens when nothing, return a nullptr?
+        return false;
     }
 
     template<typename T>

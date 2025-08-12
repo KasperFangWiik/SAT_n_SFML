@@ -44,11 +44,11 @@ class Chunk {
     // chunk id? Or should it'sda position in the array/vector be
 public:
 
-
+    
     std::vector<Id_Pair<sf::RectangleShape>> rect_coliders{};
     std::vector<Id_Pair<sf::CircleShape>> circle_coliders{};
 
-
+    int numb_backrund_sprite{};
     sf::Sprite* background{};
 
     // when i have moved to composition version of player class then this std::vector<Entity*> changed to std::vector<Entity> 
@@ -73,6 +73,8 @@ public:
           std::vector<sf::Sprite>& all_sprites,
           std::vector<sf::Texture>& all_textures) {
 
+        //numb_backrund_sprite = sprite_num;
+
         chunks_entitys.reserve(sprite_num+ sprite_num);
         //tmp_backgound_chunks_entitys.reserve(sprite_num);
 
@@ -88,16 +90,30 @@ public:
             else {
                 // when the std::vector resizes then the copy constructor is called to move the objects to a new location 
                 chunks_entitys.emplace_back(Entity(make_spritetest(file_path, size_factor, all_sprites, all_textures)));
+                numb_backrund_sprite++;
             }
         }
     }
 
+
+    // this function needs to be revisit to controll when entitys are renderd to simulate depth
     void render_chunk(sf::RenderWindow& window) {
 
         window.draw(*background);
+        int tot_numb_entitys = chunks_entitys.size();
+
+        for (int i = numb_backrund_sprite; i < tot_numb_entitys; i++) {
+            window.draw(*(chunks_entitys.at(i).spr));
+        }
+
+        for (int i = 0; i < numb_backrund_sprite; i++) {
+            window.draw(*(chunks_entitys.at(i).spr));
+        }
+        /*
         for (const Entity& n : chunks_entitys) {
             window.draw(*(n.spr));
         }
+        */
     }
 
     void render_chunk_coliders(sf::RenderWindow& window) {
@@ -122,26 +138,42 @@ public:
             
             if (n.speed == 0 && n.rot_angle == 0)
                  continue;
-           
 
-            // HERE we should apply the same rotation and "position" to the colliders (with the right id...) 
-            //n.set_direction(); // should probably not be heare
             n.RotEnt(dt);
             n.dirMove(dt);
 
+            int rect_col{};
+            if (n.find_index_of_id_pair(rect_coliders, rect_col)) {
+                n.apply_rot_n_pos(rect_coliders.at(rect_col).getvalue());
+            }
+
+            int circle_col{};
+            if (n.find_index_of_id_pair(circle_coliders, circle_col)) {
+                n.apply_rot_n_pos(circle_coliders.at(circle_col).getvalue());
+            }
+
+            /*
             // sf::RectangleShape and CircleShape has no appropriate defult constrors HAHAHAHAH 
-            Id_Pair<sf::RectangleShape> rect_col{};
+            Id_Pair<sf::RectangleShape> rect_col{ {},sf::RectangleShape(sf::Vector2f{}) };
             if (n.bolean_find_id_pair(rect_coliders, rect_col)) {
                 n.apply_rot_n_pos(&rect_col.value);
             }
 
-            Id_Pair<sf::CircleShape> circle_col{};
+            Id_Pair<sf::CircleShape> circle_col{ {},sf::CircleShape( 0, 30) };;
             if (n.bolean_find_id_pair(circle_coliders, circle_col)) {
                 n.apply_rot_n_pos(&circle_col.value);
             }
+            
+            if (sf::RectangleShape* rect_col = n.find_id_pair<sf::RectangleShape>(rect_coliders)) {
+                n.apply_rot_n_pos(rect_col);
+            }
+
+            if (sf::CircleShape* circle_col = n.find_circleid_pair(circle_coliders)) {
+                n.apply_rot_n_pos(circle_col);
+            }
+            */
 
             /*
-            
             sf::RectangleShape* rect_col{};
             if (n.bolean_find_id_pair(rect_coliders, rect_col)) {
                 n.apply_rot_n_pos(rect_col);
@@ -151,6 +183,7 @@ public:
             if (n.bolean_find_id_pair(circle_coliders, circle_col)) {
                 n.apply_rot_n_pos(circle_col);
             }
+            
             */
 
            

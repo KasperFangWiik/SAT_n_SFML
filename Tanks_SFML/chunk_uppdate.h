@@ -3,7 +3,7 @@
 #include<SFML/Graphics.hpp>
 #include<SFML/System/Vector2.hpp>
 #include<filesystem>
-#include"Entity_Classes.h"
+#include"Entity_remake.h"
 #include"essential_collision.h"
 /*
 ______________________________________________________________________________
@@ -106,18 +106,12 @@ public:
 
             if(n->spr)
                 window.draw(*(n->spr));
-
-            if (n->coli)
-                window.draw(*(n->coli));
         }
 
         for (const Entity& n : tmp_backgound_chunks_entitys) {
 
             if (n.spr)
                 window.draw(*(n.spr));
-
-            if (n.coli)
-                window.draw(*(n.coli));
         }
     }
 

@@ -2,23 +2,6 @@
 
 
 int Entity::ID_sum = 0;
-// const char* sprite_path
-void make_sprite(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures) {
-
-    // after push_back here the pointer to all_sprites textures becomes a dangling pointer probably because of all_textures resize..
-    all_textures.emplace_back();
-
-    if (!((all_textures.back()).loadFromFile(sprite_path))) {
-        std::cout << "Path for Entity did not work" << "\n";
-    }
-
-    all_sprites.emplace_back(sf::Sprite(all_textures.back()));
-
-
-    sf::Vector2f scale = (all_sprites.back()).getScale();
-    (all_sprites.back()).setScale(scale * size_factor);
-
-}
 
 // the problem is probably that the id
 sf::Sprite* make_spritetest(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures) {
@@ -40,6 +23,24 @@ sf::Sprite* make_spritetest(std::string sprite_path, float size_factor, std::vec
     return &all_sprites.back();
 }
 
+
+// const char* sprite_path
+void make_sprite(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures) {
+
+    // after push_back here the pointer to all_sprites textures becomes a dangling pointer probably because of all_textures resize..
+    all_textures.emplace_back();
+
+    if (!((all_textures.back()).loadFromFile(sprite_path))) {
+        std::cout << "Path for Entity did not work" << "\n";
+    }
+
+    all_sprites.emplace_back(sf::Sprite(all_textures.back()));
+
+
+    sf::Vector2f scale = (all_sprites.back()).getScale();
+    (all_sprites.back()).setScale(scale * size_factor);
+
+}
 // behöver se till att den faktiskt hämtar rätt object och inte copierar
 bool find_entity_with_id(int search_id, std::vector<Entity>& entitys, Entity& return_entity){
 
