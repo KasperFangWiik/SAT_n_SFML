@@ -24,29 +24,23 @@
     <ClCompile Include="collision_self.h">
       <Filter>Header Files</Filter>
     </ClCompile>
-    <ClCompile Include="map_classes.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="collision_self.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity_Classes.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
     <ClCompile Include="Standard_Vectorfunc.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="Entity_remake.h">
-      <Filter>Under Construction</Filter>
-    </ClCompile>
     <ClCompile Include="essential_collision.cpp">
       <Filter>Under Construction</Filter>
     </ClCompile>
+    <ClCompile Include="Entity_remake.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity_remake.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Entity_Classes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Standard_Vectorfunc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -54,6 +48,9 @@
       <Filter>Under Construction</Filter>
     </ClInclude>
     <ClInclude Include="chunk_uppdate.h">
+      <Filter>Under Construction</Filter>
+    </ClInclude>
+    <ClInclude Include="chunk_composition.h">
       <Filter>Under Construction</Filter>
     </ClInclude>
   </ItemGroup>

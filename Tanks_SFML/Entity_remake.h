@@ -53,7 +53,6 @@ void make_sprite(std::string sprite_path, float size_factor, std::vector<sf::Spr
 //void make_sprite(std::string sprite_path, float size_factor, std::vector<spri_textur>& all_sprites_textures);
 
 void playerKeyEvent(sf::Keyboard::Scancode key_code, bool pressed, Player& playerOne);
-void keyPressControll(std::optional<sf::Event> event, Player* const playerOne);
 
 //sf::Sprite make_sprite(const char* sprite_path, float size_factor);
 
@@ -82,7 +81,11 @@ public:
 
     // copy constructor (needed for use in std::vector, s there a standard?)
     // how does std::move() directly work..
-    Entity(const Entity& other) : spr(other.spr), id(++ID_sum) {}
+    Entity(const Entity& other) : spr(other.spr), id(other.id) {
+        dirV = other.dirV; // directinal vector
+        speed = other.speed;
+        rot_angle = other.rot_angle;
+    }
 
 
     Entity(sf::Sprite* s) : id(++ID_sum) {
@@ -105,6 +108,40 @@ public:
     template<typename T>
     bool compair_entity_id(Id_Pair<T> other_pair) {
         return id == other_pair.entity_id;
+    }
+
+    template<typename T>
+    T* find_id_pair(std::vector<Id_Pair<T>> other_pairs ) {
+        for (Id_Pair<T>& other_pair : other_pairs)
+            if (compair_entity_id(other_pair))
+                return &(other_pair.value);
+
+        // what happens when nothing, return a nullptr?
+        return nullptr;
+    }
+
+    template<typename T>
+    bool bolean_find_id_pair(std::vector<Id_Pair<T>> other_pairs, T* value_pointer) {
+
+        for (Id_Pair<T>& other_pair : other_pairs)
+            if (compair_entity_id(other_pair)) {
+                value_pointer = &(other_pair.value);
+                return true;
+            }
+
+        return false;
+    }
+
+    template<typename T>
+    bool bolean_find_id_pair(std::vector<Id_Pair<T>> other_pairs, Id_Pair<T>& value_pointer) {
+
+        for (Id_Pair<T>& other_pair : other_pairs)
+            if (compair_entity_id(other_pair)) {
+                value_pointer = &other_pair;
+                return true;
+            }
+
+        return false;
     }
 
     // BEHÖVER kopplasamman rotation och move för att se om det sker knas...
@@ -130,6 +167,10 @@ public:
         moveEnt(other_dir * speed * dt); // scales the drection vector by the speed
     }
 
+    void apply_rot_n_pos(sf::Transformable* obj) {
+        obj->setPosition(spr->getPosition());
+        obj->setRotation(spr->getRotation());
+    }
 // protected usefull when inherreting static varibles might not be usefull now that i'm using composition?
 protected:
     static int ID_sum;
@@ -175,50 +216,9 @@ public:
 
     Player(Entity* const entity) { player_entity = entity; };
 
-    void set_direction() {
-
-        sf::Vector2f& dirV = player_entity->dirV;
-
-        dirV.y = float(w xor s);
-        dirV.x = float(a xor d);
-
-        // better as const float instead of macro
-        const float ONE_DIV_SQRTWO = 0.70706781f;
-
-        if ((w && d) || (w && a) || (s && d) || (s && a)) // moving diagonaly
-            dirV = { ONE_DIV_SQRTWO , ONE_DIV_SQRTWO }; // normalized vector
-
-        if (w == true)
-            dirV.y = -dirV.y;
-
-        if (a == true)
-            dirV.x = -dirV.x;
-    
-    };
+    void set_direction();
 
     //private:
 
     //protected:
 };
-
-/*
-
-
-void playerKeyEvent(sf::Keyboard::Scancode key_code, bool pressed, Player& playerOne) {
-    typedef sf::Keyboard::Scancode S_Code;
-
-    switch (key_code) {
-    case S_Code::W: case S_Code::Up:
-        playerOne.w = pressed;
-        break;
-    case S_Code::A: case S_Code::Left:
-        playerOne.a = pressed;
-        break;
-    case S_Code::S: case S_Code::Down:
-        playerOne.s = pressed;
-        break;
-    case S_Code::D: case S_Code::Right:
-        playerOne.d = pressed;
-    }
-}
-*/

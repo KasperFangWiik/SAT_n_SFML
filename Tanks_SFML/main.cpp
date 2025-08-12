@@ -7,12 +7,14 @@
 #include<SFML/Graphics.hpp>
 #include<SFML/System/Vector2.hpp>
 
-#include "Entity_Classes.h"
-#include "map_classes.h"
+//#include "Entity_Classes.h"
+#include "Entity_remake.h"
+//#include "map_classes.h"
 //#include "Standard_Vectorfunc.h"
 #include "collision_self.h"
-#include "chunk_uppdate.h"
+//#include "chunk_uppdate.h"
 
+#include "chunk_composition.h"
 //#define ONE_DIV_SQRTWO 0.70706781f //float value of ONE_DIV_SQRTWO = 1/sqrt(2)
 
 
@@ -65,51 +67,8 @@ kallar på delet kommer det skapa minnes luckor?
 
 //void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Shape*> all_coliders, float pixel_size_factor, float dt);
 
-void move_entitys(const std::vector<Entity*>& moveb_enlist, float dt) {
-
-    for (Entity* const n : moveb_enlist) // ska man använda const här? const entity n
-        n->dirMove(dt);
-}
-
-sf::RectangleShape rect_at_point( sf::Vector2f pos, sf::Vector2f size, sf::Color color) {
-    sf::RectangleShape rect(size);
-    rect.setPosition(pos);
-    rect.setFillColor(color);
-    return rect;
-
-}
-
-// Ska nog ändast behålla render_chunk
-void render_Entitys(sf::RenderWindow& window, const std::vector<Entity*>& enlist) {
-     
-    for (const Entity* n : enlist) {
-        if (!n->spr) { // n->spr == NULL samma som !n->spr
-            window.draw(*(n->coli));
-        }
-        else {
-            window.draw(*(n->spr));
-        }
-    }
-}
-
-// i need to use something like a z value to determen in what order to draw.
-void render_chunk(sf::RenderWindow& window, const ChunkTest& chunk) {
-
-    // varför har man get funktioner...
-    //window.draw(*chunk.background);
-
-    const std::vector<Entity>& enlist = chunk.stationary_enti;
-    for (const Entity& n : enlist) {
-        if (!n.spr)
-            window.draw(*(n.coli));
-        else
-            window.draw(*(n.spr));
-    }
-}
-
-
-// above uppdate state function and maby uppdate state function should probably be in map_classes.h/.cpp right?
-void uppdate_state(sf::RenderWindow& window, Chunk& chunk, bool new_chunk, sf::Clock& clock) {
+// We whill probably creat a game class that controlls game settings and one of it's memberfunction should be this?
+void uppdate_state(sf::RenderWindow& window, Player& players, Chunk& chunk, bool new_chunk, sf::Clock& clock) {
 
     sf::Time dt = clock.getElapsedTime(); // .asMilliseconds() direkt här ?
 
@@ -132,9 +91,17 @@ void uppdate_state(sf::RenderWindow& window, Chunk& chunk, bool new_chunk, sf::C
         window.setSize(sf::Vector2u(view.size));
         new_chunk = false;
     }
+    /*
+        // could uppdate the player direction mm... Here instead of in the chunk?
+    for (Player* player : players) {
+        player->set_direction();
+    }
+    */
 
+    players.set_direction();
     chunk.move_transformables(dt.asSeconds());
     chunk.render_chunk(window);
+    chunk.render_chunk_coliders(window);
 
     /*
     window.draw(*chunk.background);
@@ -229,18 +196,15 @@ int main()
     //Entity piller(&shape1); // piller_sprite
     Entity piller(piller_sprite);
 
-    ch.colider_move_ent_to_chunk(&piller,std::move(shape1));
-
     // one piller head is (15 * 4) in "pixel" size
     const float piller_pixel_size = 15 * sprite_size_factor;
     piller.moveEnt({ piller_pixel_size * 6 , piller_pixel_size * 4 }); // 8*2*4 = 16 => 4 pixels, 16 pixels, 64 = 17 pix,  8*8-4 = 8*2*4-4 = 16*4-4 = 15*4
     piller.rot_angle = 50;
+
+    ch.colider_move_ent_to_chunk(piller,std::move(shape1));
+
     //std::cout << piller.id << "\n";
     //piller.spr->setRotation(sf::degrees(45));
-    
-   
-    std::vector<Entity*> fixed_enlist;//  = { &piller };
-    //fixed_enlist.emplace_back(&piller);
 
     sf::CircleShape shape2(25.f);
 
@@ -252,19 +216,20 @@ int main()
     // changes the origin that we rotate around Could temporarly change the origin and rotate right?
     s->setOrigin((sf::Vector2f)s->getTexture().getSize() / 2.f);
     shape2.setOrigin((sf::Vector2f)s->getTexture().getSize() / 2.f);
+    Entity pl_entity(s);
+    //Player playerOne(&pl_entity); //  Player playerOne(&shape2, s);
 
-    Player playerOne(&shape2,s); //  Player playerOne(&shape2, s);
+    ch.add_ent_to_chunk(pl_entity, pl_entity.assosiate_vall_to_entity_id(std::move(shape2)));
 
-    ch.add_ent_to_chunk(&playerOne, playerOne.assosiate_vall_to_entity_id(std::move(shape2)));
-
+    Player playerOne(&ch.chunks_entitys.back());
     //ch.print_entity_ids();
     //playerOne.add_assosiate_vall_entity_id_to_vec(std::move(shape2), all_circle_colliders);
 
 
     // all_textures.resize(2); // tydligt visande att resize på all_textures är vad som stör all_sprites 
 
-    playerOne.speed = 200.0f;
-    playerOne.rot_angle = 0.0f;
+    playerOne.player_entity->speed = 200.0f;
+    playerOne.player_entity->rot_angle = 0.0f;
 
     /*
     // why does this make an error does moveb_enlist[0] not index the playerOne and
@@ -311,7 +276,8 @@ int main()
         //sf::Time dt = clock.getElapsedTime(); // .asMilliseconds() direkt här ?
 
         //std::cout << dt.asMilliseconds() << "\n";
-        uppdate_state(window, ch, new_chunk, clock);
+        //std::vector<Player*>pls{ &playerOne };
+        uppdate_state(window, playerOne, ch, new_chunk, clock);
         
         //std::cout << 1.0f / dt.asSeconds() << "\n";
         //std::cout << dt.asMilliseconds() << "\n";
