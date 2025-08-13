@@ -4,6 +4,8 @@
 #include<SFML/System/Vector2.hpp>
 #include<filesystem>
 
+#include<concepts>
+
 #include"Entity_remake.h"
 #include"essential_collision.h"
 /*
