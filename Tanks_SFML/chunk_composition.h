@@ -3,6 +3,7 @@
 #include<SFML/Graphics.hpp>
 #include<SFML/System/Vector2.hpp>
 #include<filesystem>
+
 #include"Entity_remake.h"
 #include"essential_collision.h"
 /*
@@ -242,6 +243,8 @@ public:
             std::cout << "id:" << en.id << "\n";
         }
     }
+
+
     /*
     BEHÖVS:
 
@@ -251,6 +254,54 @@ public:
     4. testa så att collision  med två saker som rör på sig ser bra ut och inte eller behöver ha egna functioner eller annat?
 
     */
+
+    /*
+    std::vector<Id_Pair<sf::RectangleShape>> rect_coliders{};
+    std::vector<Id_Pair<sf::CircleShape>> circle_coliders{};
+    */
+
+    void resolve_collisions() {
+    
+        for (Entity& e : chunks_entitys) {
+            if (e.speed == 0 && e.rot_angle == 0)
+                continue;
+
+            sf::Vector2f respons_vector{};
+            int rect_col{};
+            if (e.find_index_of_id_pair(rect_coliders, rect_col)) {
+
+                //sf::RectangleShape* es_colider = rect_coliders.at(rect_col).getvalue();
+                Id_Pair<sf::RectangleShape>& es_colider = rect_coliders.at(rect_col);
+               // e.apply_rot_n_pos(rect_coliders.at(rect_col).getvalue());
+
+                for (Id_Pair<sf::RectangleShape>& r_c : rect_coliders) {
+                    if (es_colider.compair_id(r_c)) // don't test collision with same entity_id
+                        continue;
+                    // collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector)
+                    if (collision(es_colider.value,r_c.value, respons_vector)) {
+                        e.moveEnt(respons_vector); // should i apply 
+                    }
+                }
+
+                for (Id_Pair<sf::CircleShape>& c_c : circle_coliders) {
+                    if (compair_diff_id_pair<sf::RectangleShape, sf::CircleShape>(es_colider,c_c)) // don't test collision with same entity_id
+                        continue;
+
+                    // this collider does not work as expected...
+                    if (collision(c_c.value, es_colider.value, respons_vector)) {  
+                        e.moveEnt(respons_vector); // should i apply 
+                    }
+                }
+
+            }
+
+            int circle_col{};
+            if (e.find_index_of_id_pair(circle_coliders, circle_col)) {
+                e.apply_rot_n_pos(circle_coliders.at(circle_col).getvalue());
+            }
+
+        }
+    }
 
     /*
     void resolve_collisions() {

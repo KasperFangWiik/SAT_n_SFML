@@ -23,14 +23,33 @@ struct Id_Pair {
     const int entity_id;
     T value;
 
-    bool compair_id(Id_Pair<T>& other_pair) {
+    // how can i make so that the other id could have a nother type?
+    bool compair_id(const Id_Pair& other_pair) {
         return entity_id == other_pair.entity_id;
     }
 
+    /*
+    // would this work? Brobably whon't to this because confusing
+    bool operator==(Id_Pair<T>& other_pair) {
+        return entity_id == other_pair.entity_id;
+    }
+    */
     T* getvalue() {
         return &value;
     }
+
+    /*
+    // shoudl i do this?
+    T& getvalue() {
+        return value;
+    }
+    */
 };
+
+template<typename T,typename U>
+bool compair_diff_id_pair(const Id_Pair<T>& first_pair,const Id_Pair<U>& other_pair) {
+    return first_pair.entity_id == other_pair.entity_id;
+}
 
 // a entity can be contected to more than one collider but no colider whill be contected to more than one.
 // a collider vill always have the same transform as the entity/sprite could this lead to double calculation?
