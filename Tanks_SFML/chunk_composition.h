@@ -322,19 +322,34 @@ public:
                 if (compair_diff_id_pair(entitys_colider,r_c)) // don't test collision with same entity_id
                     continue;
                 // collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector)
+
+                if (intersect(entitys_colider.value, r_c.value)) {
+                    std::cout << "collided with rectangle" << "\n";
+                }
+
+                /*
+                
                 if (collision(entitys_colider.value, r_c.value, respons_vector)) {
                     e.moveEnt(respons_vector); // should i apply 
                 }
+                */
             }
 
             for (Id_Pair<sf::CircleShape>& c_c : circle_coliders) {
                 if (compair_diff_id_pair(entitys_colider, c_c)) // don't test collision with same entity_id
                     continue;
 
+
+                if (intersect(c_c.value, entitys_colider.value)) {
+                    std::cout << "collided with circle" << "\n";
+                }
+
+                /*
                 // this collider does not work as expected...
                 if (collision(c_c.value, entitys_colider.value, respons_vector)) {
                     e.moveEnt(-respons_vector); // should i apply 
                 }
+                */
             }
 
         }
