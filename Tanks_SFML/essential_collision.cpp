@@ -105,7 +105,7 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     float max_rect2 = min_max_dist2.at(1);
 
     return (min_rect1 <= min_rect2 && max_rect1 >= min_rect2) || 
-           (min_rect2 <= min_rect1 && min_rect2 >= min_rect1) ;
+           (min_rect2 <= min_rect1 && max_rect2 >= min_rect1) ;
 }
 
 bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
@@ -137,7 +137,7 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     }
 
     // (Overlap in order object 2 -> object 1)
-    if (min_rect2 <= min_rect1 && min_rect2 >= min_rect1) {
+    if (min_rect2 <= min_rect1 && max_rect2 >= min_rect1) {
 
         current_size_of_overlap = min_rect1 - max_rect2;
         if (abs(current_size_of_overlap) < abs(respons_data.penetration)) {
@@ -337,7 +337,7 @@ bool intersect(sf::CircleShape& circle1, sf::RectangleShape& rect2) {
 }
 bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector) {
 
-    sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getOrigin();
+    sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getGeometricCenter();//circle1.getOrigin();
     sf::Vector2f rect2_ceter   = rect2.getTransform() * rect2.getOrigin();
 
     float radius = circle1.getRadius();
@@ -346,15 +346,14 @@ bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f
     std::array<sf::Vector2f, 4> vertecis_rect2 = get_vertecis_of_rectcol(rect2);
     std::array<sf::Vector2f, 2> normals_2 = normals_of_rect_withFunk(vertecis_rect2);
 
-
     sf::Vector2f closest_vertex = closest_polyVertex_to_point(circle1_ceter, vertecis_rect2);
 
     sf::Vector2f circle_normal{};
     sf::Vector2f distance_difference_vector = (closest_vertex - circle1_ceter);
     if (distance_difference_vector != sf::Vector2f{ 0.0, 0.0 })
-        sf::Vector2f circle_normal = distance_difference_vector.normalized();
+        circle_normal = distance_difference_vector.normalized();
     else
-        sf::Vector2f circle_normal = distance_difference_vector;
+        circle_normal = distance_difference_vector;
 
     std::array<sf::Vector2f, 3> normals = { normals_2.at(0), normals_2.at(1), circle_normal };
 

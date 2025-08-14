@@ -293,25 +293,25 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
 
     sf::Vector2f min_max_dist2 = min_max_projection_distance(projection_axis, rect2_vertecis);
 
-    float A = circle_vert_pos[0];
-    float B = circle_vert_pos[1];
+    float circle_min_dist = circle_vert_pos[0];
+    float circle_max_dist = circle_vert_pos[1];
 
     float tmp = 0;
-    if (A>B) { // swap
-        tmp = A;
-        A = B;
-        B = tmp;
+    if (circle_min_dist > circle_max_dist) { // swap
+        tmp = circle_min_dist;
+        circle_min_dist = circle_max_dist;
+        circle_max_dist = tmp;
     }
 
-    float C = min_max_dist2.x;
-    float D = min_max_dist2.y;
+    float rect_min_dist = min_max_dist2.x;
+    float rect_max_dist = min_max_dist2.y;
 
     float current_size_of_overlap = 0;
     // IF A < C AND B > C (Overlap in order object 1 -> object 2)
-    if (A <= C && B >= C) { // original (A <= C && B >= C)
+    if (circle_min_dist <= rect_min_dist && circle_max_dist >= rect_min_dist) { // original (A <= C && B >= C)
         // Store the collison data
 
-        current_size_of_overlap = C - B;
+        current_size_of_overlap = rect_min_dist - circle_max_dist;
 
         if (abs(current_size_of_overlap) < abs(size_of_overlap)) { // this abs uses cstdlib
             size_of_overlap = current_size_of_overlap;
@@ -323,9 +323,9 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     }
 
     // IF C < A AND D > A (Overlap in order object 2 -> object 1)
-    if (C <= A && D >= A) { // original (C <= A && D >= A)
+    if (rect_min_dist <= circle_min_dist && rect_max_dist >= circle_min_dist) { // original (C <= A && D >= A)
         // Store the collison data
-        current_size_of_overlap = A - D;
+        current_size_of_overlap = circle_min_dist - rect_max_dist;
 
         // should use abs or multiply?
         if (abs(current_size_of_overlap) < abs(size_of_overlap)) {

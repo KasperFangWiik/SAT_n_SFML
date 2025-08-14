@@ -138,90 +138,35 @@ public:
         }
     }
 
+    void move_coliders_to_entity_pos(Entity&& e) {
+
+        int rect_col{};
+        if (e.find_index_of_id_pair(rect_coliders, rect_col)) {
+            e.apply_rot_n_pos(rect_coliders.at(rect_col).getvalue());
+        }
+
+        int circle_col{};
+        if (e.find_index_of_id_pair(circle_coliders, circle_col)) {
+            e.apply_rot_n_pos(circle_coliders.at(circle_col).getvalue());
+        }
+
+    }
     // write a move function first then include collisions later
-    void move_transformables(float dt) {
+    void move_all_transformables(float dt) {
         // WE SHOULD MAKE IT So that the dirMove, RotEnt and set_direction is called on all relevant parties aka all sprites and colliders in chunk
 
         // here we should have a function that just setts the player's direction that is called before we move anny thing.
 
-        for (Entity& n : chunks_entitys) { // ska man använda const här? const entity n
-
+        for (Entity& e : chunks_entitys) { // ska man använda const här? const entity n
             
-            if (n.speed == 0 && n.rot_angle == 0)
+            // behöver nog splittra rörliga och icke rörliga object då minskas antallet sådana checks 
+            if (e.speed == 0 && e.rot_angle == 0)
                  continue;
 
-            n.RotEnt(dt);
-            n.dirMove(dt);
+            e.RotEnt(dt);
+            e.dirMove(dt);
 
-            int rect_col{};
-            if (n.find_index_of_id_pair(rect_coliders, rect_col)) {
-                n.apply_rot_n_pos(rect_coliders.at(rect_col).getvalue());
-            }
-
-            int circle_col{};
-            if (n.find_index_of_id_pair(circle_coliders, circle_col)) {
-                n.apply_rot_n_pos(circle_coliders.at(circle_col).getvalue());
-            }
-
-            /*
-            // sf::RectangleShape and CircleShape has no appropriate defult constrors HAHAHAHAH 
-            Id_Pair<sf::RectangleShape> rect_col{ {},sf::RectangleShape(sf::Vector2f{}) };
-            if (n.bolean_find_id_pair(rect_coliders, rect_col)) {
-                n.apply_rot_n_pos(&rect_col.value);
-            }
-
-            Id_Pair<sf::CircleShape> circle_col{ {},sf::CircleShape( 0, 30) };;
-            if (n.bolean_find_id_pair(circle_coliders, circle_col)) {
-                n.apply_rot_n_pos(&circle_col.value);
-            }
-            
-            if (sf::RectangleShape* rect_col = n.find_id_pair<sf::RectangleShape>(rect_coliders)) {
-                n.apply_rot_n_pos(rect_col);
-            }
-
-            if (sf::CircleShape* circle_col = n.find_circleid_pair(circle_coliders)) {
-                n.apply_rot_n_pos(circle_col);
-            }
-            */
-
-            /*
-            sf::RectangleShape* rect_col{};
-            if (n.bolean_find_id_pair(rect_coliders, rect_col)) {
-                n.apply_rot_n_pos(rect_col);
-            }
-
-            sf::CircleShape* circle_col{};
-            if (n.bolean_find_id_pair(circle_coliders, circle_col)) {
-                n.apply_rot_n_pos(circle_col);
-            }
-            
-            */
-
-           
-            /*
-            // no errors but doesn't work
-            auto collider_ptr1 = n.find_id_pair(rect_coliders);
-            auto collider_ptr2 = n.find_id_pair(circle_coliders);
-            if (collider_ptr1) { // collider_ptr != nullptr
-                n.apply_rot_n_pos(collider_ptr1);
-            }
-
-            if (collider_ptr2) { // collider_ptr != nullptr
-                n.apply_rot_n_pos(collider_ptr2);
-            }
-            
-
-            */
-            
-            /*
-            // assuming only one collider per entity, then the code above is correct
-            auto collider_ptr = n.find_id_pair(circle_coliders);
-            if (collider_ptr) { // collider_ptr != nullptr
-                n.apply_rot_n_pos(collider_ptr);
-            }
-            */
-
-
+            move_coliders_to_entity_pos(std::move(e));
 
             // n.apply_rot_n_pos(/*collider with right id*/);
             // check collision and resolv collision(how do i whant to distinguage if i whant to resolv or not resolv normaly the collision?)
@@ -232,19 +177,36 @@ public:
     void colider_move_ent_to_chunk(Entity& ent, sf::RectangleShape&& rect_colider) {
         chunks_entitys.push_back(ent); // could use emplace_back? especially if changed to this std::vector<Entity>...
         ent.add_assosiate_vall_entity_id_to_vec(std::move(rect_colider), rect_coliders);
+
+        int rect_col{};
+        ent.find_index_of_id_pair(rect_coliders, rect_col);
+        ent.apply_rot_n_pos(rect_coliders.at(rect_col).getvalue());
+ 
     }
     void colider_move_ent_to_chunk(Entity& ent, sf::CircleShape&& circle_colider) {
         chunks_entitys.push_back(ent); // could use emplace_back? especially if changed to this std::vector<Entity>...
         ent.add_assosiate_vall_entity_id_to_vec(std::move(circle_colider), circle_coliders);
+
+        int circle_col{};
+        ent.find_index_of_id_pair(circle_coliders, circle_col);
+        ent.apply_rot_n_pos(circle_coliders.at(circle_col).getvalue());
     }
 
     void add_ent_to_chunk(Entity& ent, Id_Pair<sf::RectangleShape> rect_colider) {
         chunks_entitys.push_back(ent);
         rect_coliders.push_back(rect_colider);
+
+        int rect_col{};
+        ent.find_index_of_id_pair(rect_coliders, rect_col);
+        ent.apply_rot_n_pos(rect_coliders.at(rect_col).getvalue());
     }
     void add_ent_to_chunk(Entity& ent, Id_Pair<sf::CircleShape> circle_colider) {
         chunks_entitys.push_back(ent);
         circle_coliders.push_back(circle_colider);
+
+        int circle_col{};
+        ent.find_index_of_id_pair(circle_coliders, circle_col);
+        ent.apply_rot_n_pos(circle_coliders.at(circle_col).getvalue());
     }
 
     void print_entity_ids() {
@@ -305,7 +267,6 @@ public:
   */
 
 
-
     template<IsCollideble U>
     void check_collision_with_chapes(Entity&& e, std::vector<U>&& colliders) {
 
@@ -323,33 +284,36 @@ public:
                     continue;
                 // collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector)
 
+                /*
                 if (intersect(entitys_colider.value, r_c.value)) {
                     std::cout << "collided with rectangle" << "\n";
                 }
+                */
 
-                /*
-                
                 if (collision(entitys_colider.value, r_c.value, respons_vector)) {
                     e.moveEnt(respons_vector); // should i apply 
+                    move_coliders_to_entity_pos(std::move(e));
                 }
-                */
+                
             }
 
             for (Id_Pair<sf::CircleShape>& c_c : circle_coliders) {
                 if (compair_diff_id_pair(entitys_colider, c_c)) // don't test collision with same entity_id
                     continue;
 
-
+                /*
                 if (intersect(c_c.value, entitys_colider.value)) {
                     std::cout << "collided with circle" << "\n";
                 }
+                */
 
-                /*
+                
                 // this collider does not work as expected...
                 if (collision(c_c.value, entitys_colider.value, respons_vector)) {
                     e.moveEnt(-respons_vector); // should i apply 
+                    move_coliders_to_entity_pos(std::move(e));
                 }
-                */
+                
             }
 
         }
@@ -520,3 +484,62 @@ deside where the rectangels are located with:
 constexpr 	Rect (Vector2< T > position, Vector2< T > size)
     Construct the rectangle from position and size.
 */
+
+
+/*
+            // sf::RectangleShape and CircleShape has no appropriate defult constrors HAHAHAHAH
+            Id_Pair<sf::RectangleShape> rect_col{ {},sf::RectangleShape(sf::Vector2f{}) };
+            if (n.bolean_find_id_pair(rect_coliders, rect_col)) {
+                n.apply_rot_n_pos(&rect_col.value);
+            }
+
+            Id_Pair<sf::CircleShape> circle_col{ {},sf::CircleShape( 0, 30) };;
+            if (n.bolean_find_id_pair(circle_coliders, circle_col)) {
+                n.apply_rot_n_pos(&circle_col.value);
+            }
+
+            if (sf::RectangleShape* rect_col = n.find_id_pair<sf::RectangleShape>(rect_coliders)) {
+                n.apply_rot_n_pos(rect_col);
+            }
+
+            if (sf::CircleShape* circle_col = n.find_circleid_pair(circle_coliders)) {
+                n.apply_rot_n_pos(circle_col);
+            }
+
+
+
+            sf::RectangleShape* rect_col{};
+            if (n.bolean_find_id_pair(rect_coliders, rect_col)) {
+                n.apply_rot_n_pos(rect_col);
+            }
+
+            sf::CircleShape* circle_col{};
+            if (n.bolean_find_id_pair(circle_coliders, circle_col)) {
+                n.apply_rot_n_pos(circle_col);
+            }
+
+
+
+
+
+            // no errors but doesn't work
+            auto collider_ptr1 = n.find_id_pair(rect_coliders);
+            auto collider_ptr2 = n.find_id_pair(circle_coliders);
+            if (collider_ptr1) { // collider_ptr != nullptr
+                n.apply_rot_n_pos(collider_ptr1);
+            }
+
+            if (collider_ptr2) { // collider_ptr != nullptr
+                n.apply_rot_n_pos(collider_ptr2);
+            }
+
+
+
+
+
+            // assuming only one collider per entity, then the code above is correct
+            auto collider_ptr = n.find_id_pair(circle_coliders);
+            if (collider_ptr) { // collider_ptr != nullptr
+                n.apply_rot_n_pos(collider_ptr);
+            }
+            */
