@@ -4,10 +4,13 @@
 #include<SFML/System/Vector2.hpp>
 #include<filesystem>
 
-#include<concepts>
+#include <type_traits>
+//#include<concepts>
 
 #include"Entity_remake.h"
 #include"essential_collision.h"
+
+
 /*
 ______________________________________________________________________________
                     Map and chunk classes in progress:
@@ -41,7 +44,12 @@ hur kan dessa uppfyllas?
 2.
 
 */
+class dostuf {
 
+};
+
+template<typename U>
+concept IsCollideble = std::is_same_v< U, Id_Pair<sf::RectangleShape> > || std::is_same_v< U, Id_Pair<sf::CircleShape>>;
 
 class Chunk {
     // chunk id? Or should it'sda position in the array/vector be
@@ -262,48 +270,92 @@ public:
     std::vector<Id_Pair<sf::CircleShape>> circle_coliders{};
     */
 
-    void resolve_collisions() {
-    
-        for (Entity& e : chunks_entitys) {
-            if (e.speed == 0 && e.rot_angle == 0)
-                continue;
+    /*
 
-            sf::Vector2f respons_vector{};
-            int rect_col{};
-            if (e.find_index_of_id_pair(rect_coliders, rect_col)) {
+  template<IsCollideble T, IsCollideble U>
+  void check_collision_with_chape_vector(Entity&& e, U&& collider, std::vector<T>&& collider_vec,const int&& collider_index) {
 
-                //sf::RectangleShape* es_colider = rect_coliders.at(rect_col).getvalue();
-                Id_Pair<sf::RectangleShape>& es_colider = rect_coliders.at(rect_col);
-               // e.apply_rot_n_pos(rect_coliders.at(rect_col).getvalue());
+      for (T& r_c : collider_vec) {
+          if (collider.compair_id(r_c)) // don't test collision with same entity_id
+              continue;
+          // collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector)
+          if (collision(collider.value, r_c.value, collider_vec)) {
+              e.moveEnt(collider_vec); // should i apply
+          }
+      }
+  }
 
-                for (Id_Pair<sf::RectangleShape>& r_c : rect_coliders) {
-                    if (es_colider.compair_id(r_c)) // don't test collision with same entity_id
-                        continue;
-                    // collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector)
-                    if (collision(es_colider.value,r_c.value, respons_vector)) {
-                        e.moveEnt(respons_vector); // should i apply 
-                    }
+  template<IsCollideble U>
+  void check_collision_with_chapesTetst(Entity&& e, std::vector<U>&& colliders, const int collider_index) {
+
+      sf::Vector2f respons_vector{};
+      int col_index{};
+
+      if (e.find_index_of_id_pair(colliders, col_index)) {
+
+          //sf::RectangleShape* es_colider = rect_coliders.at(rect_col).getvalue();
+          U& entitys_colider = rect_coliders.at(col_index);
+          // e.apply_rot_n_pos(rect_coliders.at(rect_col).getvalue());
+
+          check_collision_with_chape_vector(e,entitys_colider, rect_coliders, col_index);
+          check_collision_with_chape_vector(e, entitys_colider, circle_coliders, col_index);
+
+      }
+  }
+  */
+
+
+
+    template<IsCollideble U>
+    void check_collision_with_chapes(Entity&& e, std::vector<U>&& colliders) {
+
+        sf::Vector2f respons_vector{};
+        int col_index{};
+
+        if (e.find_index_of_id_pair(colliders, col_index)) {
+
+            //sf::RectangleShape* es_colider = rect_coliders.at(rect_col).getvalue();
+            U& entitys_colider = colliders.at(col_index);
+            // e.apply_rot_n_pos(rect_coliders.at(rect_col).getvalue());
+
+            for (Id_Pair<sf::RectangleShape>& r_c : rect_coliders) {
+                if (compair_diff_id_pair(entitys_colider,r_c)) // don't test collision with same entity_id
+                    continue;
+                // collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector)
+                if (collision(entitys_colider.value, r_c.value, respons_vector)) {
+                    e.moveEnt(respons_vector); // should i apply 
                 }
-
-                for (Id_Pair<sf::CircleShape>& c_c : circle_coliders) {
-                    if (compair_diff_id_pair<sf::RectangleShape, sf::CircleShape>(es_colider,c_c)) // don't test collision with same entity_id
-                        continue;
-
-                    // this collider does not work as expected...
-                    if (collision(c_c.value, es_colider.value, respons_vector)) {  
-                        e.moveEnt(respons_vector); // should i apply 
-                    }
-                }
-
             }
 
-            int circle_col{};
-            if (e.find_index_of_id_pair(circle_coliders, circle_col)) {
-                e.apply_rot_n_pos(circle_coliders.at(circle_col).getvalue());
+            for (Id_Pair<sf::CircleShape>& c_c : circle_coliders) {
+                if (compair_diff_id_pair(entitys_colider, c_c)) // don't test collision with same entity_id
+                    continue;
+
+                // this collider does not work as expected...
+                if (collision(c_c.value, entitys_colider.value, respons_vector)) {
+                    e.moveEnt(-respons_vector); // should i apply 
+                }
             }
 
         }
     }
+
+    void resolve_collisions() {
+    
+        for (Entity& e : chunks_entitys) {
+            if (e.speed == 0) // && e.rot_angle == 0
+                continue;
+
+
+            this->check_collision_with_chapes<Id_Pair<sf::RectangleShape>>(std::move(e), std::move(rect_coliders));
+            this->check_collision_with_chapes<Id_Pair<sf::CircleShape>>(std::move(e), std::move(circle_coliders));
+
+            //this->check_collision_with_chapes<Id_Pair<sf::RectangleShape>>(e, rect_coliders);
+            //this->check_collision_with_chapes<Id_Pair<sf::CircleShape>>(e, circle_coliders);
+
+        }
+    }
+    
 
     /*
     void resolve_collisions() {

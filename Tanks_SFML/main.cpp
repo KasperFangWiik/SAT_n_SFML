@@ -107,6 +107,7 @@ void uppdate_state(sf::RenderWindow& window, Player& players, Chunk& chunk, bool
 
     players.set_direction();
     chunk.move_transformables(dt.asSeconds());
+    chunk.resolve_collisions();
     chunk.render_chunk(window); // how do i wan't to decied the order of rendering to decide depth
     chunk.render_chunk_coliders(window);
 
@@ -179,7 +180,7 @@ int main()
     std::vector<sf::Texture> all_textures;
     all_textures.reserve(20);
 
-    const float sprite_size_factor = 4.0;
+    float sprite_size_factor = 4.0;
 
     std::string map_path = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/chuncks";
     int map_size = 9;
@@ -201,15 +202,23 @@ int main()
     
     sf::FloatRect colid_pill = piller_sprite->getGlobalBounds();
     //Entity piller(&shape1); // piller_sprite
+
+    piller_sprite->setOrigin((sf::Vector2f)piller_sprite->getTexture().getSize() / 2.f);
     Entity piller(piller_sprite);
 
     // one piller head is (15 * 4) in "pixel" size
-    const float piller_pixel_size = 15 * sprite_size_factor;
+    float piller_pixel_size = 15 * sprite_size_factor;
     piller.moveEnt({ piller_pixel_size * 6 , piller_pixel_size * 4 }); // 8*2*4 = 16 => 4 pixels, 16 pixels, 64 = 17 pix,  8*8-4 = 8*2*4-4 = 16*4-4 = 15*4
     piller.rot_angle = 50;
-    shape1.setOrigin(piller_sprite->getOrigin());
+   // shape1.setOrigin((sf::Vector2f)piller_sprite->getTexture().getSize()/ 2.f);
+    //shape1.setOrigin(piller_sprite->getOrigin());
 
-    ch.colider_move_ent_to_chunk(piller,std::move(shape1));
+    sf::Vector2f size2 = (sf::Vector2f)(piller_sprite->getTexture()).getSize() * sprite_size_factor;
+    sf::RectangleShape rectcollshapeFirst = sf::RectangleShape(size2);
+
+    rectcollshapeFirst.setOrigin((sf::Vector2f)piller_sprite->getTexture().getSize() / 2.f);
+
+    ch.colider_move_ent_to_chunk(piller,std::move(rectcollshapeFirst));
 
     //std::cout << piller.id << "\n";
     //piller.spr->setRotation(sf::degrees(45));
@@ -223,11 +232,17 @@ int main()
 
     // changes the origin that we rotate around Could temporarly change the origin and rotate right?
     s->setOrigin((sf::Vector2f)s->getTexture().getSize() / 2.f);
+
+    //when i do not fix the center i get an error probably divide by zero...
     shape2.setOrigin((sf::Vector2f)s->getTexture().getSize() / 2.f);
+
     Entity pl_entity(s);
     //Player playerOne(&pl_entity); //  Player playerOne(&shape2, s);
+    sf::Vector2f size1 = (sf::Vector2f)(s->getTexture()).getSize() * sprite_size_factor;
+    sf::RectangleShape rectcollshape = sf::RectangleShape(size1);
+    rectcollshape.setOrigin((sf::Vector2f)s->getTexture().getSize() / 2.f);
 
-    ch.add_ent_to_chunk(pl_entity, pl_entity.assosiate_vall_to_entity_id(std::move(shape2)));
+    ch.add_ent_to_chunk(pl_entity, pl_entity.assosiate_vall_to_entity_id(std::move(rectcollshape)));
 
     Player playerOne(&ch.chunks_entitys.back());
     //ch.print_entity_ids();

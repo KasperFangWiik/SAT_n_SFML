@@ -3,8 +3,6 @@
 
 int Entity::ID_sum = 0;
 
-template<typename T, typename U>
-bool compair_diff_id_pair(const Id_Pair<T>& first_pair, const Id_Pair<U>& other_pair);
 // the problem is probably that the id
 sf::Sprite* make_spritetest(std::string sprite_path, float size_factor, std::vector<sf::Sprite>& all_sprites, std::vector<sf::Texture>& all_textures) {
 

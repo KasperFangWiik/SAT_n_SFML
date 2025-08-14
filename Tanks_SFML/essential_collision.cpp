@@ -348,7 +348,13 @@ bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f
 
 
     sf::Vector2f closest_vertex = closest_polyVertex_to_point(circle1_ceter, vertecis_rect2);
-    sf::Vector2f circle_normal = (closest_vertex - circle1_ceter).normalized();
+
+    sf::Vector2f circle_normal{};
+    sf::Vector2f distance_difference_vector = (closest_vertex - circle1_ceter);
+    if (distance_difference_vector != sf::Vector2f{ 0.0, 0.0 })
+        sf::Vector2f circle_normal = distance_difference_vector.normalized();
+    else
+        sf::Vector2f circle_normal = distance_difference_vector;
 
     std::array<sf::Vector2f, 3> normals = { normals_2.at(0), normals_2.at(1), circle_normal };
 
