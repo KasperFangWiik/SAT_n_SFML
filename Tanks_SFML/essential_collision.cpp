@@ -233,20 +233,30 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
                             const std::array<float, 2>& circle_vert_pos,
                             const std::array<sf::Vector2f, 4>& rect2_vertecis) {
 
+
+    float circle_min_dist1 = circle_vert_pos.at(0);
+    float circle_max_dist1 = circle_vert_pos.at(1);
+
     std::array<float, 2> min_max_dist2 = min_max_projection_distance(projection_axis, rect2_vertecis);
-    float rect_min_dist = min_max_dist2.at(0);
-    float rect_max_dist = min_max_dist2.at(1);
+    float rect_min_dist2 = min_max_dist2.at(0);
+    float rect_max_dist2 = min_max_dist2.at(1);
 
 
-    float circle_min_dist = circle_vert_pos.at(0);
-    float circle_max_dist = circle_vert_pos.at(1);
-
-    if (circle_min_dist > circle_max_dist) {
-        std::swap(circle_min_dist, circle_max_dist);
+    if (circle_min_dist1 > circle_max_dist1) {
+        std::swap(circle_min_dist1, circle_max_dist1);
     }
 
-    return (circle_min_dist <= rect_min_dist && circle_max_dist >= rect_min_dist) || 
-           (rect_min_dist <= circle_min_dist && rect_max_dist >= circle_min_dist);
+    /*
+    return (min_rect1 <= min_rect2 && max_rect1 >= min_rect2) ||
+        (min_rect2 <= min_rect1 && max_rect2 >= min_rect1);
+
+        // new stuff seams same
+     return (rect_min_dist2 <= circle_min_dist1 && rect_max_dist2 >= circle_min_dist1) ||
+        (circle_min_dist1 <= rect_min_dist2 && circle_max_dist1 >= rect_min_dist2);
+    */
+
+    return (circle_min_dist1 <= rect_min_dist2 && circle_max_dist1 >= rect_min_dist2) ||
+           (rect_min_dist2 <= circle_min_dist1 && rect_max_dist2 >= circle_min_dist1);
 
 }
 
@@ -321,7 +331,14 @@ bool intersect(sf::CircleShape& circle1, sf::RectangleShape& rect2) {
 
 
     sf::Vector2f closest_vertex = closest_polyVertex_to_point(circle1_ceter, vertecis_rect2);
-    sf::Vector2f circle_normal = (closest_vertex - circle1_ceter).normalized();
+
+    sf::Vector2f circle_normal{};
+    sf::Vector2f distance_difference_vector = (closest_vertex - circle1_ceter);
+    if (distance_difference_vector != sf::Vector2f{ 0.0, 0.0 })
+        circle_normal = distance_difference_vector.normalized();
+    else
+        circle_normal = distance_difference_vector;
+
 
     std::array<sf::Vector2f, 3> normals = { normals_2.at(0), normals_2.at(1), circle_normal };
 
@@ -339,6 +356,168 @@ bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f
 
     sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getGeometricCenter();//circle1.getOrigin();
     sf::Vector2f rect2_ceter   = rect2.getTransform() * rect2.getOrigin();
+
+    float radius = circle1.getRadius();
+
+
+    std::array<sf::Vector2f, 4> vertecis_rect2 = get_vertecis_of_rectcol(rect2);
+    std::array<sf::Vector2f, 2> normals_2 = normals_of_rect_withFunk(vertecis_rect2);
+
+    sf::Vector2f closest_vertex = closest_polyVertex_to_point(circle1_ceter, vertecis_rect2);
+    
+    sf::Vector2f circle_normal{};
+    sf::Vector2f distance_difference_vector = (closest_vertex - circle1_ceter);
+    if (distance_difference_vector != sf::Vector2f{ 0.0, 0.0 })
+        circle_normal = distance_difference_vector.normalized();
+    else
+        circle_normal = distance_difference_vector;
+
+    std::array<sf::Vector2f, 3> normals = { normals_2.at(0), normals_2.at(1), circle_normal };
+
+    CollisionResponseData respons_data = { std::numeric_limits<float>::max(), {} };
+
+    for (const sf::Vector2f& normal : normals) {
+
+        float circle_pos_on_axis = circle1_ceter.dot(normal);
+        std::array<float, 2> circle_vert_pos = { circle_pos_on_axis - radius, circle_pos_on_axis + radius };
+
+        if (!check_SAT_axis_overlap(normal, circle_vert_pos, vertecis_rect2, respons_data))
+            return false;
+    }
+    respons_vector = respons_data.penetration * respons_data.contact_normal;
+    return true;
+}
+
+
+/*
+------------------------------------------------------------------------------------------------------------------
+Rect V Circle collisions related:
+------------------------------------------------------------------------------------------------------------------
+*/
+
+/*
+bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
+    const std::array<float, 2>& circle_vert_pos,
+    const std::array<sf::Vector2f, 4>& rect2_vertecis) {
+
+    float circle_min_dist1 = circle_vert_pos.at(0);
+    float circle_max_dist1 = circle_vert_pos.at(1);
+
+    std::array<float, 2> min_max_dist2 = min_max_projection_distance(projection_axis, rect2_vertecis);
+    float rect_min_dist2 = min_max_dist2.at(0);
+    float rect_max_dist2 = min_max_dist2.at(1);
+
+    if (circle_min_dist1 > circle_max_dist1) {
+        std::swap(circle_min_dist1, circle_max_dist1);
+    }
+
+    return (circle_min_dist1 <= rect_min_dist2 && circle_max_dist1 >= rect_min_dist2) ||
+        (rect_min_dist2 <= circle_min_dist1 && rect_max_dist2 >= circle_min_dist1);
+
+
+    std::array<float, 2> min_max_dist1 = min_max_projection_distance(projection_axis, rect2_vertecis);
+    std::array<float, 2> min_max_dist2 = min_max_projection_distance(projection_axis, rect2_vertecis);
+
+    float min_rect1 = min_max_dist1.at(0);
+    float max_rect1 = min_max_dist1.at(1);
+
+    float min_rect2 = min_max_dist2.at(0);
+    float max_rect2 = min_max_dist2.at(1);
+
+    return (min_rect1 <= min_rect2 && max_rect1 >= min_rect2) ||
+        (min_rect2 <= min_rect1 && max_rect2 >= min_rect1);
+
+}
+
+bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
+    const std::array<float, 2>& circle_vert_pos,
+    const std::array<sf::Vector2f, 4>& rect2_vertecis,
+    CollisionResponseData& respons_data) {
+
+    std::array<float, 2> min_max_dist2 = min_max_projection_distance(projection_axis, rect2_vertecis);
+    float rect_min_dist = min_max_dist2.at(0);
+    float rect_max_dist = min_max_dist2.at(1);
+
+
+    float circle_min_dist = circle_vert_pos.at(0);
+    float circle_max_dist = circle_vert_pos.at(1);
+
+    if (circle_min_dist > circle_max_dist) {
+        std::swap(circle_min_dist, circle_max_dist);
+    }
+
+    float current_size_of_overlap = 0;
+
+    // (Overlap in order object 1 -> object 2)
+    if (circle_min_dist <= rect_min_dist && circle_max_dist >= rect_min_dist) {
+
+        current_size_of_overlap = rect_min_dist - circle_max_dist;
+        if (abs(current_size_of_overlap) < abs(respons_data.penetration)) {
+            respons_data.penetration = current_size_of_overlap;
+            respons_data.contact_normal = projection_axis;
+        }
+        return true;
+    }
+
+    // (Overlap in order object 2 -> object 1)
+    if (rect_min_dist <= circle_min_dist && rect_max_dist >= circle_min_dist) {
+
+        current_size_of_overlap = circle_min_dist - rect_max_dist;
+        if (abs(current_size_of_overlap) < abs(respons_data.penetration)) {
+            respons_data.penetration = current_size_of_overlap;
+            respons_data.contact_normal = -projection_axis;
+        }
+        return true;
+    }
+    return false;
+}
+
+// kan generalisera denna... Med std::vector
+sf::Vector2f closest_polyVertex_to_point(sf::Vector2f& point, std::array<sf::Vector2f, 4>& rect2_vertices) {
+
+    sf::Vector2f closest_vertex{};
+    float minnfloatVal = std::numeric_limits<float>::max();
+    for (const sf::Vector2f& n : rect2_vertices) {
+        float dist_to_center = squared_distance_between_points(n, point);
+        if (minnfloatVal > dist_to_center) {
+            minnfloatVal = dist_to_center;
+            closest_vertex = n;
+        }
+    }
+    return closest_vertex;
+}
+
+bool intersect(sf::CircleShape& circle1, sf::RectangleShape& rect2) {
+
+    sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getOrigin();
+    sf::Vector2f rect2_ceter = rect2.getTransform() * rect2.getOrigin();
+
+    float radius = circle1.getRadius();
+
+
+    std::array<sf::Vector2f, 4> vertecis_rect2 = get_vertecis_of_rectcol(rect2);
+    std::array<sf::Vector2f, 2> normals_2 = normals_of_rect_withFunk(vertecis_rect2);
+
+
+    sf::Vector2f closest_vertex = closest_polyVertex_to_point(circle1_ceter, vertecis_rect2);
+    sf::Vector2f circle_normal = (closest_vertex - circle1_ceter).normalized();
+
+    std::array<sf::Vector2f, 3> normals = { normals_2.at(0), normals_2.at(1), circle_normal };
+
+    for (const sf::Vector2f& normal : normals) {
+
+        float circle_pos_on_axis = circle1_ceter.dot(normal);
+        std::array<float, 2> circle_vert_pos = { circle_pos_on_axis - radius, circle_pos_on_axis + radius };
+
+        if (!check_SAT_axis_overlap(normal, circle_vert_pos, vertecis_rect2))
+            return false;
+    }
+    return true;
+}
+bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector) {
+
+    sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getGeometricCenter();//circle1.getOrigin();
+    sf::Vector2f rect2_ceter = rect2.getTransform() * rect2.getOrigin();
 
     float radius = circle1.getRadius();
 
@@ -371,3 +550,4 @@ bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f
     return true;
 }
 
+*/

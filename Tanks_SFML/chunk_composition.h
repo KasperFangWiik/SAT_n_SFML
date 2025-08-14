@@ -301,18 +301,19 @@ public:
                 if (compair_diff_id_pair(entitys_colider, c_c)) // don't test collision with same entity_id
                     continue;
 
-                /*
+                
                 if (intersect(c_c.value, entitys_colider.value)) {
                     std::cout << "collided with circle" << "\n";
                 }
-                */
-
                 
+
+                /*
                 // this collider does not work as expected...
                 if (collision(c_c.value, entitys_colider.value, respons_vector)) {
                     e.moveEnt(-respons_vector); // should i apply 
                     move_coliders_to_entity_pos(std::move(e));
                 }
+                */
                 
             }
 
