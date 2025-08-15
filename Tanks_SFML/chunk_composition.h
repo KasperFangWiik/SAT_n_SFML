@@ -126,6 +126,7 @@ public:
         */
     }
 
+    // could i minimize this with templates?
     void render_chunk_coliders(sf::RenderWindow& window) {
 
         std::array<sf::Vector2f, 4> vertecis_rect2{};
@@ -149,9 +150,6 @@ public:
             float radius = n.value.getRadius();
             sf::Vector2f circle1_ceter = n.value.getTransform() * (n.value.getOrigin() + sf::Vector2f{ radius,radius });//n.value.getOrigin(); n.value.getPosition();
             drawpoint(window, circle1_ceter);
-
-            sf::Vector2f vec_to_closest_point = closest_point_on_poly_to_circle(circle1_ceter, vertecis_rect2);
-            drawpoint(window, vec_to_closest_point);
 
             // sf::Vector2f& point, std::array<sf::Vector2f, 4>& rect2_vertices
             sf::Vector2f test_tv = closest_polyVertex_to_point(circle1_ceter, vertecis_rect2);
