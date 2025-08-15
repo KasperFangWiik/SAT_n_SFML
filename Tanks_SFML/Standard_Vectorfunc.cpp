@@ -43,11 +43,11 @@ sf::Vector2f calc_normal_of_lineSegment(const sf::Vector2f& starting_point, cons
 }
 
 float distance_between_points(const sf::Vector2f& point1, const sf::Vector2f& point2) {
-    return std::sqrt((point2.x - point1.x) * (point2.x - point1.x) + (point2.y - point1.y) * (point2.x - point1.x));
+    return std::sqrt((point2.x - point1.x) * (point2.x - point1.x) + (point2.y - point1.y) * (point2.y - point1.y));
 }
 
 float squared_distance_between_points(const sf::Vector2f& point1, const sf::Vector2f& point2) {
-    return (point2.x - point1.x) * (point2.x - point1.x) + (point2.y - point1.y) * (point2.x - point1.x);
+    return (point2.x - point1.x) * (point2.x - point1.x) + (point2.y - point1.y) * (point2.y - point1.y);
 }
 
 void print_SF2Dvec(sf::Vector2f vec) {

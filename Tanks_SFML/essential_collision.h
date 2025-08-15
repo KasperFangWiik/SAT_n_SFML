@@ -76,5 +76,36 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
 
 sf::Vector2f closest_polyVertex_to_point(sf::Vector2f& point, std::array<sf::Vector2f, 4>& rect2_vertecis);
 
+sf::Vector2f closest_point_on_poly_to_circle(sf::Vector2f& center_point, std::array<sf::Vector2f, 4>& vertices);
+sf::Vector2f closest_polyVertex_to_point(sf::Vector2f& point, std::array<sf::Vector2f, 4>& rect2_vertices);
+
+//CollisionResponseData closest_Vecpoint_on_poly_to_circle(sf::Vector2f& center_point, std::array<sf::Vector2f, 4>& vertices);
+
 bool intersect(sf::CircleShape& circle1, sf::RectangleShape& rect2);
 bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector);
+
+/*
+bool intersect(sf::CircleShape& circle1, sf::RectangleShape& rect2);
+bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector);
+
+*/
+
+
+/*
+------------------------------------------------------------------------------------------------------------------
+Rect V Circle collisions related:
+------------------------------------------------------------------------------------------------------------------
+*/
+
+
+bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
+    const std::array<sf::Vector2f, 4>& rect1_vertecis,
+    const std::array<float, 2>& circle2_vert_pos);
+
+bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
+    const std::array<sf::Vector2f, 4>& rect1_vertecis,
+    const std::array<float, 2>& circle2_vert_pos,
+    CollisionResponseData& respons_data);
+
+bool intersect(sf::RectangleShape& rect1, sf::CircleShape& circle2);
+bool collision(sf::RectangleShape& rect1, sf::CircleShape& circle2, sf::Vector2f& respons_vector);

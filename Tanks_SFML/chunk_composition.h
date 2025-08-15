@@ -133,21 +133,34 @@ public:
 
     void render_chunk_coliders(sf::RenderWindow& window) {
 
-        for (const Id_Pair<sf::RectangleShape>& n : rect_coliders) {
+        std::array<sf::Vector2f, 4> vertecis_rect2{};
+        for (Id_Pair<sf::RectangleShape>& n : rect_coliders) {
             window.draw(n.value);
 
  
             sf::Vector2f offset_ori = n.value.getOrigin() + (n.value.getSize() / 2.f); // { ori.x + sizeer.x/2 ,ori.y + sizeer.y /2 };
             sf::Vector2f rect2_ceter = n.value.getTransform() * offset_ori; // n.value.getOrigin();//n.value.getSize() / 2.f;// rect2.getOrigin();
             drawpoint(window,rect2_ceter);
+            
+            vertecis_rect2 = get_vertecis_of_rectcol(n.value);
+           
+
+
         }
 
         for (const Id_Pair<sf::CircleShape>& n : circle_coliders) {
             window.draw(n.value);
 
-
-            sf::Vector2f circle1_ceter = n.value.getTransform() * (n.value.getOrigin() + sf::Vector2f{ n.value.getRadius(), n.value.getRadius() });//n.value.getOrigin(); n.value.getPosition();
+            float radius = n.value.getRadius();
+            sf::Vector2f circle1_ceter = n.value.getTransform() * (n.value.getOrigin() + sf::Vector2f{ radius,radius });//n.value.getOrigin(); n.value.getPosition();
             drawpoint(window, circle1_ceter);
+
+            sf::Vector2f vec_to_closest_point = closest_point_on_poly_to_circle(circle1_ceter, vertecis_rect2);
+            drawpoint(window, vec_to_closest_point);
+
+            // sf::Vector2f& point, std::array<sf::Vector2f, 4>& rect2_vertices
+            sf::Vector2f test_tv = closest_polyVertex_to_point(circle1_ceter, vertecis_rect2);
+            drawpoint(window, test_tv);
             //sf::Vector2f testcircle1_ceter = circle1.getTransform() * circle1.getGeometricCenter();
         }
     }
@@ -298,16 +311,16 @@ public:
                     continue;
                 // collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector)
 
+                if (collision(entitys_colider.value, r_c.value, respons_vector)) {
+                    e.moveEnt(respons_vector); // should i apply 
+                    move_coliders_to_entity_pos(std::move(e));
+                }
+
                 /*
                 if (intersect(entitys_colider.value, r_c.value)) {
                     std::cout << "collided with rectangle" << "\n";
                 }
                 */
-
-                if (collision(entitys_colider.value, r_c.value, respons_vector)) {
-                    e.moveEnt(respons_vector); // should i apply 
-                    move_coliders_to_entity_pos(std::move(e));
-                }
                 
             }
 
@@ -315,20 +328,17 @@ public:
                 if (compair_diff_id_pair(entitys_colider, c_c)) // don't test collision with same entity_id
                     continue;
 
-                
-                /*
-                if (intersect(c_c.value, entitys_colider.value)) {
-                    std::cout << "collided with circle" << "\n";
-                }
-                */
-                
 
-                
-                // this collider does not work as expected...
-                if (collision(c_c.value, entitys_colider.value, respons_vector)) {
-                    e.moveEnt(-respons_vector); // should i apply 
+                if (collision(entitys_colider.value, c_c.value, respons_vector)) {
+                    e.moveEnt(respons_vector); // should i apply
                     move_coliders_to_entity_pos(std::move(e));
                 }
+
+                /*
+                if (intersect(entitys_colider.value, c_c.value)) {
+                    std::cout << "collision with circle" << "\n";
+                }
+                */
                 
                 
             }
