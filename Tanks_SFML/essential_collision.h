@@ -2,18 +2,10 @@
 #include<iostream>
 #include<SFML/Graphics.hpp>
 #include<SFML/System/Vector2.hpp>
+#include<concepts>
+
 #include "Standard_Vectorfunc.h"
-
-//maby classes..
-struct RectShapeIdPair {
-    const int entity_id;
-    sf::RectangleShape shape;
-};
-
-struct CircleShapeIdPair {
-    const int entity_id;
-    sf::CircleShape shape;
-};
+#include"Entity_remake.h" // concept IsCollideble is the only reason to include this, and i only use it in chunk for know... 
 
 struct CollisionResponseData {
     float penetration;
@@ -24,6 +16,9 @@ struct CollisionResponseData {
     }
 };
 
+
+template<typename U>
+concept IsCollideble = std::is_same_v< U, Id_Pair<sf::RectangleShape> > || std::is_same_v< U, Id_Pair<sf::CircleShape>>;
 
 /*
 ------------------------------------------------------------------------------------------------------------------
@@ -79,16 +74,10 @@ sf::Vector2f closest_polyVertex_to_point(sf::Vector2f& point, std::array<sf::Vec
 sf::Vector2f closest_point_on_poly_to_circle(sf::Vector2f& center_point, std::array<sf::Vector2f, 4>& vertices);
 sf::Vector2f closest_polyVertex_to_point(sf::Vector2f& point, std::array<sf::Vector2f, 4>& rect2_vertices);
 
-//CollisionResponseData closest_Vecpoint_on_poly_to_circle(sf::Vector2f& center_point, std::array<sf::Vector2f, 4>& vertices);
 
 bool intersect(sf::CircleShape& circle1, sf::RectangleShape& rect2);
 bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector);
 
-/*
-bool intersect(sf::CircleShape& circle1, sf::RectangleShape& rect2);
-bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector);
-
-*/
 
 
 /*
@@ -96,16 +85,6 @@ bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f
 Rect V Circle collisions related:
 ------------------------------------------------------------------------------------------------------------------
 */
-
-
-bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
-    const std::array<sf::Vector2f, 4>& rect1_vertecis,
-    const std::array<float, 2>& circle2_vert_pos);
-
-bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
-    const std::array<sf::Vector2f, 4>& rect1_vertecis,
-    const std::array<float, 2>& circle2_vert_pos,
-    CollisionResponseData& respons_data);
 
 bool intersect(sf::RectangleShape& rect1, sf::CircleShape& circle2);
 bool collision(sf::RectangleShape& rect1, sf::CircleShape& circle2, sf::Vector2f& respons_vector);

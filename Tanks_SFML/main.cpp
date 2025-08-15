@@ -212,7 +212,7 @@ int main()
     // one piller head is (15 * 4) in "pixel" size
     float piller_pixel_size = 15 * sprite_size_factor;
     piller.moveEnt({ piller_pixel_size * 6 , piller_pixel_size * 4 }); // 8*2*4 = 16 => 4 pixels, 16 pixels, 64 = 17 pix,  8*8-4 = 8*2*4-4 = 16*4-4 = 15*4
-    //piller.rot_angle = 50;
+    piller.rot_angle = 50;
    // shape1.setOrigin((sf::Vector2f)piller_sprite->getTexture().getSize()/ 2.f);
     //shape1.setOrigin(piller_sprite->getOrigin());
 
