@@ -539,8 +539,15 @@ bool collision(sf::RectangleShape& rect1, sf::CircleShape& circle2, sf::Vector2f
 }
 
 /*
+------------------------------------------------------------------------------------------------------------------
+ Swept circle collisions related:
+------------------------------------------------------------------------------------------------------------------
+*/
 
 
+
+
+/*
 
 
 bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,

@@ -22,24 +22,24 @@
 /*
 ______________________________________________________________________________
                                 TODO LIST:
+    1. sweept circle collision...
+    2. implement mecanic where you can shoot "bullets" in the direction of mose
+    3. make them bounce once and disaper the next time...
 
-        3. Creat a function that sifts throu the two lists and resolvs collisions...
-
-    1. find how manny copy constructor calls that are made and se if you can eliminate them we should at this momment probably have one copy call per entity and player
-    2. fix rect on circle collision...
-    3. Creat a function that sifts throu the two lists and resolvs collisions...
-    4. implement mecanic where you can shoot "bullets" in the direction of mose
-    5. make them bounce once and disaper the next time...
 
     1. Implement simplistic broad faze collision?
     2. make a function that divides a map in to chunks, Semi correct formulerat...
     3. (State machine creator...)
     4. // this function needs to be revisit to controll when entitys are renderd to simulate depth
     void render_chunk(sf::RenderWindow& window)
+    5. expand so that different actions can happen when collision happen between different ?Entitys? / object types
 
     maintenece work:
     1. make .cpp files for .h files correctly
     2. make wrapper SFML specific functions for intersect and collision function so that there more generaliced
+    3. clean up chunk_composition
+    4. find how manny copy constructor calls that are made and se if you can eliminate them we should at this momment probably have one copy call per entity and player
+    5. is it posible to simplify circle vs OBB and vise versa...
 ______________________________________________________________________________
 
 Questions:
