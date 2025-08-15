@@ -23,7 +23,10 @@ sf::Vector2f calc_normal_of_lineSegment(const sf::Vector2f& starting_point, cons
     //sf::Vector2f normal = { dxy.x , dxy.y }; // y is allready inverted
     
     // we are now not normalizing the normal
-    return normal / vectf2_leng(normal); // should you be able to decide direction? / vectf2_leng(normal)
+    if (normal != sf::Vector2f{ 0, 0 })
+        return normal / vectf2_leng(normal); // should you be able to decide direction? / vectf2_leng(normal)
+    else
+        return normal;
 }
 
 sf::Vector2f calc_normal_of_lineSegment(const sf::Vector2f& starting_point, const sf::Vector2f& end_point, bool direction) {
