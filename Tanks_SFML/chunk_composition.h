@@ -44,9 +44,13 @@ hur kan dessa uppfyllas?
 2.
 
 */
-class dostuf {
 
-};
+void drawpoint(sf::RenderWindow& window, sf::Vector2f& pos) {
+    sf::RectangleShape test({ 5,5 });
+    test.setFillColor(sf::Color(255, 0, 0));
+    test.setPosition(pos);
+    window.draw(test);
+}
 
 template<typename U>
 concept IsCollideble = std::is_same_v< U, Id_Pair<sf::RectangleShape> > || std::is_same_v< U, Id_Pair<sf::CircleShape>>;
@@ -131,10 +135,20 @@ public:
 
         for (const Id_Pair<sf::RectangleShape>& n : rect_coliders) {
             window.draw(n.value);
+
+ 
+            sf::Vector2f offset_ori = n.value.getOrigin() + (n.value.getSize() / 2.f); // { ori.x + sizeer.x/2 ,ori.y + sizeer.y /2 };
+            sf::Vector2f rect2_ceter = n.value.getTransform() * offset_ori; // n.value.getOrigin();//n.value.getSize() / 2.f;// rect2.getOrigin();
+            drawpoint(window,rect2_ceter);
         }
 
         for (const Id_Pair<sf::CircleShape>& n : circle_coliders) {
             window.draw(n.value);
+
+
+            sf::Vector2f circle1_ceter = n.value.getTransform() * (n.value.getOrigin() + sf::Vector2f{ n.value.getRadius(), n.value.getRadius() });//n.value.getOrigin(); n.value.getPosition();
+            drawpoint(window, circle1_ceter);
+            //sf::Vector2f testcircle1_ceter = circle1.getTransform() * circle1.getGeometricCenter();
         }
     }
 
@@ -302,18 +316,20 @@ public:
                     continue;
 
                 
+                /*
                 if (intersect(c_c.value, entitys_colider.value)) {
                     std::cout << "collided with circle" << "\n";
                 }
+                */
                 
 
-                /*
+                
                 // this collider does not work as expected...
                 if (collision(c_c.value, entitys_colider.value, respons_vector)) {
                     e.moveEnt(-respons_vector); // should i apply 
                     move_coliders_to_entity_pos(std::move(e));
                 }
-                */
+                
                 
             }
 
@@ -335,131 +351,6 @@ public:
 
         }
     }
-    
-
-    /*
-    void resolve_collisions() {
-
-        int numb_rect = rect_coliders.size();
-        int numb_circles = circle_coliders.size();
-
-
-        * if both are moving then we need to call an nother collision function????
-        when should we not check collisio?
-
-        i need to make a nother collision aka sweept circle collision or/and intersect.
-
-        1. when the entity is not moving then we should not check
-        2. when we find same colider we should not check (maby same entity_id?).
-        3.
-
-
-
-        for (int i = 0; i < numb_rect; i++) {
-
-            Id_Pair r1 = rect_coliders.at(i);
-            int r1_id = r1.entity_id;
-
-            Entity r_entity{}; // is speed set to zero in standard constructor? Can i be serten that logical gate is evaluated from left to right? answer YES
-            if(find_entity_with_id(r1_id, chunks_entitys, r_entity))
-                if(r_entity.speed == 0){ // same as if(r_entity.speed)
-                    continue;
-                }
-
-            sf::RectangleShape r1_shape = r1.value;
-
-            for (int j = 0; j < numb_rect; j++) {
-
-                Id_Pair r2 = rect_coliders.at(j);
-                int r2_id = r2.entity_id;
-
-                // assumes that every entity has one collidior and can't collide with a nother with same entity_id
-                if (r1_id == r2_id) {
-                    continue;
-                }
-
-                sf::RectangleShape r2_shape = r2.value;
-            }
-
-            for (int j = 0; j < numb_rect; j++) {
-
-                Id_Pair c2 = circle_coliders.at(j);
-                int c2_id = c2.entity_id;
-
-                // assumes that every entity has one collidior and can't collide with a nother with same entity_id
-                // a circle id can be assumed to not be the same as a rectangles
-                /*
-                if (r1_id == c2_id) {
-                    continue;
-                }
-
-                sf::CircleShape c2_shape = c2.value;
-            }
-        }
-
-
-        for (int i = 0; i < numb_circles; i++) {
-            circle_coliders.at(i);
-
-        }
-    }
-
-
-    void resolve_Rect_coll(Id_Pair<sf::RectangleShape>&& r1){
-        int numb_rect = rect_coliders.size();
-        int numb_circles = circle_coliders.size();
-
-        for (int i = 0; i < numb_rect; i++) {
-
-            Id_Pair r1 = rect_coliders.at(i);
-            int r1_id = r1.entity_id;
-
-            Entity r_entity{}; // is speed set to zero in standard constructor? Can i be serten that logical gate is evaluated from left to right? answer YES
-            if (find_entity_with_id(r1_id, chunks_entitys, r_entity))
-                if (r_entity.speed == 0) { // same as if(r_entity.speed)
-                    continue;
-                }
-
-            sf::RectangleShape r1_shape = r1.value;
-
-
-            for (int j = 0; j < numb_rect; j++) {
-
-                Id_Pair r2 = rect_coliders.at(j);
-                int r2_id = r2.entity_id;
-
-                // assumes that every entity has one collidior and can't collide with a nother with same entity_id
-                if (r1_id == r2_id) {
-                    continue;
-                }
-
-                sf::RectangleShape r2_shape = r2.value;
-
-                sf::Vector2f respons_vector{};
-                if (collision(r1_shape, r2_shape, respons_vector))
-                    r_entity.moveEnt(respons_vector);
-            }
-
-            for (int j = 0; j < numb_rect; j++) {
-
-                Id_Pair c2 = circle_coliders.at(j);
-                int c2_id = c2.entity_id;
-
-                // assumes that every entity has one collidior and can't collide with a nother with same entity_id
-                // a circle id can be assumed to not be the same as a rectangles
-                //if (r1_id == c2_id) {
-                //    continue;
-                //}
-
-                sf::CircleShape c2_shape = c2.value;
-
-                sf::Vector2f respons_vector{};
-                if (collision(c2_shape, r1_shape, respons_vector))
-                    r_entity.moveEnt(respons_vector);
-            }
-        }
-    }
-    */
 
     //private:
 

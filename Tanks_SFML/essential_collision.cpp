@@ -320,10 +320,14 @@ sf::Vector2f closest_polyVertex_to_point(sf::Vector2f& point, std::array<sf::Vec
 
 bool intersect(sf::CircleShape& circle1, sf::RectangleShape& rect2) {
 
-    sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getOrigin();
-    sf::Vector2f rect2_ceter   = rect2.getTransform() * rect2.getOrigin();
 
     float radius = circle1.getRadius();
+    sf::Vector2f circle1_ceter = circle1.getTransform() * (circle1.getOrigin() + sf::Vector2f{ radius, radius });
+    //sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getGeometricCenter();//circle1.getOrigin();
+
+
+    sf::Vector2f offset_ori = rect2.getOrigin() + (rect2.getSize() / 2.f); // { ori.x + sizeer.x/2 ,ori.y + sizeer.y /2 };
+    sf::Vector2f rect2_ceter = rect2.getTransform() * offset_ori; // n.value.getOrigin();//n.value.getSize() / 2.f;// rect2.getOrigin();
 
 
     std::array<sf::Vector2f, 4> vertecis_rect2 = get_vertecis_of_rectcol(rect2);
@@ -354,10 +358,14 @@ bool intersect(sf::CircleShape& circle1, sf::RectangleShape& rect2) {
 }
 bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector) {
 
-    sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getGeometricCenter();//circle1.getOrigin();
-    sf::Vector2f rect2_ceter   = rect2.getTransform() * rect2.getOrigin();
-
     float radius = circle1.getRadius();
+    sf::Vector2f circle1_ceter = circle1.getTransform() * (circle1.getOrigin() + sf::Vector2f{ radius, radius });
+    //sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getGeometricCenter();//circle1.getOrigin();
+
+
+    sf::Vector2f offset_ori = rect2.getOrigin() + (rect2.getSize() / 2.f); // { ori.x + sizeer.x/2 ,ori.y + sizeer.y /2 };
+    sf::Vector2f rect2_ceter = rect2.getTransform() * offset_ori; // n.value.getOrigin();//n.value.getSize() / 2.f;// rect2.getOrigin();
+    //sf::Vector2f rect2_ceter   = rect2.getTransform() * rect2.getOrigin();
 
 
     std::array<sf::Vector2f, 4> vertecis_rect2 = get_vertecis_of_rectcol(rect2);
