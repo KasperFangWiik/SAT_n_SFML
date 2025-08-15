@@ -273,7 +273,8 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
     float circle_min_dist = circle_vert_pos.at(0);
     float circle_max_dist = circle_vert_pos.at(1);
 
-    if (circle_min_dist > circle_max_dist) {
+    
+    if (circle_min_dist > circle_max_dist) { 
         std::swap(circle_min_dist, circle_max_dist);
     }
 
