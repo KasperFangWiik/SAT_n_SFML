@@ -40,6 +40,7 @@ ______________________________________________________________________________
     3. clean up chunk_composition
     4. find how manny copy constructor calls that are made and se if you can eliminate them we should at this momment probably have one copy call per entity and player
     5. is it posible to simplify circle vs OBB and vise versa...
+    6. What caind of testing can i do? can sheck so that we never divide by zero or atleast we cast an error that's easy to read!.
 ______________________________________________________________________________
 
 Questions:
@@ -184,7 +185,8 @@ int main()
 
     float sprite_size_factor = 4.0;
 
-    std::string map_path = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/chuncks";
+    std::string map_path = "C:/Users/User/Desktop/sprites/map1_pngs"; //stationary computer file path
+    // std::string map_path = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/chuncks";// Laptop file path
     int map_size = 9;
     Chunk ch = Chunk(map_path, map_size, sprite_size_factor, all_sprites, all_textures);
     bool new_chunk = true;
@@ -195,7 +197,8 @@ int main()
 
     sf::CircleShape shape1(25.f);
 
-    const char tex_piller_file_path[] = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/piller_head.png";
+    const char tex_piller_file_path[] = "C:/Users/User/Desktop/sprites/Sprite_Tree_Piller_Head.png";//stationary computer file path
+    //const char tex_piller_file_path[] = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/piller_head.png";// Laptop file path
     make_sprite(tex_piller_file_path, sprite_size_factor, all_sprites, all_textures); // magic number 4.0 that is the size factor should be clearer strong typing?
     sf::Sprite* piller_sprite = &all_sprites.back();
     
@@ -228,7 +231,7 @@ int main()
     sf::CircleShape shape2(25.f);
 
     // this might make one extra copy...
-    const char tex1[] = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/player.png";
+    //const char tex1[] = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/player.png";
     make_sprite(tex_piller_file_path, sprite_size_factor, all_sprites, all_textures);
     sf::Sprite* s = &all_sprites.back();// &all_sprites.back();
 

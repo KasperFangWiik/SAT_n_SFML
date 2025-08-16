@@ -217,8 +217,11 @@ bool collision(sf::CircleShape& circle1, sf::CircleShape& circle2, sf::Vector2f&
 
     CollisionResponseData respons_data = {};
 
+    sf::Vector2f Dir_vector_from_1to2 = (center_cercle1 - center_cercle2);
     float distance_between = distance_between_points(center_cercle1, center_cercle2);
-    sf::Vector2f Dir_vector_from_1to2 = (center_cercle1 - center_cercle2).normalized();
+
+    if (Dir_vector_from_1to2 != sf::Vector2f{ 0.0, 0.0 })
+        Dir_vector_from_1to2 = Dir_vector_from_1to2.normalized();
 
     float penetration = -(distance_between - circle1.getRadius() + circle2.getRadius());
     if (penetration > 0) {
