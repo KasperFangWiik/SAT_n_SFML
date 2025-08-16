@@ -20,6 +20,23 @@ struct CollisionResponseData {
 template<typename U>
 concept IsCollideble = std::is_same_v< U, Id_Pair<sf::RectangleShape> > || std::is_same_v< U, Id_Pair<sf::CircleShape>>;
 
+
+
+/*
+------------------------------------------------------------------------------------------------------------------
+Pure SAT related:
+------------------------------------------------------------------------------------------------------------------
+*/
+
+bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
+                            const std::array<float, 2>& min_max_dist1,
+                            const std::array<float, 2>& min_max_dist2);
+
+bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
+                            const std::array<float, 2>& min_max_dist1,
+                            const std::array<float, 2>& min_max_dist2,
+                            CollisionResponseData& respons_data);
+        
 /*
 ------------------------------------------------------------------------------------------------------------------
 Rectangle collisions related:
@@ -32,15 +49,6 @@ std::array<sf::Vector2f, 2> normals_of_rect_withFunk(const std::array< sf::Vecto
 
 const std::array<float, 2> min_max_projection_distance(const sf::Vector2f& projection_axis,
                                                        const std::array<sf::Vector2f, 4>& rect_vertices);
-
-bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
-                            const std::array<sf::Vector2f, 4>& rect1_vertecis,
-                            const std::array<sf::Vector2f, 4>& rect2_vertecis);
-
-bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
-                            const std::array<sf::Vector2f, 4>& rect1_vertecis,
-                            const std::array<sf::Vector2f, 4>& rect2_vertecis,
-                            CollisionResponseData& respons_data);
 
 bool intersect(sf::RectangleShape& rect1, sf::RectangleShape& rect2);
 bool collision(sf::RectangleShape& rect1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector);
@@ -59,26 +67,12 @@ bool collision(sf::CircleShape& circle1, sf::CircleShape& circle2, sf::Vector2f&
 Circle V Rect collisions related:
 ------------------------------------------------------------------------------------------------------------------
 */
-
-bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
-                            const std::array<float, 2>& circle_vert_pos,
-                            const std::array<sf::Vector2f, 4>& rect2_vertecis);
-
-bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
-                            const std::array<float, 2>& circle_vert_pos,
-                            const std::array<sf::Vector2f, 4>& rect2_vertecis,
-                            CollisionResponseData& respons_data);
+const std::array<float, 2> min_max_projection_distance(const sf::Vector2f& projection_axis, const sf::Vector2f& circle_center, const float radius);
 
 sf::Vector2f closest_polyVertex_to_point(sf::Vector2f& point, std::array<sf::Vector2f, 4>& rect2_vertecis);
 
-sf::Vector2f closest_point_on_poly_to_circle(sf::Vector2f& center_point, std::array<sf::Vector2f, 4>& vertices);
-sf::Vector2f closest_polyVertex_to_point(sf::Vector2f& point, std::array<sf::Vector2f, 4>& rect2_vertices);
-
-
 bool intersect(sf::CircleShape& circle1, sf::RectangleShape& rect2);
 bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector);
-
-
 
 /*
 ------------------------------------------------------------------------------------------------------------------
@@ -88,3 +82,11 @@ Rect V Circle collisions related:
 
 bool intersect(sf::RectangleShape& rect1, sf::CircleShape& circle2);
 bool collision(sf::RectangleShape& rect1, sf::CircleShape& circle2, sf::Vector2f& respons_vector);
+
+/*
+------------------------------------------------------------------------------------------------------------------
+ Swept circle collisions related:
+------------------------------------------------------------------------------------------------------------------
+*/
+
+bool intersect_swept(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f dirV, float speed);
