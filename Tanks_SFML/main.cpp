@@ -40,7 +40,6 @@ ______________________________________________________________________________
     3. clean up chunk_composition
     4. find how manny copy constructor calls that are made and se if you can eliminate them we should at this momment probably have one copy call per entity and player
     5. is it posible to simplify circle vs OBB and vise versa...
-    6. generalize min_max_projection_distance, and other functions...
 ______________________________________________________________________________
 
 Questions:
