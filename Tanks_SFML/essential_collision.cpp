@@ -377,6 +377,37 @@ beroende på viken axel som är närmast längst directionen och krockar välj den re
 
 */
 
+const std::array<float, 2> min_max_projection_distance(const sf::Vector2f& projection_axis,
+                                                       const std::array<sf::Vector2f, 4>& rect_vertices,
+                                                             sf::Vector2f& min_dist_vertex) {
+
+    int j = 0;
+    float min_distance = rect_vertices.at(0).dot(projection_axis);
+    float max_distance = rect_vertices.at(1).dot(projection_axis);
+
+    if (min_distance > max_distance) {
+        std::swap(min_distance, max_distance);
+        j = 1;
+    }
+
+    float tmp_distance = {};
+    for (int i = 2; i < 4; i++) {
+        tmp_distance = rect_vertices.at(i).dot(projection_axis);
+
+        if (min_distance > tmp_distance) {
+            min_distance = tmp_distance;
+            j = i;
+        }
+
+        if (max_distance < tmp_distance) {
+            max_distance = tmp_distance;
+        }
+    }
+
+    min_dist_vertex = rect_vertices.at(j);
+
+    return { min_distance, max_distance };
+}
 
 bool intersect_swept(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f dirV, float speed) {
 
@@ -400,9 +431,10 @@ bool intersect_swept(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Ve
     // should check if just dirV axis overlap then we should check for collision at the overlap, so need to move collider(and entity?) to min overlap possition and check circle collision
 
     // find the normal vector to dirV
+    sf::Vector2f min_dist_vertex2{};
     sf::Vector2f dirV_normal = { dirV.y, -dirV.x }; 
     std::array<float, 2> min_max_with1 = min_max_projection_distance(dirV_normal, circle1_ceter, radius); // this should get the fake rectangle projection distances
-    std::array<float, 2> min_max_with2 = min_max_projection_distance(dirV_normal, vertecis_rect2);
+    std::array<float, 2> min_max_with2 = min_max_projection_distance(dirV_normal, vertecis_rect2, min_dist_vertex2);
     // I need to get the vertexes that hade the min overlap!!!
 
     if (!check_SAT_axis_overlap(dirV, min_max_dist1, min_max_dist2, respons_Data)  ||
@@ -411,15 +443,15 @@ bool intersect_swept(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Ve
     }
 
 
-    sf::Vector2f closest_min_overlap_vec1{};
+    //sf::Vector2f closest_min_overlap_vec1{};
     float min_overlap_vec1_float = min_max_dist2.at(0); // closest point range
 
-    sf::Vector2f furdest_min_overlap_vec2{}; // this one from dirV_normal
-    float min_overlap_vec2_float = furdest_min_overlap_vec2.dot(dirV);
+    //sf::Vector2f furdest_min_overlap_vec2{}; // this one from dirV_normal
+    float min_overlap_vec2_float = min_dist_vertex2.dot(dirV);
     // check for intersection on both vertexes that had min overlap on both normals but
 
     if (min_overlap_vec2_float < min_overlap_vec1_float) {
-        std::swap(closest_min_overlap_vec1, furdest_min_overlap_vec2);
+        //std::swap(closest_min_overlap_vec1, furdest_min_overlap_vec2);
         std::swap(min_overlap_vec2_float, min_overlap_vec1_float);
     }
 
