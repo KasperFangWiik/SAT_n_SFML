@@ -535,6 +535,40 @@ bool intersect_swept(SweptCircleShape& circle1, SweptCircleShape& circle2, sf::V
 */
 
 
+
+
+/*
+Projecting each of the two bodies and the relative
+velocity vector onto a particular separating axis at t0 gives two 1-D
+intervals and a 1-D velocity
+
+Behöver alltså testa intersection/collision innan move... Vilket för tillfället verkar få objecten att stutsa samman
+Så får istället flytta "bak" punkterna på axlarna... Eller ändra på så att vi inte fixar collisionerna efteråt...
+*/
+bool intersect_of_moving_shapes(sf::RectangleShape& rect1, sf::RectangleShape& rect2, sf::Vector2f velosety_vec1, sf::Vector2f velosety_vec2) {
+
+    sf::Vector2f velocity_vec = velosety_vec2 - velosety_vec1; // a velosety_vec1or2 = DirV*speed*dt
+
+    std::array<sf::Vector2f, 4> vertecis_rect1 = get_vertecis_of_rectcol(rect1);
+    std::array<sf::Vector2f, 2> normals_1 = normals_of_rect_withFunk(vertecis_rect1);
+
+    std::array<sf::Vector2f, 4> vertecis_rect2 = get_vertecis_of_rectcol(rect2);
+    std::array<sf::Vector2f, 2> normals_2 = normals_of_rect_withFunk(vertecis_rect2);
+
+    int numb_of_rect1_normals = 2;
+    for (int i = 0; i < numb_of_rect1_normals; i++) {
+
+        const std::array<float, 2> min_max_dist1 = min_max_projection_distance(normals_1[i], vertecis_rect1);
+        const std::array<float, 2> min_max_dist2 = min_max_projection_distance(normals_2[i], vertecis_rect2);
+
+        if (!check_SAT_axis_overlap(normals_1[i], min_max_dist1, min_max_dist2) ||
+            !check_SAT_axis_overlap(normals_2[i], min_max_dist1, min_max_dist2))
+            return false;
+    }
+
+    return true;
+}
+
 /*
 // functions started for a less expensive circle to rectangle collisions
 sf::Vector2f closest_point_on_poly_to_circle(sf::Vector2f& center_point, std::array<sf::Vector2f, 4>& vertices) {

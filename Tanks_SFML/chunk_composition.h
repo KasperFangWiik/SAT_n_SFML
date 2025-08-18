@@ -252,7 +252,7 @@ public:
     std::vector<Id_Pair<sf::CircleShape>> circle_coliders{};
     */
     template<IsCollideble T>
-    void check_collision_with_chape_vector_sweptTEST(Entity&& e, sf::RectangleShape&& collider, std::vector<T>&& colliders, const int collider_index) {
+    void check_collision_with_chape_vector_sweptTEST(Entity&& e, Id_Pair<sf::RectangleShape>&& collider, std::vector<T>&& colliders, const int collider_index) {
 
         sf::Vector2f respons_vector{};
         for (T& c : colliders) {
@@ -274,7 +274,7 @@ public:
     }
 
     template<IsCollideble T>
-    void check_collision_with_chape_vector_sweptTEST(Entity&& e, sf::CircleShape&& collider, std::vector<T>&& colliders, const int collider_index) {
+    void check_collision_with_chape_vector_sweptTEST(Entity&& e, Id_Pair <sf::CircleShape>&& collider, std::vector<T>&& colliders, const int collider_index) {
 
         sf::Vector2f respons_vector{};
         for (T& c : colliders) {

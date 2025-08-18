@@ -111,6 +111,7 @@ void uppdate_state(sf::RenderWindow& window, Player& players, Chunk& chunk, bool
 
     players.set_direction();
 
+    //chunk.resolve_collisions();
     chunk.move_all_transformables(dt.asSeconds());
     chunk.resolve_collisions();
 
