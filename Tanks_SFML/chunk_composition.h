@@ -389,6 +389,7 @@ public:
         }
     }
 
+
     void resolve_collisions() {
     
         for (Entity& e : chunks_entitys) {
@@ -396,6 +397,8 @@ public:
                 continue;
 
             this->check_collision_with_chapesTetst<Id_Pair<sf::RectangleShape>>(std::move(e), std::move(rect_coliders));
+
+            // i should use swept collision if the object is moving...
             this->check_collision_with_chapesTetst<Id_Pair<sf::CircleShape>>(std::move(e), std::move(circle_coliders));
 
         }

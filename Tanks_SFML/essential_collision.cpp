@@ -409,8 +409,11 @@ const std::array<float, 2> min_max_projection_distance(const sf::Vector2f& proje
     return { min_distance, max_distance };
 }
 
-bool intersect_swept(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f dirV, float speed) {
+bool intersect_swept(SweptCircleShape& swept_circle1, sf::RectangleShape& rect2) {
 
+    sf::CircleShape circle1 = swept_circle1.circle;
+    sf::Vector2f dirV = swept_circle1.dirV;
+    float speed = swept_circle1.speed;
 
     if (dirV != sf::Vector2f{ 0.0, 0.0 }) // dirV should allready be a normalized vector no need for normalization
         return intersect(circle1,rect2);
@@ -471,7 +474,7 @@ bool intersect_swept(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Ve
 dotproduct(otragonal projection on to line segment) then difference in radius but it's omore complicated when difference is large then line length
 Look at ray marching function...
 
-bool intersect_swept(sf::CircleShape& circle1, sf::CircleShape& circle2, sf::Vector2f dirV, float speed) {
+bool intersect_swept(SweptCircleShape& circle1, SweptCircleShape& circle2, sf::Vector2f dirV, float speed) {
 
 
     if (dirV != sf::Vector2f{ 0.0, 0.0 }) // dirV should allready be a normalized vector no need for normalization

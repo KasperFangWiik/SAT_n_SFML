@@ -16,6 +16,11 @@ struct CollisionResponseData {
     }
 };
 
+struct SweptCircleShape {
+    sf::CircleShape& circle;
+    sf::Vector2f dirV;
+    float speed;
+};
 
 template<typename U>
 concept IsCollideble = std::is_same_v< U, Id_Pair<sf::RectangleShape> > || std::is_same_v< U, Id_Pair<sf::CircleShape>>;
@@ -89,4 +94,4 @@ bool collision(sf::RectangleShape& rect1, sf::CircleShape& circle2, sf::Vector2f
 ------------------------------------------------------------------------------------------------------------------
 */
 
-bool intersect_swept(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f dirV, float speed);
+bool intersect_swept(SweptCircleShape& swept_circle1, sf::RectangleShape& rect2);
