@@ -22,7 +22,8 @@
 /*
 ______________________________________________________________________________
                                 TODO LIST:
-    1. sweept circle collision...
+    (need to make a sweept circle to circle collision)
+    1. sweept circle collision... (i need to know what's a good way of giving attributes to entitys/NPC's?)
     2. implement mecanic where you can shoot "bullets" in the direction of mose
     3. make them bounce once and disaper the next time...
 

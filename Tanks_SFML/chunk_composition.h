@@ -251,6 +251,49 @@ public:
     std::vector<Id_Pair<sf::RectangleShape>> rect_coliders{};
     std::vector<Id_Pair<sf::CircleShape>> circle_coliders{};
     */
+    template<IsCollideble T>
+    void check_collision_with_chape_vector_sweptTEST(Entity&& e, sf::RectangleShape&& collider, std::vector<T>&& colliders, const int collider_index) {
+
+        sf::Vector2f respons_vector{};
+        for (T& c : colliders) {
+
+            if (compair_diff_id_pair(collider, c)) // don't test collision with same entity_id
+                continue;
+
+            if (collision(collider.value, c.value, respons_vector)) {
+                e.moveEnt(respons_vector); // should i apply
+                move_coliders_to_entity_pos(std::move(e));
+            }
+
+            /*
+            if (intersect(collider, r_c.value)) {
+                std::cout << "intersected" << "\n";
+            }
+            */
+        }
+    }
+
+    template<IsCollideble T>
+    void check_collision_with_chape_vector_sweptTEST(Entity&& e, sf::CircleShape&& collider, std::vector<T>&& colliders, const int collider_index) {
+
+        sf::Vector2f respons_vector{};
+        for (T& c : colliders) {
+
+            if (compair_diff_id_pair(collider, c)) // don't test collision with same entity_id
+                continue;
+
+            if (collision(collider.value, c.value, respons_vector)) {
+                e.moveEnt(respons_vector); // should i apply
+                move_coliders_to_entity_pos(std::move(e));
+            }
+
+            /*
+            if (intersect(collider, r_c.value)) {
+                std::cout << "intersected" << "\n";
+            }
+            */
+        }
+    }
 
   
   // behöver inte vara en member function kanske till och med virtual function?
@@ -287,7 +330,7 @@ public:
           U& entitys_colider = colliders.at(col_index);
 
           this->check_collision_with_chape_vector(std::move(e), std::move(entitys_colider), std::move(rect_coliders), col_index);
-          this->check_collision_with_chape_vector(std::move(e), std::move(entitys_colider), std::move(circle_coliders), col_index);
+          this->check_collision_with_chape_vector(std::move(e), std::move(entitys_colider), std::move(circle_coliders), col_index); // might not want to move e just take referance?
 
       }
   }
@@ -354,10 +397,6 @@ public:
 
             this->check_collision_with_chapesTetst<Id_Pair<sf::RectangleShape>>(std::move(e), std::move(rect_coliders));
             this->check_collision_with_chapesTetst<Id_Pair<sf::CircleShape>>(std::move(e), std::move(circle_coliders));
-            /*
-            this->check_collision_with_chapes<Id_Pair<sf::RectangleShape>>(std::move(e), std::move(rect_coliders));
-            this->check_collision_with_chapes<Id_Pair<sf::CircleShape>>(std::move(e), std::move(circle_coliders));
-            */
 
         }
     }
