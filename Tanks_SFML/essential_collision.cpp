@@ -32,8 +32,7 @@ Pure SAT related:
 ------------------------------------------------------------------------------------------------------------------
 */
 
-bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
-                            const std::array<float, 2>& min_max_dist1,
+bool check_SAT_axis_overlap(const std::array<float, 2>& min_max_dist1,
                             const std::array<float, 2>& min_max_dist2) {
 
     const float min_rect1 = min_max_dist1.at(0);
@@ -164,8 +163,8 @@ bool intersect(sf::RectangleShape& rect1, sf::RectangleShape& rect2) {
         const std::array<float, 2> min_max_dist1 = min_max_projection_distance(normals_1[i], vertecis_rect1);
         const std::array<float, 2> min_max_dist2 = min_max_projection_distance(normals_2[i], vertecis_rect2);
 
-        if (!check_SAT_axis_overlap(normals_1[i], min_max_dist1, min_max_dist2) ||
-            !check_SAT_axis_overlap(normals_2[i], min_max_dist1, min_max_dist2))
+        if (!check_SAT_axis_overlap(min_max_dist1, min_max_dist2) ||
+            !check_SAT_axis_overlap(min_max_dist1, min_max_dist2))
             return false;
     }
 
@@ -299,7 +298,7 @@ bool intersect(sf::CircleShape& circle1, sf::RectangleShape& rect2) {
         const std::array<float, 2> min_max_dist1 = min_max_projection_distance(normal, circle1_ceter, radius);
         const std::array<float, 2> min_max_dist2 = min_max_projection_distance(normal, vertecis_rect2);
 
-        if (!check_SAT_axis_overlap(normal, min_max_dist1, min_max_dist2))
+        if (!check_SAT_axis_overlap(min_max_dist1, min_max_dist2))
             return false;
     }
     return true;
@@ -535,7 +534,67 @@ bool intersect_swept(SweptCircleShape& circle1, SweptCircleShape& circle2, sf::V
 */
 
 
+/*
 
+distance vector = dirV * speed * dt
+
+in linjer motion:
+d = t*( v2 + v1) / 2
+we assume v1 = 0
+v2 = v1 + at
+a = (v2-v1)/dt
+
+this works cause t = dt
+v2 = t*(v2)/dt
+d = t*(v2) / 2
+t = dt =>
+
+d = dt*(v2)/2
+lets say v2 = dv... beacuse we are looking att the smallest possible interval
+
+
+speed = (v2)/2 ot dv/2
+// speed is here cainda equal to (v2-v1)/2 but because dt or in other words  the difference sample between v2 and v1 the smallest possible speed = dv/2
+    void dirMove(float dt) { // move entity in the direction of direction vector
+        moveEnt(dirV * speed * dt); // scales the drection vector by the speed
+    }
+
+*/
+
+bool check_SAT_axis_overlap(const sf::Vector2f& projectionAxis,
+                            const std::array<float, 2>& minMaxDist1,
+                            const std::array<float, 2>& minMaxDist2,
+                            const sf::Vector2f& velocityVec, 
+                            float& firstOverlapTime,
+                            float& lastOverlapTime,
+                            const float dt) {
+
+    // assume for know that we first do this at t0
+
+    bool overlap = false;
+
+    const float min_rect1 = minMaxDist1.at(0);
+    const float max_rect1 = minMaxDist1.at(1);
+
+    const float min_rect2 = minMaxDist2.at(0);
+    const float max_rect2 = minMaxDist2.at(1);
+
+    if ((min_rect1 <= min_rect2 && max_rect1 >= min_rect2) ||
+        (min_rect2 <= min_rect1 && max_rect2 >= min_rect1)) {
+        overlap = true;
+        firstOverlapTime = 0;//know we know that they first intersect at t0
+
+        // how do i calculate the last time they overlaped... what if one passes the other then maby i just say that the last point was the others last
+       
+        // velocityVec is assumed to be (dirV2*speed2) - (dirV1*speed1), but could i just use (dirV2*speed2*dt) - (dirV1*speed1*dt) ? 
+        // having allready multiplide with dt might or might not help with roundning errors becaous speed is to large right?
+
+        float distance_moved = velocityVec.dot(projectionAxis)*dt; // i can't add this to both object's then there would be no difference, i'm just looking for the time they are  last inter sect
+    }
+
+    return (min_rect1 <= min_rect2 && max_rect1 >= min_rect2) ||
+           (min_rect2 <= min_rect1 && max_rect2 >= min_rect1);
+}
 
 /*
 Projecting each of the two bodies and the relative
@@ -561,8 +620,8 @@ bool intersect_of_moving_shapes(sf::RectangleShape& rect1, sf::RectangleShape& r
         const std::array<float, 2> min_max_dist1 = min_max_projection_distance(normals_1[i], vertecis_rect1);
         const std::array<float, 2> min_max_dist2 = min_max_projection_distance(normals_2[i], vertecis_rect2);
 
-        if (!check_SAT_axis_overlap(normals_1[i], min_max_dist1, min_max_dist2) ||
-            !check_SAT_axis_overlap(normals_2[i], min_max_dist1, min_max_dist2))
+        if (!check_SAT_axis_overlap(min_max_dist1, min_max_dist2) ||
+            !check_SAT_axis_overlap(min_max_dist1, min_max_dist2))
             return false;
     }
 

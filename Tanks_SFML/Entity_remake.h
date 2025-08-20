@@ -211,6 +211,7 @@ public:
 
     virtual void set_direction() {}
 
+    // speed is here cainda equal to (v2-v1)/2 but because dt or in other words  the difference sample between v2 and v1 the smallest possible speed = dv/2
     void dirMove(float dt) { // move entity in the direction of direction vector   
         moveEnt(dirV * speed * dt); // scales the drection vector by the speed
     }

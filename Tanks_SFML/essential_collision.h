@@ -33,8 +33,7 @@ Pure SAT related:
 ------------------------------------------------------------------------------------------------------------------
 */
 
-bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
-                            const std::array<float, 2>& min_max_dist1,
+bool check_SAT_axis_overlap(const std::array<float, 2>& min_max_dist1,
                             const std::array<float, 2>& min_max_dist2);
 
 bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
