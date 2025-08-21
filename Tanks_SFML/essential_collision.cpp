@@ -562,6 +562,41 @@ speed = (v2)/2 ot dv/2
 */
 
 bool check_SAT_axis_overlap(const sf::Vector2f& projectionAxis,
+                                const std::array<float, 2>& minMaxDist1,
+                                const std::array<float, 2>& minMaxDist2,
+                                const sf::Vector2f& velocityVec,
+                                const float dt) {
+
+    // assume for know that we first do this at t0
+
+    const float min_rect1 = minMaxDist1.at(0);
+    const float max_rect1 = minMaxDist1.at(1);
+
+    const float min_rect2 = minMaxDist2.at(0);
+    const float max_rect2 = minMaxDist2.at(1);
+
+    // check collision at t0
+    if ((min_rect1 <= min_rect2 && max_rect1 >= min_rect2) ||
+        (min_rect2 <= min_rect1 && max_rect2 >= min_rect1))
+        return true;
+
+    // borde beräknas korrect va som änn händer
+    float rect1_center = ((max_rect1 - min_rect1) / 2) + min_rect1;
+
+    float velocityProjection = velocityVec.dot(projectionAxis);
+    float distance_moved = velocityProjection * dt; // i can't add this to both object's then there would be no difference, i'm just looking for the time they are  last inter sect
+    
+    // calculate the direction of velocity
+    float movedMinRect1Neg = min_rect1 - distance_moved;
+    float movedMinRect1Pos = min_rect1 + distance_moved;
+
+    // check for future overalp, aka overlap after moved. 
+    return !(min_rect1 > max_rect2 && distance_moved > rect1_center && !(movedMinRect1Neg < max_rect2) ||
+             min_rect1 < max_rect2 && distance_moved < rect1_center && !(movedMinRect1Pos > max_rect2));
+}
+
+
+bool check_SAT_axis_overlap(const sf::Vector2f& projectionAxis,
                             const std::array<float, 2>& minMaxDist1,
                             const std::array<float, 2>& minMaxDist2,
                             const sf::Vector2f& velocityVec, 
@@ -575,9 +610,15 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projectionAxis,
 
     const float min_rect1 = minMaxDist1.at(0);
     const float max_rect1 = minMaxDist1.at(1);
+    
+    // borde beräknas korrect va som änn händer
+    float rect1_center = ((max_rect1 - min_rect1) / 2) + min_rect1;
 
     const float min_rect2 = minMaxDist2.at(0);
     const float max_rect2 = minMaxDist2.at(1);
+
+    float  velocityProjection = velocityVec.dot(projectionAxis);
+    float distance_moved = velocityProjection * dt; // i can't add this to both object's then there would be no difference, i'm just looking for the time they are  last inter sect
 
     if ((min_rect1 <= min_rect2 && max_rect1 >= min_rect2) ||
         (min_rect2 <= min_rect1 && max_rect2 >= min_rect1)) {
@@ -589,11 +630,17 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projectionAxis,
         // velocityVec is assumed to be (dirV2*speed2) - (dirV1*speed1), but could i just use (dirV2*speed2*dt) - (dirV1*speed1*dt) ? 
         // having allready multiplide with dt might or might not help with roundning errors becaous speed is to large right?
 
-        float distance_moved = velocityVec.dot(projectionAxis)*dt; // i can't add this to both object's then there would be no difference, i'm just looking for the time they are  last inter sect
     }
 
-    return (min_rect1 <= min_rect2 && max_rect1 >= min_rect2) ||
-           (min_rect2 <= min_rect1 && max_rect2 >= min_rect1);
+    //  If they are separated and moving apart on any of the separating axes(or , in fact, on any axis whatever), then you know that there is no future collision.
+
+    // calculate the direction of velocity
+    float movedMinRect1Neg = distance_moved - min_rect1;
+    float movedMinRect1Pos = distance_moved + min_rect1;
+
+    // check if overal
+    return !(min_rect1 > max_rect2 && distance_moved > rect1_center && !(movedMinRect1Neg < max_rect2) ||
+             min_rect1 < max_rect2 && distance_moved < rect1_center && !(movedMinRect1Pos > max_rect2));
 }
 
 /*
