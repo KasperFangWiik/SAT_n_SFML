@@ -131,8 +131,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="collision_self.cpp" />
-    <ClCompile Include="collision_self.h" />
     <ClCompile Include="Entity_remake.cpp" />
     <ClCompile Include="Entity_remake.h" />
     <ClCompile Include="essential_collision.cpp" />
@@ -140,6 +138,7 @@
     <ClCompile Include="Standard_Vectorfunc.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Action.h" />
     <ClInclude Include="chunk_composition.h" />
     <ClInclude Include="essential_collision.h" />
     <ClInclude Include="Standard_Vectorfunc.h" />

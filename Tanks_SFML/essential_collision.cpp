@@ -359,6 +359,22 @@ bool collision(sf::RectangleShape& rect1, sf::CircleShape& circle2, sf::Vector2f
     return collide;
 }
 
+
+
+
+//_________________________________________________________________________________________________________________________________________
+
+/*
+1. different actions happening when different objects collide or intersect
+    How should i decided if we check for an collision or an intersection? Or what will happen when is happens?
+    (make bullets bonce of walls)
+2. collision between two moving objects. I have the Algorithm...
+3. Reading a JSON File to creat a chunc and in future describe a map aka a collection of chunks
+4. 
+
+*/
+
+
 /*
 ------------------------------------------------------------------------------------------------------------------
  Swept circle collisions related:
@@ -375,38 +391,6 @@ testa circel collision på närmaste vertexen aka min i min_max_projection_distanc
 beroende på viken axel som är närmast längst directionen och krockar välj den respons vector + rör colidern/entityn tid.
 
 */
-
-const std::array<float, 2> min_max_projection_distance(const sf::Vector2f& projection_axis,
-                                                       const std::array<sf::Vector2f, 4>& rect_vertices,
-                                                             sf::Vector2f& min_dist_vertex) {
-
-    int j = 0;
-    float min_distance = rect_vertices.at(0).dot(projection_axis);
-    float max_distance = rect_vertices.at(1).dot(projection_axis);
-
-    if (min_distance > max_distance) {
-        std::swap(min_distance, max_distance);
-        j = 1;
-    }
-
-    float tmp_distance = {};
-    for (int i = 2; i < 4; i++) {
-        tmp_distance = rect_vertices.at(i).dot(projection_axis);
-
-        if (min_distance > tmp_distance) {
-            min_distance = tmp_distance;
-            j = i;
-        }
-
-        if (max_distance < tmp_distance) {
-            max_distance = tmp_distance;
-        }
-    }
-
-    min_dist_vertex = rect_vertices.at(j);
-
-    return { min_distance, max_distance };
-}
 
 bool intersect_swept(SweptCircleShape& swept_circle1, sf::RectangleShape& rect2) {
 
@@ -428,7 +412,7 @@ bool intersect_swept(SweptCircleShape& swept_circle1, sf::RectangleShape& rect2)
     std::array<float, 2> min_max_dist2 = min_max_projection_distance(dirV, vertecis_rect2);
 
     // maby i should make a constructior that does this from get go?
-    CollisionResponseData respons_Data = { std::numeric_limits<float>::max(), {} };
+    CollisionResponseData respons_Data = { std::numeric_limits<float>::max(), {} }; // probably don't need respons data for intersection.
 
     // should check if just dirV axis overlap then we should check for collision at the overlap, so need to move collider(and entity?) to min overlap possition and check circle collision
 
@@ -436,30 +420,23 @@ bool intersect_swept(SweptCircleShape& swept_circle1, sf::RectangleShape& rect2)
     sf::Vector2f min_dist_vertex2{};
     sf::Vector2f dirV_normal = { dirV.y, -dirV.x }; 
     std::array<float, 2> min_max_with1 = min_max_projection_distance(dirV_normal, circle1_ceter, radius); // this should get the fake rectangle projection distances
-    std::array<float, 2> min_max_with2 = min_max_projection_distance(dirV_normal, vertecis_rect2, min_dist_vertex2);
+    std::array<float, 2> min_max_with2 = min_max_projection_distance(dirV_normal, vertecis_rect2);
     // I need to get the vertexes that hade the min overlap!!!
 
-    if (!check_SAT_axis_overlap(dirV, min_max_dist1, min_max_dist2, respons_Data)  ||
+    if (!check_SAT_axis_overlap(min_max_dist1, min_max_dist2)  ||
         !check_SAT_axis_overlap(dirV_normal, min_max_with1, min_max_with2, respons_Data)){
         return false; // all need to overlap other wise no collision
     }
 
 
-    //sf::Vector2f closest_min_overlap_vec1{};
-    float min_overlap_vec1_float = min_max_dist2.at(0); // closest point range
+    /*
+    what i need heare is the point in dirV direction that the "sweept rectangle" intersects the other normal rectangle
+    and then check the intersection or collision for it.
 
-    //sf::Vector2f furdest_min_overlap_vec2{}; // this one from dirV_normal
+    Lets say that testing all normals leeds to finding the exakt point of contact between the 
+    */
+
     float min_overlap_vec2_float = min_dist_vertex2.dot(dirV);
-    // check for intersection on both vertexes that had min overlap on both normals but
-
-    if (min_overlap_vec2_float < min_overlap_vec1_float) {
-        //std::swap(closest_min_overlap_vec1, furdest_min_overlap_vec2);
-        std::swap(min_overlap_vec2_float, min_overlap_vec1_float);
-    }
-
-    circle1.setPosition(circle1.getPosition()+ dirV * min_overlap_vec1_float);
-    if (intersect(circle1, rect2))
-        return true;
 
     circle1.setPosition(circle1.getPosition() + dirV * min_overlap_vec2_float);
     if (intersect(circle1, rect2))

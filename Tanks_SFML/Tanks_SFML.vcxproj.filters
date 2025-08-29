@@ -21,17 +21,8 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="collision_self.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="collision_self.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
     <ClCompile Include="Standard_Vectorfunc.cpp">
       <Filter>Resource Files</Filter>
-    </ClCompile>
-    <ClCompile Include="essential_collision.cpp">
-      <Filter>Under Construction</Filter>
     </ClCompile>
     <ClCompile Include="Entity_remake.cpp">
       <Filter>Resource Files</Filter>
@@ -39,16 +30,22 @@
     <ClCompile Include="Entity_remake.h">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="essential_collision.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Standard_Vectorfunc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="essential_collision.h">
+    <ClInclude Include="Action.h">
       <Filter>Under Construction</Filter>
     </ClInclude>
-    <ClInclude Include="chunk_composition.h">
+    <ClInclude Include="essential_collision.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="chunk_composition.h">
+      <Filter>Under Construction</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

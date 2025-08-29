@@ -11,7 +11,7 @@ struct CollisionResponseData {
     float penetration;
     sf::Vector2f contact_normal;
 
-    sf::Vector2f respons() {
+    sf::Vector2f respons() const{ // const?
         return penetration * contact_normal;
     }
 };

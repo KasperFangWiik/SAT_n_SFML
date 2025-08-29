@@ -11,8 +11,8 @@
 #include "Entity_remake.h"
 //#include "map_classes.h"
 //#include "Standard_Vectorfunc.h"
-#include "collision_self.h"
 //#include "chunk_uppdate.h"
+#include"essential_collision.h"
 
 #include "chunk_composition.h"
 //#define ONE_DIV_SQRTWO 0.70706781f //float value of ONE_DIV_SQRTWO = 1/sqrt(2)
@@ -305,17 +305,7 @@ int main()
             }
         }
 
-        //sf::Time dt = clock.getElapsedTime(); // .asMilliseconds() direkt här ?
-
-        //std::cout << dt.asMilliseconds() << "\n";
-        //std::vector<Player*>pls{ &playerOne };
         uppdate_state(window, playerOne, ch, new_chunk, clock);
-        
-        //std::cout << 1.0f / dt.asSeconds() << "\n";
-        //std::cout << dt.asMilliseconds() << "\n";
-
-        // resets the clock so we don't check tot acumalitive time
-        //clock.restart().asMilliseconds();
     }
 
     return 0;
