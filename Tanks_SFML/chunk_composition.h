@@ -9,6 +9,14 @@
 #include"essential_collision.h"
 
 
+
+/*
+
+Bara ha en vector som innehåller vector med id_paris som representerar alla object som kan kollidera. Sedan skapa interfaces åt dem alla
+
+*/
+
+
 /*
 ______________________________________________________________________________
                     Map and chunk classes in progress:
@@ -110,13 +118,13 @@ public:
     void render_chunk(sf::RenderWindow& window) {
 
         window.draw(*background);
-        int tot_numb_entitys = chunks_entitys.size();
+        size_t tot_numb_entitys = chunks_entitys.size();
 
-        for (int i = numb_backrund_sprite; i < tot_numb_entitys; i++) {
+        for (size_t i = numb_backrund_sprite; i < tot_numb_entitys; i++) {
             window.draw(*(chunks_entitys.at(i).spr));
         }
 
-        for (int i = 0; i < numb_backrund_sprite; i++) {
+        for (size_t i = 0; i < numb_backrund_sprite; i++) {
             window.draw(*(chunks_entitys.at(i).spr));
         }
         /*

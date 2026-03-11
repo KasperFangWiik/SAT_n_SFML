@@ -89,18 +89,16 @@ public:
     sf::Vector2f dirV{}; // directinal vector
     float speed{};
     float rot_angle{};
-    int id; //const int id;
-    // förklaring till inline's användning i detta forum: https://cplusplus.com/forum/beginner/282511/, only sinnse c++17
-    //static inline int ID_sum = 0;
+    int id; //const int id;;
 
 
     sf::Sprite* spr{};
 
     Entity() : id(++ID_sum) {
         // id = ++ID_sum; // says  error E0137 expression most be a modefible lvalue 
-    }// standard constructor
+    }
 
-    ~Entity() {} // standard destructor
+    ~Entity() {}
 
     // copy constructor (needed for use in std::vector, s there a standard?)
     // how does std::move() directly work..
@@ -151,7 +149,6 @@ public:
                 sf::CircleShape* test = other_pair.getvalue();
                 return test;
             }
-        // what happens when nothing, return a nullptr?
         return nullptr;
     }
 
@@ -168,7 +165,6 @@ public:
             }
             i++;
         }
-        // what happens when nothing, return a nullptr?
         return false;
     }
 

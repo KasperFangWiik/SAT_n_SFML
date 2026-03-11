@@ -66,25 +66,11 @@ kallar på delet kommer det skapa minnes luckor?
 */
 
 
-// skriv inte för mycket kod, testa med att få grund saker att funka 
-// exemple, function som ritar rectangel, kunna flytta på den 
-// flytta den sedan med inputs från keyboardet
-// kolla upp hur man använder deltaTime / hur spel uppdaterar frames utan att bero på frame rate?
-
-
-// varför använder man get och sett functioner å varför private??
-// there is a difference between moving and non-moving entitys
-// maby this should be a identity factory 
-
-//void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Shape*> all_coliders, float pixel_size_factor, float dt);
 
 // We whill probably creat a game class that controlls game settings and one of it's memberfunction should be this?
 void uppdate_state(sf::RenderWindow& window, Player& players, Chunk& chunk, bool new_chunk, sf::Clock& clock) {
 
-    sf::Time dt = clock.getElapsedTime(); // .asMilliseconds() direkt här ?
-
-    // varför är "frameraten" alltid lite större
-    //std::cout << 1.0f / dt.asSeconds() << "\n";
+    sf::Time dt = clock.getElapsedTime(); 
 
 
     // we also whant to check if the moveble objects are
@@ -96,18 +82,9 @@ void uppdate_state(sf::RenderWindow& window, Player& players, Chunk& chunk, bool
         sf::FloatRect view = chunk.background->getGlobalBounds();
 
         window.setView(sf::View(view));
-        // var för har de implementerat så att setSize tar en referens till vector?
-        // leder visserligen till mindre minne som flyttar men inte mycket och svårare att bara ändra storlek 
-
         window.setSize(sf::Vector2u(view.size));
         new_chunk = false;
     }
-    /*
-        // could uppdate the player direction mm... Here instead of in the chunk?
-    for (Player* player : players) {
-        player->set_direction();
-    }
-    */
 
     players.set_direction();
 
@@ -117,25 +94,6 @@ void uppdate_state(sf::RenderWindow& window, Player& players, Chunk& chunk, bool
 
     chunk.render_chunk(window); // how do i wan't to decied the order of rendering to decide depth
     chunk.render_chunk_coliders(window);
-
-    /*
-    window.draw(*chunk.background);
-
-    // if(moved) then uppdate move...
-    //move_entitys(moveb_enlist, dt.asSeconds());
-    float pixel_size_factor = 1.0;
-
-    float test = moveb_enlist[0]->speed;
-
-    //move_with_Coll_entitys(moveb_enlist, all_coliders, pixel_size_factor, dt.asSeconds());
-    
-    move_intersect(moveb_enlist, all_coliders, pixel_size_factor, dt.asSeconds());
-
-    render_Entitys(window, moveb_enlist);
-
-    render_chunk(window, chunk);
-    render_Entitys(window, fixed_enlist);
-    */
 
     clock.restart(); //clock.restart().asSeconds(); // clock->restart().asMilliseconds();
 
@@ -171,8 +129,6 @@ void render(sf::RenderWindow* window, std::vector<Movable_Entity*> *enlist, sf::
 int main()
 {
 
-    //std::vector<sf::Sprite>  all_sprites; // becaues the entity class contains only pointers to Sprites i nead a place where they live
-
     /*
      ___________________ Använda unordered_map kanske, kan se över att spara sakerna då i ett set då jag inte vill åter uprepa några texturer
      DET JAG VILL GÖRA ÄR ATT SPARA Hash key'n till den texturen som är assosierad med entityn...
@@ -190,7 +146,8 @@ int main()
     float sprite_size_factor = 4.0;
 
     //std::string map_path = "C:/Users/User/Desktop/sprites/map1_pngs"; //stationary computer file path
-    std::string map_path = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/chuncks";// Laptop file path
+    //std::string map_path = "C:/Users/HP/Desktop/SFML_prodject/sprites/chuncks";// Laptop file path
+    std::string map_path = "./sprites/chuncks";// Laptop file path
     int map_size = 9;
     Chunk ch = Chunk(map_path, map_size, sprite_size_factor, all_sprites, all_textures);
     bool new_chunk = true;
@@ -202,7 +159,7 @@ int main()
     sf::CircleShape shape1(25.f);
 
     //const char tex_piller_file_path[] = "C:/Users/User/Desktop/sprites/Sprite_Tree_Piller_Head.png";//stationary computer file path
-    const char tex_piller_file_path[] = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/piller_head.png";// Laptop file path
+    const char tex_piller_file_path[] = "./sprites/piller_head.png";// Laptop file path
     make_sprite(tex_piller_file_path, sprite_size_factor, all_sprites, all_textures); // magic number 4.0 that is the size factor should be clearer strong typing?
     sf::Sprite* piller_sprite = &all_sprites.back();
     
@@ -254,21 +211,12 @@ int main()
     ch.add_ent_to_chunk(pl_entity, pl_entity.assosiate_vall_to_entity_id(std::move(rectcollshape)));
 
     Player playerOne(&ch.chunks_entitys.back());
-    //ch.print_entity_ids();
-    //playerOne.add_assosiate_vall_entity_id_to_vec(std::move(shape2), all_circle_colliders);
-
 
     // all_textures.resize(2); // tydligt visande att resize på all_textures är vad som stör all_sprites 
 
     playerOne.player_entity->speed = 200.0f;
     playerOne.player_entity->rot_angle = 0.0f;
 
-    /*
-    // why does this make an error does moveb_enlist[0] not index the playerOne and
-    std::vector<Entity> moveb_enlist = { playerOne };
-    Player& plone = &(moveb_enlist[0]);
-
-    */
 
     // Inte bra med magic numbers...
     sf::RenderWindow window(sf::VideoMode({20, 20}), "SFML works!");
@@ -281,7 +229,7 @@ int main()
 
     while (window.isOpen()) {
         
-        /*const*/ std::optional<sf::Event> event;
+        std::optional<sf::Event> event;
 
         while (event = window.pollEvent()) {
             if (event-> is<sf::Event::Closed>())
