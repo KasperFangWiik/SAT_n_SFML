@@ -4,19 +4,8 @@
 #include<SFML/System/Vector2.hpp>
 #include<filesystem>
 
-/*
-// denna funkar inte ny då sf::Sprite inte har en standard constructor längre
-struct spri_textur {
-    sf::Sprite spr;
-    sf::Texture tex;
-};
-*/
-
 class Entity;
 class Player;
-
-
-// Id_Pair& operator =(const Id_Pair&) {} //will i have to do this??
 
 template <typename T>
 struct Id_Pair {

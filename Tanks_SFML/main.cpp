@@ -23,18 +23,18 @@
 ______________________________________________________________________________
                                 TODO LIST:
 
-    Har hittat ett papper som beskriver hur SAT kan generaliseras för object som rör på sig så först gör detta sedna swept
-    (need to make a sweept circle to circle collision)
-    1. sweept circle collision... (i need to know what's a good way of giving attributes to entitys/NPC's?)
-    2. implement mecanic where you can shoot "bullets" in the direction of mose
-    3. make them bounce once and disaper the next time...
+    Har hittat ett papper som beskriver hur SAT kan generaliseras för object som rör på sig så först gör detta sedan swept collision
+    1. (start with a sweept circle to circle collision)
+    2. (i need to know what's a good way of giving attributes to entitys/NPC's?)
+        - implement mecanic where you can shoot "bullets" in the direction of mose
+        - make them bounce once and disaper the next time...
 
 
     1. Implement simplistic broad faze collision?
-    2. make a function that divides a map in to chunks, Semi correct formulerat...
+    2. make a function that divides a map in to chunks, Semi correct (formulerat...)
     3. (State machine creator...)
-    4. // this function needs to be revisit to controll when entitys are renderd to simulate depth
-    void render_chunk(sf::RenderWindow& window)
+    4. this function needs to be revisit to controll when entitys are renderd to simulate depth (Painter's algorithm?)
+     void render_chunk(sf::RenderWindow& window)
     5. expand so that different actions can happen when collision happen between different ?Entitys? / object types
 
     maintenece work:
@@ -43,25 +43,11 @@ ______________________________________________________________________________
     3. clean up chunk_composition
     4. find how manny copy constructor calls that are made and se if you can eliminate them we should at this momment probably have one copy call per entity and player
     5. is it posible to simplify circle vs OBB and vise versa...
-    6. What caind of testing can i do? can sheck so that we never divide by zero or atleast we cast an error that's easy to read!.
 ______________________________________________________________________________
-
-Questions:
-1. make so that every entity has a unik ID, use static varible? Or other ways?  BORDE VARA KLAR
-    UNDERSÖK:!!!!!!!!!!!!!!!!!!!!!!!
-    // DENNA LÖSTE Problemet med std::vector som uppcom då const int id; las till
-    Entity& operator =(const Entity&) {}
-
-    // behöver för någon anledning inte skriva : id(++ID_sum) detta görs av sig skälv, varför?
-     Player::Player(sf::Shape* c, sf::Sprite* s)
-
-
-
-Noah snackade något om hur man skulle  hantera texturer eller shapes...
 
 std::vector nyttjar sig av RAII och deletar sig skälv efter gåt ut ur scope
 och kallar på destructorn av objectet inom den men om denna destructor inte
-kallar på delet kommer det skapa minnes luckor?
+kallar på delet kommer det skapa memory leaks?
 
 */
 
@@ -72,9 +58,6 @@ void uppdate_state(sf::RenderWindow& window, Player& players, Chunk& chunk, bool
 
     sf::Time dt = clock.getElapsedTime(); 
 
-
-    // we also whant to check if the moveble objects are
-    // in the chunk
     window.clear();
 
     // jag vill bara resiza window om vi ska rendera en ny chunk men set size behåller storleken hela tiden...
@@ -88,7 +71,6 @@ void uppdate_state(sf::RenderWindow& window, Player& players, Chunk& chunk, bool
 
     players.set_direction();
 
-    //chunk.resolve_collisions();
     chunk.move_all_transformables(dt.asSeconds());
     chunk.resolve_collisions();
 
@@ -144,32 +126,20 @@ int main()
     all_textures.reserve(20);
 
     float sprite_size_factor = 4.0;
-
-    //std::string map_path = "C:/Users/User/Desktop/sprites/map1_pngs"; //stationary computer file path
-    //std::string map_path = "C:/Users/HP/Desktop/SFML_prodject/sprites/chuncks";// Laptop file path
     std::string map_path = "./sprites/chuncks";// Laptop file path
     int map_size = 9;
     Chunk ch = Chunk(map_path, map_size, sprite_size_factor, all_sprites, all_textures);
     bool new_chunk = true;
 
-    // skulle deta vara en lösning till resize problemet, Svar Nej
-    // i teori är det lättar e att hålla koll på när resize sker och att då ändra pekaren då kanske
-    //std::vector<spri_textur> all_sprites_textures;
-
     sf::CircleShape shape1(25.f);
-
-    //const char tex_piller_file_path[] = "C:/Users/User/Desktop/sprites/Sprite_Tree_Piller_Head.png";//stationary computer file path
     const char tex_piller_file_path[] = "./sprites/piller_head.png";// Laptop file path
-    make_sprite(tex_piller_file_path, sprite_size_factor, all_sprites, all_textures); // magic number 4.0 that is the size factor should be clearer strong typing?
+    make_sprite(tex_piller_file_path, sprite_size_factor, all_sprites, all_textures);
     sf::Sprite* piller_sprite = &all_sprites.back();
     
     // change rotation origin /center to the center of the Sprite, i proobaby need to change the colid shapes center to...
     //piller_sprite->setOrigin((sf::Vector2f)piller_sprite->getTexture().getSize() / 2.f);
     
     sf::FloatRect colid_pill = piller_sprite->getGlobalBounds();
-    //Entity piller(&shape1); // piller_sprite
-
-    //piller_sprite->setOrigin((sf::Vector2f)piller_sprite->getTexture().getSize() / 2.f);
     Entity piller(piller_sprite);
     
     
@@ -186,27 +156,17 @@ int main()
     //rectcollshapeFirst.setOrigin((sf::Vector2f)piller_sprite->getTexture().getSize() / 2.f);
 
     ch.colider_move_ent_to_chunk(piller,std::move(shape1));
-    //std::cout << piller.id << "\n";
-    //piller.spr->setRotation(sf::degrees(45));
+
 
     sf::CircleShape shape2(25.f);
 
-    // this might make one extra copy...
-    //const char tex1[] = "C:/Users/HP/OneDrive/Skrivbord/SFML_prodject/sprites/player.png";
     make_sprite(tex_piller_file_path, sprite_size_factor, all_sprites, all_textures);
     sf::Sprite* s = &all_sprites.back();// &all_sprites.back();
 
-    // changes the origin that we rotate around Could temporarly change the origin and rotate right?
-    //s->setOrigin((sf::Vector2f)s->getTexture().getSize() / 2.f);
-
-    //when i do not fix the center i get an error probably divide by zero...
-    //shape2.setOrigin((sf::Vector2f)s->getTexture().getSize() / 2.f);
 
     Entity pl_entity(s);
-    //Player playerOne(&pl_entity); //  Player playerOne(&shape2, s);
     sf::Vector2f size1 = (sf::Vector2f)(s->getTexture()).getSize() * sprite_size_factor;
     sf::RectangleShape rectcollshape = sf::RectangleShape(size1);
-    //rectcollshape.setOrigin((sf::Vector2f)s->getTexture().getSize() / 2.f);
 
     ch.add_ent_to_chunk(pl_entity, pl_entity.assosiate_vall_to_entity_id(std::move(rectcollshape)));
 
@@ -217,14 +177,11 @@ int main()
     playerOne.player_entity->speed = 200.0f;
     playerOne.player_entity->rot_angle = 0.0f;
 
-
-    // Inte bra med magic numbers...
     sf::RenderWindow window(sf::VideoMode({20, 20}), "SFML works!");
 
     // kan inte ha för hög frame rate det leder till att man har alldeles för liten korregering till hasstigheten som rundas ned till noll
     window.setFramerateLimit(144);
 
-    // behövs denna stå i början?
     sf::Clock clock;
 
     while (window.isOpen()) {
@@ -268,13 +225,6 @@ ______________________________________________________________________________
    https://research.ncl.ac.uk/game/mastersdegree/gametechnologies/previousinformation/physics4collisiondetection/2017%20Tutorial%204%20-%20Collision%20Detection.pdf
 ______________________________________________________________________________
 
-*/
-
-// struct sortof taken from  pdf, contains all data that is neaded to resolv a collison..
-/*
-We note that while this information is suitable to resolve relatively simple collisions, more complex
-collision resolution requires more information. This will be explored in more detail in the tutorial on
-Manifolds.
 */
 
 
@@ -321,14 +271,6 @@ void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Sh
     }
 }
 
-*/
-
-
-
-/*
-Cmake forwarding..
-
-x är först i kön och testar sinn colison så om y som går efter rör sig sammtidigt emot x så kommer väll x putta y? NEJ
 */
 
 

@@ -44,7 +44,7 @@ void make_sprite(std::string sprite_path, float size_factor, std::vector<sf::Spr
 // behöver se till att den faktiskt hämtar rätt object och inte copierar
 bool find_entity_with_id(int search_id, std::vector<Entity>& entitys, Entity& return_entity){
 
-    for (Entity& e : entitys) { // const leads to anachronism used ???
+    for (Entity& e : entitys) {
         if (search_id == e.id) {
             return_entity = e; // this does not work if one varible in entity class is constant , Might work know when we are just copying memmory address?
             return true;
