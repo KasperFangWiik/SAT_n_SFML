@@ -17,7 +17,15 @@
 #include "chunk_composition.h"
 //#define ONE_DIV_SQRTWO 0.70706781f //float value of ONE_DIV_SQRTWO = 1/sqrt(2)
 
+/*
+______________________________________________________________________________
+                                Collisondetection:
+   testing SAT algorithm, this is usfull links/sotces:
+   https://dyn4j.org/2010/01/sat/
+   https://research.ncl.ac.uk/game/mastersdegree/gametechnologies/previousinformation/physics4collisiondetection/2017%20Tutorial%204%20-%20Collision%20Detection.pdf
+______________________________________________________________________________
 
+*/
 
 /*
 ______________________________________________________________________________
@@ -216,126 +224,3 @@ int main()
     return 0;
 
 }
-
-/*
-______________________________________________________________________________
-                                Collisondetection:
-   testing SAT algorithm, this is usfull links/sotces:
-   https://dyn4j.org/2010/01/sat/
-   https://research.ncl.ac.uk/game/mastersdegree/gametechnologies/previousinformation/physics4collisiondetection/2017%20Tutorial%204%20-%20Collision%20Detection.pdf
-______________________________________________________________________________
-
-*/
-
-
-
-/*
-// semi funkar, ett problm är att jag inte vet hur mycket jag ska röra mig bakåt..
-void move_intersect(const std::vector<Entity*>& moveb_enlist, std::vector<sf::Shape*> all_coliders, float pixel_size_factor, float dt) {
-
-    for (Entity* n : moveb_enlist) { // ska man använda const här? const entity n
-        bool collision = false;
-
-        n->set_direction();
-        n->RotEnt(dt);
-        n->dirMove(dt);
-        for (const Entity* m : moveb_enlist) {
-
-            // checkar bara att de har samma pekare/minnes adress.. behövs starkare eqvivalence?
-            if (m == n) {
-                //std::cout << "colison was made" << "\n";
-                continue;
-            }
-
-            sf::Vector2f test_vec{};
-            //if (current_colider_rect.findIntersection(tmp_colider_rect))
-            //if(m->coli != nullptr|| n->spr != nullptr)
-            if (m->coli != nullptr || n->spr != nullptr)
-                if (n->speed > 0 && simple_rect_collision(n->spr,m->spr, test_vec)) { //simple_rect_collision(n->spr, m->spr, test_vec)
-                    if (test_vec == sf::Vector2f{ 0,0 })
-                        continue;
-
-                    n->moveEnt(test_vec); 
-                    collision = true;
-                }
-                //sf::RectangleShape test;
-                //test.getGlobalBounds(); 
-                
-            // semi race condition som sker i collison om man byter direction och är inne i functionen aka innan other_dir sätts rätt så  kan fel vector nyttjas
-            // verkar främst ske när jag trycker ned två knappar sammtidigt i olika ricktningar
-        }
-
-        if (!collision) {
-           //n->dirMove(dt); // när jag använder denna så blir de knas
-        }
-    }
-}
-
-*/
-
-
-/*
-*
-*
-* smart pointers kolla upp?
-* bara använda ett shape som ändras form på? Det ultimata hade varit att vissa entitys har egna shapes och andra bara använder sig av en universell shape de ändrar formen på
-* composition för player iställät för att ärva entity klassen?
-*
-    *   what are we making?:
-    *   the gole is to make retro mario 2D "level"
-    *   subgoals:
-    *    - paint ground
-    *    - paint "hitbox of mario" on the ground
-    *    - move the box back and forth
-    *    - hit box shecks, ray infront and under, make a nother box that stops you
-    *    - make the box able to jump.
-    *    - add an gomba box
-    *    - add the sprites to mario for jumping and moving, maby running allso.
-
-        whishfull thinking:
-
-        main file has the lteral game loop
-
-        what objects do we nead:
-        gameobject with start and end object function?
-
-        boddy object that inclodes position on screan, movement vector?
-
-        character object.
-
-        hitbox object?
-
-        entity object????
-
-        --------------------------------
-        what in main:
-
-        loop for opening screen that ether constucts a game from standard constuctor or the object is modifyed by meny
-        after settings / klicked on start, the game object is created and used to sett windowstandards
-
-        calculationsfunc contains all changes to positions and hitboxes mm...
-        renderfunc that renders everyting that should reander.
-
-    */
-
-    /*
-    * nya idèer
-    * Använd en static class varible för ett shape som då förändras på utifrån en textur som "skapas"
-    * varje gång vi ska draw en build av objectet.
-    * Ska man kolla om objectet ändrats på innan man utför drwa en liksom fixa en flagga i objectet som sätts
-    till false om objectet har ändrat på sig.
-
-    skillja på ositionella värden av entity och texturen, men hur ser man då till att rätt textur går till rätt entity utan extra värden i classen??
-
-
-
-
-
-                    sf::Vector2u sc = window.getSize();
-                    sf::Vector2f t = ((sf::Vector2f) sc )
-                    shape1.setScale( t.x/100.f, t.y/100.f);
-                    shape2.setScale(50.f/ shape2.getLocalBounds().width, 50.f/ shape2.getLocalBounds().height);
-                    //shape2.getRadius();
-
-
-     */
