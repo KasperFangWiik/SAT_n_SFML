@@ -35,16 +35,17 @@ Pure SAT related:
 bool check_SAT_axis_overlap(const std::array<float, 2>& min_max_dist1,
                             const std::array<float, 2>& min_max_dist2) {
 
-    const float min_rect1 = min_max_dist1.at(0);
-    const float max_rect1 = min_max_dist1.at(1);
+    const float min_vertex1 = min_max_dist1.at(0);
+    const float max_vertex1 = min_max_dist1.at(1);
 
-    const float min_rect2 = min_max_dist2.at(0);
-    const float max_rect2 = min_max_dist2.at(1);
+    const float min_vertex2 = min_max_dist2.at(0);
+    const float max_vertex2 = min_max_dist2.at(1);
 
-    return (min_rect1 <= min_rect2 && max_rect1 >= min_rect2) ||
-        (min_rect2 <= min_rect1 && max_rect2 >= min_rect1);
+    return (min_vertex1 <= min_vertex2 && max_vertex1 >= min_vertex2) ||
+           (min_vertex2 <= min_vertex1 && max_vertex2 >= min_vertex1);
 }
 
+/*
 bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
                             const std::array<float, 2>& min_max_dist1,
                             const std::array<float, 2>& min_max_dist2,
@@ -77,6 +78,43 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
         if (abs(current_size_of_overlap) < abs(respons_data.penetration)) {
             respons_data.penetration = current_size_of_overlap;
             respons_data.contact_normal = -projection_axis;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+*/
+
+
+bool check_SAT_axis_overlap(
+    const sf::Vector2f& projection_axis,
+    const std::array<float, 2>& min_max_dist1,
+    const std::array<float, 2>& min_max_dist2,
+    CollisionResponseData& respons_data
+) {
+
+    const float min_vertex1 = min_max_dist1.at(0);
+    const float max_vertex1 = min_max_dist1.at(1);
+
+    const float min_vertex2 = min_max_dist2.at(0);
+    const float max_vertex2 = min_max_dist2.at(1);
+
+    //float current_size_of_overlap = 0.0f;
+
+    // (Overlap in order object 1 -> object 2)
+    const bool obj1_X_obj2 = min_vertex1 <= min_vertex2 && max_vertex1 >= min_vertex2;
+
+    // (Overlap in order object 2 -> object 1)
+    const bool obj2_X_obj1 = min_vertex2 <= min_vertex1 && max_vertex2 >= min_vertex1;
+
+    if (obj1_X_obj2 || obj2_X_obj1) {
+
+        float current_size_of_overlap = obj2_X_obj1 ? (min_vertex1 - max_vertex2) : (min_vertex2 - max_vertex1);
+        if (std::abs(current_size_of_overlap) < std::abs(respons_data.penetration)) { // abs from cstdlib, should use abs or multiply?
+            respons_data.penetration = current_size_of_overlap;
+            respons_data.contact_normal = obj2_X_obj1 ? -projection_axis : projection_axis;
         }
 
         return true;
