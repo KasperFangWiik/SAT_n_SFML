@@ -139,7 +139,6 @@ int main()
     Chunk ch = Chunk(map_path, map_size, sprite_size_factor, all_sprites, all_textures);
     bool new_chunk = true;
 
-    sf::CircleShape shape1(25.f);
     const char tex_piller_file_path[] = "./sprites/piller_head.png";// Laptop file path
     make_sprite(tex_piller_file_path, sprite_size_factor, all_sprites, all_textures);
     sf::Sprite* piller_sprite = &all_sprites.back();
@@ -163,7 +162,20 @@ int main()
 
     //rectcollshapeFirst.setOrigin((sf::Vector2f)piller_sprite->getTexture().getSize() / 2.f);
 
-    ch.colider_move_ent_to_chunk(piller,std::move(shape1));
+    
+    sf::ConvexShape convex2;
+
+    convex2.setPointCount(3);
+    convex2.setPoint(0, { 0.f, 0.f });
+    convex2.setPoint(1, { 150.f, 10.f });
+    convex2.setPoint(2, { 120.f, 90.f });
+    ch.colider_move_ent_to_chunk(piller, std::move(convex2));
+    
+
+    //sf::CircleShape shape1(25.f);
+    //ch.colider_move_ent_to_chunk(piller,std::move(shape1));
+
+    //ch.colider_move_ent_to_chunk(piller, std::move(rectcollshapeFirst));
 
 
     sf::CircleShape shape2(25.f);
@@ -176,7 +188,28 @@ int main()
     sf::Vector2f size1 = (sf::Vector2f)(s->getTexture()).getSize() * sprite_size_factor;
     sf::RectangleShape rectcollshape = sf::RectangleShape(size1);
 
-    ch.add_ent_to_chunk(pl_entity, pl_entity.assosiate_vall_to_entity_id(std::move(rectcollshape)));
+
+    // create an empty shape
+    sf::ConvexShape convex;
+
+    // resize it to 5 points
+    //convex.setPointCount(5);
+    convex.setPointCount(3);
+    // define the points
+    /*
+    convex.setPoint(0, { 0.f, 0.f });
+    convex.setPoint(1, { 150.f, 10.f });
+    convex.setPoint(2, { 120.f, 90.f });
+    convex.setPoint(3, { 30.f, 100.f });
+    convex.setPoint(4, { 0.f, 50.f });
+    */
+    convex.setPoint(0, { 0.f, 0.f });
+    convex.setPoint(1, { 150.f, 10.f });
+    convex.setPoint(2, { 120.f, 90.f });
+
+    //ch.add_ent_to_chunk(pl_entity, pl_entity.assosiate_vall_to_entity_id(std::move(rectcollshape)));
+
+    ch.add_ent_to_chunk(pl_entity, pl_entity.assosiate_vall_to_entity_id(std::move(convex)));
 
     Player playerOne(&ch.chunks_entitys.back());
 

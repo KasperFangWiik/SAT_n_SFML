@@ -23,7 +23,7 @@ struct SweptCircleShape {
 };
 
 template<typename U>
-concept IsCollideble = std::is_same_v< U, Id_Pair<sf::RectangleShape> > || std::is_same_v< U, Id_Pair<sf::CircleShape>>;
+concept IsCollideble = std::is_same_v< U, Id_Pair<sf::RectangleShape> > || std::is_same_v< U, Id_Pair<sf::CircleShape>> || std::is_same_v< U, Id_Pair<sf::ConvexShape> >;
 
 
 
@@ -40,6 +40,36 @@ bool check_SAT_axis_overlap(const sf::Vector2f& projection_axis,
                             const std::array<float, 2>& min_max_dist1,
                             const std::array<float, 2>& min_max_dist2,
                             CollisionResponseData& respons_data);
+
+/*
+------------------------------------------------------------------------------------------------------------------
+ConvexShape collisions related:
+------------------------------------------------------------------------------------------------------------------
+*/
+std::vector<sf::Vector2f> get_vertecis_of_ConvexShape(sf::ConvexShape& colid_sprite);
+
+std::vector<sf::Vector2f> normals_of_ConvexShape(const std::vector<sf::Vector2f>& poly_vertices);
+
+const std::array<float, 2> min_max_projection_distance(
+                                                const sf::Vector2f& projection_axis,
+                                                const std::vector<sf::Vector2f>& vertices);
+
+bool collision(sf::ConvexShape& poly1, sf::ConvexShape& poly2, sf::Vector2f& respons_vector);
+
+bool collision(sf::ConvexShape& poly1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector);
+
+bool collision(sf::RectangleShape& rect1, sf::ConvexShape& poly2, sf::Vector2f& respons_vector);
+/*
+------------------------------------------------------------------------------------------------------------------
+Circle v ConvexShape collisions related:
+------------------------------------------------------------------------------------------------------------------
+*/
+sf::Vector2f closest_polyVertex_to_point(sf::Vector2f& point, std::vector<sf::Vector2f>& rect2_vertices);
+
+bool collision(sf::CircleShape& circle1, sf::ConvexShape& poly2, sf::Vector2f& respons_vector);
+
+bool collision(sf::ConvexShape& poly1, sf::CircleShape& circle2, sf::Vector2f& respons_vector);
+
         
 /*
 ------------------------------------------------------------------------------------------------------------------

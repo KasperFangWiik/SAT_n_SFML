@@ -62,9 +62,10 @@ class Chunk {
     // chunk id? Or should it'sda position in the array/vector be
 public:
 
-    
+    std::vector<Id_Pair<sf::ConvexShape>>    polygon_coliders{};
     std::vector<Id_Pair<sf::RectangleShape>> rect_coliders{};
-    std::vector<Id_Pair<sf::CircleShape>> circle_coliders{};
+    std::vector<Id_Pair<sf::CircleShape>>    circle_coliders{};
+
 
     int numb_backrund_sprite{};
     sf::Sprite* background{};
@@ -93,7 +94,7 @@ public:
 
         //numb_backrund_sprite = sprite_num;
 
-        chunks_entitys.reserve(sprite_num+ sprite_num);
+        chunks_entitys.reserve(sprite_num + sprite_num);
         //tmp_backgound_chunks_entitys.reserve(sprite_num);
 
         bool background_first = true;
@@ -137,6 +138,11 @@ public:
     // could i minimize this with templates?
     void render_chunk_coliders(sf::RenderWindow& window) {
 
+
+        for (Id_Pair<sf::ConvexShape>& n : polygon_coliders) {
+            window.draw(n.value);
+        }
+
         std::array<sf::Vector2f, 4> vertecis_rect2{};
         for (Id_Pair<sf::RectangleShape>& n : rect_coliders) {
             window.draw(n.value);
@@ -148,13 +154,11 @@ public:
             
             vertecis_rect2 = get_vertecis_of_rectcol(n.value);
            
-
-
         }
 
         for (const Id_Pair<sf::CircleShape>& n : circle_coliders) {
             window.draw(n.value);
-
+            /*
             float radius = n.value.getRadius();
             sf::Vector2f circle1_ceter = n.value.getTransform() * (n.value.getOrigin() + sf::Vector2f{ radius,radius });//n.value.getOrigin(); n.value.getPosition();
             drawpoint(window, circle1_ceter);
@@ -163,10 +167,18 @@ public:
             sf::Vector2f test_tv = closest_polyVertex_to_point(circle1_ceter, vertecis_rect2);
             drawpoint(window, test_tv);
             //sf::Vector2f testcircle1_ceter = circle1.getTransform() * circle1.getGeometricCenter();
+            */
         }
+
+
     }
 
     void move_coliders_to_entity_pos(Entity&& e) {
+
+        int polygon_col{};
+        if (e.find_index_of_id_pair(polygon_coliders, polygon_col)) {
+            e.apply_rot_n_pos(polygon_coliders.at(polygon_col).getvalue());
+        }
 
         int rect_col{};
         if (e.find_index_of_id_pair(rect_coliders, rect_col)) {
@@ -220,6 +232,25 @@ public:
         ent.apply_rot_n_pos(circle_coliders.at(circle_col).getvalue());
     }
 
+
+    void colider_move_ent_to_chunk(Entity& ent, sf::ConvexShape&& polygon_colider) {
+        chunks_entitys.push_back(ent); // could use emplace_back? especially if changed to this std::vector<Entity>...
+        ent.add_assosiate_vall_entity_id_to_vec(std::move(polygon_colider), polygon_coliders);
+
+        int poly_col{};
+        ent.find_index_of_id_pair(polygon_coliders, poly_col);
+        ent.apply_rot_n_pos(polygon_coliders.at(poly_col).getvalue());
+    }
+
+    void add_ent_to_chunk(Entity& ent, Id_Pair<sf::ConvexShape> polygon_colider) {
+        chunks_entitys.push_back(ent);
+        polygon_coliders.push_back(polygon_colider);
+
+        int ploy_col{};
+        ent.find_index_of_id_pair(polygon_coliders, ploy_col);
+        ent.apply_rot_n_pos(polygon_coliders.at(ploy_col).getvalue());
+    }
+
     void add_ent_to_chunk(Entity& ent, Id_Pair<sf::RectangleShape> rect_colider) {
         chunks_entitys.push_back(ent);
         rect_coliders.push_back(rect_colider);
@@ -263,7 +294,7 @@ public:
   
   // behöver inte vara en member function kanske till och med virtual function?
   template<IsCollideble T, IsCollideble U>
-  void check_collision_with_chape_vector(Entity&& e, U&& collider, std::vector<T>&& colliders,const int collider_index) {
+  void check_collision_with_shape_vector(Entity&& e, U&& collider, std::vector<T>&& colliders,const int collider_index) {
 
       sf::Vector2f respons_vector{};
       for (T& c : colliders) {
@@ -285,7 +316,7 @@ public:
   }
 
   template<IsCollideble U>
-  void check_collision_with_chapes(Entity&& e, std::vector<U>&& colliders) {
+  void check_collision_with_shapes(Entity&& e, std::vector<U>&& colliders) {
 
       sf::Vector2f respons_vector{};
       int col_index{};
@@ -294,21 +325,42 @@ public:
 
           U& entitys_colider = colliders.at(col_index);
 
-          this->check_collision_with_chape_vector(std::move(e), std::move(entitys_colider), std::move(rect_coliders), col_index);
-          this->check_collision_with_chape_vector(std::move(e), std::move(entitys_colider), std::move(circle_coliders), col_index); // might not want to move e just take referance?
+          this->check_collision_with_shape_vector(std::move(e), std::move(entitys_colider), std::move(polygon_coliders), col_index);
+
+          this->check_collision_with_shape_vector(std::move(e), std::move(entitys_colider), std::move(rect_coliders), col_index);
+          this->check_collision_with_shape_vector(std::move(e), std::move(entitys_colider), std::move(circle_coliders), col_index); // might not want to move e just take referance?
 
       }
   }
   
-
-
+  /*
+    // hur ser jag till att de aldrig har samma collider id, jo jag ökar alltid båda med ett och samma värde...
     template<IsCollideble U>
-    void check_collision_with_chapesTetst(Entity&& e, std::vector<U>&& colliders) {
+    void check_collision_with_shapesTetst(Entity&& e, std::vector<U>&& colliders) {
 
         sf::Vector2f respons_vector{};
         int col_index{};
 
         if (e.find_index_of_id_pair(colliders, col_index)) {
+
+
+
+            //sf::RectangleShape* es_colider = rect_coliders.at(rect_col).getvalue();
+            U& entitys_colider = colliders.at(col_index);
+            // e.apply_rot_n_pos(rect_coliders.at(rect_col).getvalue());
+
+            for (const Id_Pair<std::vector<U>>& c : colliders) {
+                if (compair_diff_id_pair(entitys_colider, c)) // don't test collision with same entity_id
+                    continue;
+                // collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector)
+
+                if (collision(entitys_colider.value, c.value, respons_vector)) {
+                    e.moveEnt(respons_vector); // should i apply 
+                    move_coliders_to_entity_pos(std::move(e));
+                }
+            }
+
+            /*
 
             //sf::RectangleShape* es_colider = rect_coliders.at(rect_col).getvalue();
             U& entitys_colider = colliders.at(col_index);
@@ -324,11 +376,11 @@ public:
                     move_coliders_to_entity_pos(std::move(e));
                 }
 
-                /*
+                
                 if (intersect(entitys_colider.value, r_c.value)) {
                     std::cout << "collided with rectangle" << "\n";
                 }
-                */
+                
                 
             }
 
@@ -342,29 +394,30 @@ public:
                     move_coliders_to_entity_pos(std::move(e));
                 }
 
-                /*
+                
                 if (intersect(entitys_colider.value, c_c.value)) {
                     std::cout << "collision with circle" << "\n";
                 }
-                */
+                
                 
                 
             }
-
+            */
+  /*
         }
     }
-
+    */
 
     void resolve_collisions() {
     
         for (Entity& e : chunks_entitys) {
             if (e.speed == 0) // && e.rot_angle == 0
                 continue;
-
-            this->check_collision_with_chapes<Id_Pair<sf::RectangleShape>>(std::move(e), std::move(rect_coliders));
+            this->check_collision_with_shapes<Id_Pair<sf::ConvexShape>>(std::move(e), std::move(polygon_coliders));
+            this->check_collision_with_shapes<Id_Pair<sf::RectangleShape>>(std::move(e), std::move(rect_coliders));
 
             // i should use swept collision if the object is moving...
-            this->check_collision_with_chapes<Id_Pair<sf::CircleShape>>(std::move(e), std::move(circle_coliders));
+            this->check_collision_with_shapes<Id_Pair<sf::CircleShape>>(std::move(e), std::move(circle_coliders));
 
         }
     }

@@ -18,7 +18,7 @@ struct Id_Pair {
     }
 
     /*
-    // would this work? Brobably whon't to this because confusing
+    // Probably won't do this because confusing
     bool operator==(Id_Pair<T>& other_pair) {
         return entity_id == other_pair.entity_id;
     }
@@ -27,12 +27,6 @@ struct Id_Pair {
         return &value;
     }
 
-    /*
-    // shoudl i do this?
-    T& getvalue() {
-        return value;
-    }
-    */
 };
 
 template<typename T,typename U>
@@ -71,7 +65,7 @@ void playerKeyEvent(sf::Keyboard::Scancode key_code, bool pressed, Player& playe
 // borde nog va en virtual class...
 class Entity {
 
-    //varför sätter folk pos i private och mutator functions i public?
+
     //should i use smart pointers hear?
 public:
 

@@ -123,6 +123,231 @@ bool check_SAT_axis_overlap(
     return false;
 }
 
+
+/*
+------------------------------------------------------------------------------------------------------------------
+ConvexShape collisions related:
+------------------------------------------------------------------------------------------------------------------
+*/
+/*
+istället för att applicera samma transformation på modellen och på collider vertexerna så tänkte jag på
+att man bara märkerar vilka vertexer och då vilken index som är rellevant
+
+*/
+
+std::vector<sf::Vector2f> get_vertecis_of_ConvexShape(sf::ConvexShape& colid_sprite) {
+
+    std::vector< sf::Vector2f> vertices = {};
+    sf::Transform transformMatrix = colid_sprite.getTransform();
+
+    const size_t numb_of_vertices = colid_sprite.getPointCount();
+    vertices.reserve(numb_of_vertices);
+
+    for (size_t n{}; n < numb_of_vertices; n++) {
+        vertices.emplace_back(transformMatrix * colid_sprite.getPoint(n));
+    }
+    return vertices;
+}
+
+std::vector<sf::Vector2f> normals_of_ConvexShape(const std::vector<sf::Vector2f>& poly_vertices) {
+
+    // Function could be generalized to all 
+    std::vector<sf::Vector2f> normals = {};
+    const size_t numb_of_vertices = poly_vertices.size();
+    normals.reserve(numb_of_vertices);
+
+    // this will add normals that could be same or inverted, witch we don't like becasue they give the same results, Might creat buggs... :(
+    for (size_t n{}; n < numb_of_vertices; n++) {
+        size_t n_vrap_around = (n+1) % numb_of_vertices;
+        normals.emplace_back(calc_normal_of_lineSegment(poly_vertices[n], poly_vertices[n_vrap_around]));
+    }
+
+    return normals;
+}
+
+const std::array<float, 2> min_max_projection_distance(
+                            const sf::Vector2f& projection_axis,
+                            const std::vector<sf::Vector2f>& vertices
+){
+    float min_distance = vertices.at(0).dot(projection_axis);
+    float max_distance = vertices.at(1).dot(projection_axis);
+
+    if (min_distance > max_distance) {
+        std::swap(min_distance, max_distance);
+    }
+
+    float tmp_distance = {};
+    for (int i = 2; i < vertices.size(); i++) {
+        tmp_distance = vertices.at(i).dot(projection_axis);
+
+        if (min_distance > tmp_distance) {
+            min_distance = tmp_distance;
+        }
+
+        if (max_distance < tmp_distance) {
+            max_distance = tmp_distance;
+        }
+    }
+
+    return { min_distance, max_distance };
+}
+
+bool collision(sf::ConvexShape& poly1, sf::ConvexShape& poly2, sf::Vector2f& respons_vector) {
+
+    std::vector<sf::Vector2f> vertecis_poly1(std::move(get_vertecis_of_ConvexShape(poly1)));
+    std::vector<sf::Vector2f>  normals_1(std::move(normals_of_ConvexShape(vertecis_poly1)));
+
+
+    std::vector<sf::Vector2f> vertecis_poly2(std::move(get_vertecis_of_ConvexShape(poly2)));
+    std::vector<sf::Vector2f>  normals_2(std::move(normals_of_ConvexShape(vertecis_poly2)));
+
+
+    CollisionResponseData respons_data = { std::numeric_limits<float>::max(), {} };
+
+    const size_t numb_of_rect2_normals = normals_2.size();
+    for (size_t i = {}; i < numb_of_rect2_normals; i++)
+
+        for (const sf::Vector2f& n1 : normals_1) {
+
+            const std::array<float, 2> min_max_dist1 = min_max_projection_distance(n1, vertecis_poly1);
+            const std::array<float, 2> min_max_dist2 = min_max_projection_distance(n1, vertecis_poly2);
+
+            if (!check_SAT_axis_overlap(n1, min_max_dist1, min_max_dist2, respons_data))
+                return false;
+        }
+
+
+    for (const sf::Vector2f& n2 : normals_2) {
+
+        const std::array<float, 2> min_max_dist1 = min_max_projection_distance(n2, vertecis_poly1);
+        const std::array<float, 2> min_max_dist2 = min_max_projection_distance(n2, vertecis_poly2);
+
+        if (!check_SAT_axis_overlap(n2, min_max_dist1, min_max_dist2, respons_data))
+            return false;
+    }
+
+    respons_vector = respons_data.penetration * respons_data.contact_normal;
+    return true;
+}
+
+
+bool collision(sf::ConvexShape& poly1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector) {
+
+    std::vector<sf::Vector2f> vertecis_poly1(std::move(get_vertecis_of_ConvexShape(poly1)));
+    std::vector<sf::Vector2f>  normals_1(std::move(normals_of_ConvexShape(vertecis_poly1)));
+
+    std::array<sf::Vector2f, 4> vertecis_rect2 = get_vertecis_of_rectcol(rect2);
+    std::array<sf::Vector2f, 2> normals_2 = normals_of_rect_withFunk(vertecis_rect2);
+
+    CollisionResponseData respons_data = { std::numeric_limits<float>::max(), {} };
+
+    const size_t numb_of_rect2_normals = normals_2.size();
+    for (size_t i = {}; i < numb_of_rect2_normals; i++) 
+    
+    for(const sf::Vector2f& n1 : normals_1) {
+
+        const std::array<float, 2> min_max_dist1 = min_max_projection_distance(n1, vertecis_poly1);
+        const std::array<float, 2> min_max_dist2 = min_max_projection_distance(n1, vertecis_rect2);
+
+        if (!check_SAT_axis_overlap(n1, min_max_dist1, min_max_dist2, respons_data))
+            return false;
+    }
+
+
+    for (const sf::Vector2f& n2 : normals_2) {
+
+        const std::array<float, 2> min_max_dist1 = min_max_projection_distance(n2, vertecis_poly1);
+        const std::array<float, 2> min_max_dist2 = min_max_projection_distance(n2, vertecis_rect2);
+
+        if (!check_SAT_axis_overlap(n2, min_max_dist1, min_max_dist2, respons_data))
+            return false;
+    }
+
+    respons_vector = respons_data.penetration * respons_data.contact_normal;
+    return true;
+}
+
+
+bool collision(sf::RectangleShape& rect1, sf::ConvexShape& poly2, sf::Vector2f& respons_vector) {
+
+    bool collide = collision(rect1, poly2, respons_vector);
+    respons_vector *= -1.f;
+    return collide;
+}
+/*
+------------------------------------------------------------------------------------------------------------------
+Circle v ConvexShape collisions related:
+------------------------------------------------------------------------------------------------------------------
+*/
+
+// kan generalisera denna... Med std::vector
+sf::Vector2f closest_polyVertex_to_point(sf::Vector2f& point, std::vector<sf::Vector2f>& rect2_vertices) {
+
+    sf::Vector2f closest_vertex{};
+    float minnfloatVal = std::numeric_limits<float>::max();
+    for (const sf::Vector2f& n : rect2_vertices) {
+        float dist_to_center = squared_distance_between_points(n, point);
+        if (minnfloatVal > dist_to_center) {
+            minnfloatVal = dist_to_center;
+            closest_vertex = n;
+        }
+    }
+    return closest_vertex;
+}
+
+bool collision(sf::CircleShape& circle1, sf::ConvexShape& poly2, sf::Vector2f& respons_vector) {
+
+    float radius = circle1.getRadius();
+    sf::Vector2f circle1_ceter = circle1.getTransform() * (circle1.getOrigin() + sf::Vector2f{ radius, radius });
+    //sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getGeometricCenter();//circle1.getOrigin();
+
+
+    //sf::Vector2f offset_ori = poly2.getOrigin() + (poly2.getSize() / 2.f); // { ori.x + sizeer.x/2 ,ori.y + sizeer.y /2 };
+    //sf::Vector2f rect2_ceter = poly2.getTransform() * offset_ori; // n.value.getOrigin();//n.value.getSize() / 2.f;// rect2.getOrigin();
+    //sf::Vector2f rect2_ceter   = rect2.getTransform() * rect2.getOrigin();
+
+
+    std::vector<sf::Vector2f> vertecis_poly2(std::move(get_vertecis_of_ConvexShape(poly2)));
+    std::vector<sf::Vector2f> normals_2(std::move(normals_of_ConvexShape(vertecis_poly2)));
+
+    sf::Vector2f closest_vertex = closest_polyVertex_to_point(circle1_ceter, vertecis_poly2);
+
+    sf::Vector2f circle_normal{};
+    sf::Vector2f distance_difference_vector = (closest_vertex - circle1_ceter);
+
+    circle_normal = (distance_difference_vector != sf::Vector2f{ 0.0, 0.0 })? distance_difference_vector.normalized() : distance_difference_vector;
+
+    std::vector<sf::Vector2f> normals(std::move(normals_2));
+    normals.emplace_back(circle_normal);
+
+    CollisionResponseData respons_data = { std::numeric_limits<float>::max(), {} };
+
+    for (const sf::Vector2f& normal : normals) {
+
+        const std::array<float, 2> min_max_dist1 = min_max_projection_distance(normal, circle1_ceter, radius);
+        const std::array<float, 2> min_max_dist2 = min_max_projection_distance(normal, vertecis_poly2);
+
+        if (!check_SAT_axis_overlap(normal, min_max_dist1, min_max_dist2, respons_data))
+            return false;
+    }
+    respons_vector = respons_data.penetration * respons_data.contact_normal;
+
+    return true;
+}
+
+
+//bool intersect(sf::ConvexShape& rect1, sf::CircleShape& circle2) {
+//    return intersect(circle2, rect1);
+//}
+bool collision(sf::ConvexShape& poly1, sf::CircleShape& circle2, sf::Vector2f& respons_vector) {
+
+    bool collide = collision(circle2, poly1, respons_vector);
+    respons_vector *= -1.f;
+    return collide;
+}
+
+
+
 /*
 ------------------------------------------------------------------------------------------------------------------
 Rectangle collisions related:
@@ -218,7 +443,7 @@ bool collision(sf::RectangleShape& rect1, sf::RectangleShape& rect2, sf::Vector2
 
     CollisionResponseData respons_data = { std::numeric_limits<float>::max(), {} };
 
-    int numb_of_rect1_normals = normals_1.size();
+    const size_t numb_of_rect1_normals = normals_1.size();
     for (int i = 0; i < numb_of_rect1_normals; i++) {
 
         const std::array<float, 2> min_max_dist1 = min_max_projection_distance(normals_1[i], vertecis_rect1);
@@ -341,6 +566,8 @@ bool intersect(sf::CircleShape& circle1, sf::RectangleShape& rect2) {
     }
     return true;
 }
+
+
 bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f& respons_vector) {
 
     float radius = circle1.getRadius();
@@ -348,8 +575,8 @@ bool collision(sf::CircleShape& circle1, sf::RectangleShape& rect2, sf::Vector2f
     //sf::Vector2f circle1_ceter = circle1.getTransform() * circle1.getGeometricCenter();//circle1.getOrigin();
 
 
-    sf::Vector2f offset_ori = rect2.getOrigin() + (rect2.getSize() / 2.f); // { ori.x + sizeer.x/2 ,ori.y + sizeer.y /2 };
-    sf::Vector2f rect2_ceter = rect2.getTransform() * offset_ori; // n.value.getOrigin();//n.value.getSize() / 2.f;// rect2.getOrigin();
+    //sf::Vector2f offset_ori = rect2.getOrigin() + (rect2.getSize() / 2.f); // { ori.x + sizeer.x/2 ,ori.y + sizeer.y /2 };
+    //sf::Vector2f rect2_ceter = rect2.getTransform() * offset_ori; // n.value.getOrigin();//n.value.getSize() / 2.f;// rect2.getOrigin();
     //sf::Vector2f rect2_ceter   = rect2.getTransform() * rect2.getOrigin();
 
 
