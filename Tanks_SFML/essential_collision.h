@@ -23,7 +23,8 @@ struct SweptCircleShape {
 };
 
 template<typename U>
-concept IsCollideble = std::is_same_v< U, Id_Pair<sf::RectangleShape> > || std::is_same_v< U, Id_Pair<sf::CircleShape>> || std::is_same_v< U, Id_Pair<sf::ConvexShape> >;
+//concept IsCollideble = std::is_same_v< U, Id_Pair<sf::RectangleShape> > || std::is_same_v< U, Id_Pair<sf::CircleShape>> || std::is_same_v< U, Id_Pair<sf::ConvexShape> >;
+concept IsCollideble = std::is_same_v< U,sf::RectangleShape> || std::is_same_v< U, sf::CircleShape> || std::is_same_v< U, sf::ConvexShape >;
 
 
 

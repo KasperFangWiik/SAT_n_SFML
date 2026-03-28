@@ -294,10 +294,10 @@ public:
   
   // behöver inte vara en member function kanske till och med virtual function?
   template<IsCollideble T, IsCollideble U>
-  void check_collision_with_shape_vector(Entity&& e, U&& collider, std::vector<T>&& colliders,const int collider_index) {
+  void check_collision_with_shape_vector(Entity& e, Id_Pair<U>& collider, std::vector<Id_Pair<T>>& colliders) {
 
       sf::Vector2f respons_vector{};
-      for (T& c : colliders) {
+      for (Id_Pair<T>& c : colliders) {
 
           if (compair_diff_id_pair(collider, c)) // don't test collision with same entity_id
               continue;
@@ -316,19 +316,22 @@ public:
   }
 
   template<IsCollideble U>
-  void check_collision_with_shapes(Entity&& e, std::vector<U>&& colliders) {
+  void check_collision_with_shapes(Entity& e, std::vector<Id_Pair<U>>& colliders) {
 
       sf::Vector2f respons_vector{};
-      int col_index{};
+      //int col_index{};
+      //Id_Pair<U> entitys_colider;
+      //if (e.find_index_of_id_pair(colliders, col_index)) {
 
-      if (e.find_index_of_id_pair(colliders, col_index)) {
+     if (auto* entitys_colider = e.find_n_return_id_pair(colliders)) {
+ 
 
-          U& entitys_colider = colliders.at(col_index);
+          //U& entitys_colider = colliders.at(col_index).value;
 
-          this->check_collision_with_shape_vector(std::move(e), std::move(entitys_colider), std::move(polygon_coliders), col_index);
+          this->check_collision_with_shape_vector(e, *entitys_colider, polygon_coliders);
 
-          this->check_collision_with_shape_vector(std::move(e), std::move(entitys_colider), std::move(rect_coliders), col_index);
-          this->check_collision_with_shape_vector(std::move(e), std::move(entitys_colider), std::move(circle_coliders), col_index); // might not want to move e just take referance?
+          this->check_collision_with_shape_vector(e, *entitys_colider, rect_coliders);
+          this->check_collision_with_shape_vector(e, *entitys_colider, circle_coliders); // might not want to move e just take referance?
 
       }
   }
@@ -413,12 +416,13 @@ public:
         for (Entity& e : chunks_entitys) {
             if (e.speed == 0) // && e.rot_angle == 0
                 continue;
-            this->check_collision_with_shapes<Id_Pair<sf::ConvexShape>>(std::move(e), std::move(polygon_coliders));
-            this->check_collision_with_shapes<Id_Pair<sf::RectangleShape>>(std::move(e), std::move(rect_coliders));
+
+            this->check_collision_with_shapes<sf::ConvexShape>(e, polygon_coliders);
+            this->check_collision_with_shapes<sf::RectangleShape>(e, rect_coliders);
 
             // i should use swept collision if the object is moving...
-            this->check_collision_with_shapes<Id_Pair<sf::CircleShape>>(std::move(e), std::move(circle_coliders));
-
+            this->check_collision_with_shapes<sf::CircleShape>(e, circle_coliders);
+            
         }
     }
 

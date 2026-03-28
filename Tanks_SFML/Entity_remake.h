@@ -164,15 +164,13 @@ public:
     }
 
     template<typename T>
-    bool bolean_find_id_pair(std::vector<Id_Pair<T>> other_pairs, Id_Pair<T>& value_pointer) {
+    Id_Pair<T>* find_n_return_id_pair(std::vector<Id_Pair<T>>& other_pairs) {
 
         for (Id_Pair<T>& other_pair : other_pairs)
-            if (compair_entity_id(other_pair)) {
-                value_pointer = &other_pair;
-                return true;
-            }
-
-        return false;
+            if (compair_entity_id(other_pair)) 
+                return &other_pair;
+            
+        return nullptr;
     }
 
     // BEHÖVER kopplasamman rotation och move för att se om det sker knas...
