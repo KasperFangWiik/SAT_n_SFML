@@ -205,15 +205,12 @@ bool collision(sf::ConvexShape& poly1, sf::ConvexShape& poly2, sf::Vector2f& res
     CollisionResponseData respons_data = { std::numeric_limits<float>::max(), {} };
 
     const size_t numb_of_rect2_normals = normals_2.size();
-    for (size_t i = {}; i < numb_of_rect2_normals; i++)
-
-        for (const sf::Vector2f& n1 : normals_1) {
-
-            const std::array<float, 2> min_max_dist1 = min_max_projection_distance(n1, vertecis_poly1);
-            const std::array<float, 2> min_max_dist2 = min_max_projection_distance(n1, vertecis_poly2);
-
-            if (!check_SAT_axis_overlap(n1, min_max_dist1, min_max_dist2, respons_data))
-                return false;
+    for (const sf::Vector2f& n1 : normals_1) {
+        const std::array<float, 2> min_max_dist1 = min_max_projection_distance(n1, vertecis_poly1);
+        const std::array<float, 2> min_max_dist2 = min_max_projection_distance(n1, vertecis_poly2);
+        
+        if (!check_SAT_axis_overlap(n1, min_max_dist1, min_max_dist2, respons_data))
+            return false;
         }
 
 
@@ -242,7 +239,6 @@ bool collision(sf::ConvexShape& poly1, sf::RectangleShape& rect2, sf::Vector2f& 
     CollisionResponseData respons_data = { std::numeric_limits<float>::max(), {} };
 
     const size_t numb_of_rect2_normals = normals_2.size();
-    for (size_t i = {}; i < numb_of_rect2_normals; i++) 
     
     for(const sf::Vector2f& n1 : normals_1) {
 
