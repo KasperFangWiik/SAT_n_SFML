@@ -31,7 +31,7 @@ void make_sprite(std::string sprite_path, float size_factor, std::vector<sf::Spr
     all_textures.emplace_back();
 
     if (!((all_textures.back()).loadFromFile(sprite_path))) {
-        std::cout << "Path for Entity did not work" << "\n";
+        std::cout << "Sprite path for Entity didn't work" << "\n";
     }
 
     all_sprites.emplace_back(sf::Sprite(all_textures.back()));

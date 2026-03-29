@@ -302,7 +302,7 @@ public:
           if (compair_diff_id_pair(collider, c)) // don't test collision with same entity_id
               continue;
 
-          if (collision(collider.value, c.value, respons_vector)) {
+          if (collision(collider.value, c.value, respons_vector)) { // we should find entity one and two heare and kopair there movement vectors?, just know the order of testing seams to effect outcome...
               e.moveEnt(respons_vector); // should i apply
               move_coliders_to_entity_pos(std::move(e));
           }
@@ -414,8 +414,8 @@ public:
     void resolve_collisions() {
     
         for (Entity& e : chunks_entitys) {
-            if (e.speed == 0) // && e.rot_angle == 0
-                continue;
+            //if (e.speed == 0) // && e.rot_angle == 0
+            //    continue;
 
             this->check_collision_with_shapes<sf::ConvexShape>(e, polygon_coliders);
             this->check_collision_with_shapes<sf::RectangleShape>(e, rect_coliders);

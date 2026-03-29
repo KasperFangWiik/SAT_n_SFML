@@ -74,7 +74,7 @@ public:
     float rot_angle{};
     int id; //const int id;;
 
-
+    // might not want this to be a pointer, because then we cant have multiple sprites...
     sf::Sprite* spr{};
 
     Entity() : id(++ID_sum) {

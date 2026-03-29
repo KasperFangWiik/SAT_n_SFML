@@ -162,7 +162,15 @@ int main()
 
     //rectcollshapeFirst.setOrigin((sf::Vector2f)piller_sprite->getTexture().getSize() / 2.f);
 
-    
+    make_sprite(tex_piller_file_path, sprite_size_factor, all_sprites, all_textures);
+    sf::Sprite* piller_sprite2 = &all_sprites.back();
+    Entity piller2(piller_sprite2);
+
+    piller2.moveEnt({ piller_pixel_size * 7 , piller_pixel_size * 5});
+    piller2.rot_angle = 50;
+    ch.colider_move_ent_to_chunk(piller2, std::move(rectcollshapeFirst));
+
+
     sf::ConvexShape convex2;
 
     convex2.setPointCount(3);

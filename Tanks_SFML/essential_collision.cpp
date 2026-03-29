@@ -266,7 +266,7 @@ bool collision(sf::ConvexShape& poly1, sf::RectangleShape& rect2, sf::Vector2f& 
 
 bool collision(sf::RectangleShape& rect1, sf::ConvexShape& poly2, sf::Vector2f& respons_vector) {
 
-    bool collide = collision(rect1, poly2, respons_vector);
+    bool collide = collision(poly2, rect1, respons_vector);
     respons_vector *= -1.f;
     return collide;
 }
