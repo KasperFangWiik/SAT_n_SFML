@@ -52,10 +52,12 @@ hur kan dessa uppfyllas?
 */
 
 void drawpoint(sf::RenderWindow& window, sf::Vector2f& pos) {
-    sf::RectangleShape test({ 5,5 });
-    test.setFillColor(sf::Color(255, 0, 0));
-    test.setPosition(pos);
-    window.draw(test);
+   // sf::RectangleShape test({ 5,5 });
+    float radius = 4;
+    sf::CircleShape point(radius);
+    point.setFillColor(sf::Color(255, 0, 0));
+    point.setPosition({ pos.x - radius/2, pos.y - radius / 2 });
+    window.draw(point);
 }
 
 class Chunk {
